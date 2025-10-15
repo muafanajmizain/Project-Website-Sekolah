@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detail Pengumuman - SMA Negeri 1 Purwokerto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Poppins", sans-serif;
+        scroll-behavior: smooth;
+      }
+      .navbar-blur {
+        backdrop-filter: blur(10px);
+        background-color: rgba(255, 255, 255, 0.9);
+      }
+      .fade-in {
+        animation: fadeIn 0.8s ease-in;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Header / Navbar with Blur Effect -->
+    <header class="navbar-blur shadow-md fixed w-full top-0 z-50">
+      <nav
+        class="container mx-auto px-4 py-4 flex items-center justify-between"
+      >
+        <div class="flex items-center space-x-3">
+          <div
+            class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center overflow-hidden"
+          >
+            <img
+              src="images/logo.png"
+              alt="Logo SMA"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <span class="font-semibold text-gray-800 text-lg"
+            >SMA Negeri 1 Purwokerto</span
+          >
+        </div>
+        <div class="hidden md:flex items-center space-x-8">
+          <a
+            href="index.html#home"
+            class="text-gray-700 hover:text-blue-900 font-medium transition"
+            >Beranda</a
+          >
+          <!-- Dropdown: Tentang Sekolah -->
+          <div class="relative group">
+            <button
+              class="text-gray-700 hover:text-blue-900 flex items-center transition"
+            >
+              Tentang Sekolah
+              <svg
+                class="w-4 h-4 ml-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <div
+              class="absolute hidden group-hover:block bg-white shadow-lg rounded-md py-2 w-48 mt-2 border border-gray-100"
+            >
+              <a
+                href="index.html#visi-misi"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
+                >Visi Misi</a
+              >
+              <a
+                href="index.html#profil-sekolah"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
+                >Profil Sekolah</a
+              >
+              <a
+                href="index.html#profil-kepala-sekolah"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
+                >Profil Kepala Sekolah</a
+              >
+              <a
+                href="index.html#struktur-organisasi"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
+                >Struktur Organisasi</a
+              >
+            </div>
+          </div>
+          <!-- Dropdown: Akademik -->
+          <div class="relative group">
+            <button
+              class="text-gray-700 hover:text-blue-900 flex items-center transition"
+            >
+              Akademik
+              <svg
+                class="w-4 h-4 ml-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <div
+              class="absolute hidden group-hover:block bg-white shadow-lg rounded-md py-2 w-48 mt-2 border border-gray-100"
+            >
+              <a
+                href="index.html#berita"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
+                >Berita</a
+              >
+              <a
+                href="index.html#prestasi"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
+                >Prestasi</a
+              >
+            </div>
+          </div>
+          <a
+            href="pengumuman.html"
+            class="text-gray-700 hover:text-blue-900 font-medium transition"
+            >Pengumuman</a
+          >
+          <a
+            href="index.html#galeri"
+            class="text-gray-700 hover:text-blue-900 font-medium transition"
+            >Galeri</a
+          >
+          <a
+            href="index.html#kontak"
+            class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-6 py-2 rounded-full font-medium transition"
+            >Contact</a
+          >
+        </div>
+      </nav>
+    </header>
+
+    <!-- Konten Utama -->
+    <main class="flex-grow container mx-auto px-6 py-32 fade-in">
+      <div
+        id="pengumuman-container"
+        class="max-w-5xl mx-auto bg-white shadow-lg rounded-xl p-8 border border-gray-200"
+      >
+        <h2
+          id="judul"
+          class="text-3xl font-bold text-blue-900 mb-4 text-center"
+        ></h2>
+        <p id="tanggal" class="text-gray-600 text-left mb-8"></p>
+        <div id="isi" class="text-gray-700 leading-relaxed mb-8"></div>
+      </div>
+
+      <div
+        id="not-found"
+        class="hidden text-center text-gray-700 mt-16 text-lg fade-in"
+      >
+        <p>Data pengumuman tidak ditemukan.</p>
+        <a
+          href="pengumuman.html"
+          class="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition"
+        >
+          Kembali ke Daftar Pengumuman
+        </a>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-6 mt-auto">
+      <div class="text-center text-gray-400 text-sm">
+        © 2025 SMA Negeri 1 Purwokerto. All Rights Reserved.
+      </div>
+    </footer>
+
+    <script>
+      // Data pengumuman dummy
+      const dataPengumuman = [
+        {
+          id: 1,
+          judul: "Sumatif Ujian Tengah Semester",
+          tanggal: "19/05/2026",
+          isi: "Pengumuman mengenai pelaksanaan Sumatif Ujian Tengah Semester bagi seluruh peserta didik SMA Negeri 1 Purwokerto. Diharapkan seluruh siswa mempersiapkan diri dengan baik. Jadwal dan ketentuan ujian dapat dilihat pada papan pengumuman sekolah.",
+        },
+        {
+          id: 2,
+          judul: "Penerimaan Rapor Semester Genap",
+          tanggal: "28/06/2026",
+          isi: "Pengumuman resmi tentang jadwal pembagian rapor semester genap tahun ajaran 2025/2026. Pembagian akan dilaksanakan di aula utama sekolah dengan tetap memperhatikan protokol kesehatan.",
+        },
+        {
+          id: 3,
+          judul: "Kegiatan MPLS Siswa Baru",
+          tanggal: "10/07/2026",
+          isi: "Kegiatan Masa Pengenalan Lingkungan Sekolah (MPLS) untuk siswa baru tahun ajaran 2026/2027 akan dimulai pada tanggal 10 Juli 2026. Seluruh peserta diharapkan hadir tepat waktu sesuai jadwal yang telah ditentukan.",
+        },
+        {
+          id: 4,
+          judul: "Libur Akhir Tahun Pelajaran",
+          tanggal: "30/06/2026",
+          isi: "Diberitahukan kepada seluruh peserta didik bahwa libur akhir tahun pelajaran dimulai tanggal 30 Juni 2026 sampai dengan 14 Juli 2026. Siswa diharapkan memanfaatkan waktu libur dengan kegiatan positif.",
+        },
+      ];
+
+      // Ambil parameter ID dari URL
+      const params = new URLSearchParams(window.location.search);
+      const id = parseInt(params.get("id"));
+      const pengumuman = dataPengumuman.find((item) => item.id === id);
+
+      const container = document.getElementById("pengumuman-container");
+      const notFound = document.getElementById("not-found");
+
+      if (pengumuman) {
+        document.getElementById("judul").textContent = pengumuman.judul;
+        document.getElementById("tanggal").textContent =
+          "Tanggal: " + pengumuman.tanggal;
+        document.getElementById("isi").textContent = pengumuman.isi;
+      } else {
+        container.classList.add("hidden");
+        notFound.classList.remove("hidden");
+      }
+    </script>
+  </body>
+</html>
