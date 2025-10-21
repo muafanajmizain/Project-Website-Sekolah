@@ -629,11 +629,11 @@
           prestasiData = data.map((item) => ({
             id: item.id,
             foto_url: item.foto_url,
-            juara: item.juara,
-            nama_siswa: item.nama,
-            kelas: item.kelas,
-            judul_lomba: item.judul,
-            deskripsi: item.deskripsi,
+            juara: "1", // sementara isi manual karena API belum kirim field juara
+            nama_siswa: item.username || "Tidak diketahui", // pakai username dari API
+            kelas: "-", // sementara kosong karena API belum kirim field kelas
+            judul_lomba: item.judul, // ini ada di API
+            deskripsi: item.deskripsi, // ini juga ada
             author_id: item.author_id,
           }));
 

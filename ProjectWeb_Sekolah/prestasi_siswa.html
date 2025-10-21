@@ -272,20 +272,6 @@
       </div>
     </div>
 
-    <!-- Script Modal -->
-    <script>
-      function openModal(imageSrc) {
-        document.getElementById("modalImage").src = imageSrc;
-        document.getElementById("imageModal").classList.remove("hidden");
-        document.getElementById("imageModal").classList.add("flex");
-      }
-
-      function closeModal() {
-        document.getElementById("imageModal").classList.add("hidden");
-        document.getElementById("imageModal").classList.remove("flex");
-      }
-    </script>
-
     <!-- Footer -->
     <footer id="kontak" class="bg-slate-900 text-white py-12">
       <div class="container mx-auto px-6">
@@ -404,6 +390,7 @@
         </div>
       </div>
     </footer>
+
     <script>
       // Scroll Animation Observer
       const observerOptions = {
@@ -419,7 +406,7 @@
         });
       }, observerOptions);
 
-      // Observe all sections and cards
+      // Jalankan setelah DOM siap
       document.addEventListener("DOMContentLoaded", function () {
         const animateElements = document.querySelectorAll(
           "section > .container, .grid > div"
@@ -429,43 +416,66 @@
           observer.observe(el);
         });
 
-        const apiUrl =
-          "https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/prestasi"; // contoh API
+        // Modal untuk gambar
+        window.openModal = function (imageSrc) {
+          document.getElementById("modalImage").src = imageSrc;
+          document.getElementById("imageModal").classList.remove("hidden");
+          document.getElementById("imageModal").classList.add("flex");
+        };
 
-        // Mengambil data dengan fetch
+        window.closeModal = function () {
+          document.getElementById("imageModal").classList.add("hidden");
+          document.getElementById("imageModal").classList.remove("flex");
+        };
+
+        const apiUrl =
+          "https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/prestasi";
+
+        // Ambil data dari API
         fetch(apiUrl)
-          .then((response) => response.json()) // ubah respon menjadi JSON
+          .then((response) => response.json())
           .then((data) => {
-            console.log(data); // lihat data di console
+            console.log("Data Prestasi:", data);
 
             const container = document.getElementById("prestasiContainer");
+            container.innerHTML = ""; // bersihkan kontainer dulu
 
             data.forEach((item) => {
-              // Buat elemen card
+              // Gunakan nilai default jika data tidak tersedia
+              const nama = item.nama || item.username || "Nama belum diisi";
+              const kelas = item.kelas || "-";
+              const juara = item.juara || "1";
+              const foto =
+                item.foto_url ||
+                "https://via.placeholder.com/400x250?text=No+Image";
+              const judul = item.judul || "Tidak ada judul";
+              const deskripsi = item.deskripsi || "Tidak ada deskripsi";
+
+              // Buat card elemen
               const card = document.createElement("div");
               card.className =
                 "bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition";
 
               card.innerHTML = `
-                <div class="relative group">
-                  <img src="${item.foto_url}" alt="${item.nama}" class="w-full h-48 object-cover"/>
-                  <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                    <button onclick="openModal('${item.foto_url}')" class="bg-white text-blue-900 px-6 py-2 rounded-full font-semibold hover:bg-blue-100 transition">
-                      Lihat Gambar
-                    </button>
-                  </div>
-                </div>
-                <div class="p-4 text-center">
-                  <h3 class="text-blue-900 font-bold text-lg">${item.nama}</h3>
-                  <p class="text-sm text-gray-500 mb-2">Kelas : ${item.kelas}</p>
-                  <div class="bg-blue-700 text-white inline-block px-4 py-1 rounded-full text-xs font-semibold mb-3">
-                    Juara ${item.juara}
-                  </div>
-                  <p class="text-gray-700 text-sm leading-snug">
-                    Kategori Lomba : ${item.judul} - ${item.deskripsi}
-                  </p>
-                </div>
-              `;
+            <div class="relative group">
+              <img src="${foto}" alt="${judul}" class="w-full h-48 object-cover"/>
+              <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                <button onclick="openModal('${foto}')" class="bg-white text-blue-900 px-6 py-2 rounded-full font-semibold hover:bg-blue-100 transition">
+                  Lihat Gambar
+                </button>
+              </div>
+            </div>
+            <div class="p-4 text-center">
+              <h3 class="text-blue-900 font-bold text-lg">${nama}</h3>
+              <p class="text-sm text-gray-500 mb-2">Kelas : ${kelas}</p>
+              <div class="bg-blue-700 text-white inline-block px-4 py-1 rounded-full text-xs font-semibold mb-3">
+                Juara ${juara}
+              </div>
+              <p class="text-gray-700 text-sm leading-snug">
+                Kategori Lomba : ${judul} - ${deskripsi}
+              </p>
+            </div>
+          `;
 
               container.appendChild(card);
             });
