@@ -388,12 +388,10 @@
 
     <script>
       // API Configuration
-      const API_BASE_URL = "https://api.example.com";
-      const API_UPLOAD_URL = `${API_BASE_URL}/upload`;
-      const API_GALERI_URL = `${API_BASE_URL}/galeri`;
-
-      // Mode Demo: set true untuk testing tanpa backend
-      const DEMO_MODE = true;
+      const API_BASE_URL =
+        "https://chool-ekarahma2846311-08tanrqk.apn.iaepcell.dev";
+      const API_UPLOAD_URL = `${API_BASE_URL}/api/upload`;
+      const API_GALERI_URL = `${API_BASE_URL}/api/galeri`;
 
       let editingId = null;
       let uploadedFotoUrl = "";
@@ -401,6 +399,9 @@
       // Initialize
       document.addEventListener("DOMContentLoaded", function () {
         loadGaleriData();
+        // Set tanggal hari ini sebagai default
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("tanggal").value = today;
       });
 
       // File upload handler
@@ -410,6 +411,9 @@
           const file = e.target.files[0];
           if (!file) return;
 
+          // Update file name display
+          document.getElementById("fileName").textContent = file.name;
+
           // Validasi format file
           const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
           if (!allowedTypes.includes(file.type)) {
@@ -418,6 +422,8 @@
               "error"
             );
             e.target.value = "";
+            document.getElementById("fileName").textContent =
+              "Belum ada file dipilih";
             return;
           }
 
@@ -425,6 +431,8 @@
           if (file.size > 5 * 1024 * 1024) {
             showToast("Ukuran file terlalu besar. Maksimal 5MB.", "error");
             e.target.value = "";
+            document.getElementById("fileName").textContent =
+              "Belum ada file dipilih";
             return;
           }
 
@@ -433,40 +441,43 @@
             '<span class="spinner"></span> Mengupload...';
 
           try {
-            let imageUrl;
+            // Upload ke API
+            const formData = new FormData();
+            formData.append("foto", file);
 
-            if (DEMO_MODE) {
-              // MODE DEMO: Simulasi upload tanpa backend
-              await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulasi delay
-              imageUrl = URL.createObjectURL(file);
-              console.log("Demo Mode: Menggunakan preview lokal");
-            } else {
-              // MODE PRODUCTION: Upload ke API backend
-              const formData = new FormData();
-              formData.append("foto", file);
+            const response = await fetch(API_UPLOAD_URL, {
+              method: "POST",
+              body: formData,
+            });
 
-              const response = await fetch(API_UPLOAD_URL, {
-                method: "POST",
-                body: formData,
-              });
-
-              if (!response.ok) {
-                throw new Error(
-                  "Upload gagal - Server response: " + response.status
-                );
-              }
-
-              const result = await response.json();
-              imageUrl = result.imageUrl;
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.error("Upload failed:", errorText);
+              throw new Error(
+                "Upload gagal - Server response: " + response.status
+              );
             }
 
-            // Simpan URL dari response API
+            const result = await response.json();
+            console.log("Upload response:", result);
+
+            // Ambil URL dari response (coba berbagai kemungkinan key)
+            const imageUrl =
+              result.imageUrl ||
+              result.url ||
+              result.foto_url ||
+              result.data?.imageUrl;
+
+            if (!imageUrl) {
+              console.error("Response structure:", result);
+              throw new Error("URL gambar tidak ditemukan dalam response");
+            }
+
+            // Simpan URL
             uploadedFotoUrl = imageUrl;
             document.getElementById("fotoUrl").value = imageUrl;
             document.getElementById("uploadStatus").innerHTML =
-              '<span class="text-green-600">✓ Upload berhasil' +
-              (DEMO_MODE ? " (Demo Mode)" : "") +
-              "</span>";
+              '<span class="text-green-600">✓ Upload berhasil</span>';
 
             // Preview gambar
             const preview = document.getElementById("imagePreview");
@@ -476,22 +487,14 @@
             showToast("Foto berhasil diupload!", "success");
           } catch (error) {
             console.error("Upload error:", error);
-            console.error("Detail error:", error.message);
-
-            // Tampilkan pesan error yang lebih detail
             document.getElementById("uploadStatus").innerHTML =
               '<span class="text-red-600">✗ Upload gagal - ' +
               error.message +
               "</span>";
-            showToast(
-              "Upload gagal: " +
-                error.message +
-                ". Aktifkan DEMO_MODE untuk testing.",
-              "error"
-            );
-
-            // Reset file input
+            showToast("Upload gagal: " + error.message, "error");
             e.target.value = "";
+            document.getElementById("fileName").textContent =
+              "Belum ada file dipilih";
           }
         });
 
@@ -516,6 +519,8 @@
             judul: judul,
           };
 
+          console.log("Sending data:", galeriData);
+
           // Disable button
           const btnSubmit = document.getElementById("btnSubmit");
           const btnText = document.getElementById("btnText");
@@ -523,59 +528,36 @@
           btnText.innerHTML = '<span class="spinner"></span> Menyimpan...';
 
           try {
-            if (DEMO_MODE) {
-              // MODE DEMO: Simpan ke localStorage
-              await new Promise((resolve) => setTimeout(resolve, 500)); // Simulasi delay
+            let response;
 
-              let demoData = getDemoData();
-
-              if (editingId) {
-                // Update data
-                const index = demoData.findIndex(
-                  (item) => item.id === editingId
-                );
-                if (index !== -1) {
-                  demoData[index] = { ...galeriData, id: editingId };
-                }
-              } else {
-                // Create data
-                const newId =
-                  demoData.length > 0
-                    ? Math.max(...demoData.map((item) => item.id)) + 1
-                    : 1;
-                demoData.push({ ...galeriData, id: newId });
-              }
-
-              saveDemoData(demoData);
-              console.log("Demo Mode: Data disimpan ke localStorage");
+            if (editingId) {
+              // Update data
+              response = await fetch(`${API_GALERI_URL}/${editingId}`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(galeriData),
+              });
             } else {
-              // MODE PRODUCTION: Kirim ke API
-              let response;
-
-              if (editingId) {
-                // Update data
-                response = await fetch(`${API_GALERI_URL}/${editingId}`, {
-                  method: "PUT",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify(galeriData),
-                });
-              } else {
-                // Create data
-                response = await fetch(API_GALERI_URL, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify(galeriData),
-                });
-              }
-
-              if (!response.ok) {
-                throw new Error("Gagal menyimpan data");
-              }
+              // Create data
+              response = await fetch(API_GALERI_URL, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(galeriData),
+              });
             }
+
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.error("Submit failed:", errorText);
+              throw new Error("Gagal menyimpan data");
+            }
+
+            const result = await response.json();
+            console.log("Submit response:", result);
 
             showToast(
               editingId
@@ -598,38 +580,33 @@
       async function loadGaleriData() {
         const loadingIndicator = document.getElementById("loadingIndicator");
         const tableBody = document.getElementById("tableBody");
+        const tableContainer = document.getElementById("tableContainer");
         const emptyState = document.getElementById("emptyState");
 
         loadingIndicator.classList.remove("hidden");
+        tableContainer.classList.add("hidden");
         tableBody.innerHTML = "";
         emptyState.classList.add("hidden");
 
         try {
-          if (DEMO_MODE) {
-            // MODE DEMO: Gunakan data lokal
-            console.log("Demo Mode: Menggunakan data lokal");
-            const demoData = getDemoData();
+          console.log("Fetching from:", API_GALERI_URL);
+          const response = await fetch(API_GALERI_URL);
 
-            if (demoData.length === 0) {
-              emptyState.classList.remove("hidden");
-            } else {
-              renderTable(demoData);
-            }
+          if (!response.ok) {
+            throw new Error("Gagal memuat data - Status: " + response.status);
+          }
+
+          const result = await response.json();
+          console.log("Load response:", result);
+
+          // Handle berbagai struktur response
+          const data = result.galeri || result.data || result;
+
+          if (!Array.isArray(data) || data.length === 0) {
+            emptyState.classList.remove("hidden");
           } else {
-            // MODE PRODUCTION: Fetch dari API
-            const response = await fetch(API_GALERI_URL);
-
-            if (!response.ok) {
-              throw new Error("Gagal memuat data");
-            }
-
-            const data = await response.json();
-
-            if (data.length === 0) {
-              emptyState.classList.remove("hidden");
-            } else {
-              renderTable(data);
-            }
+            renderTable(data);
+            tableContainer.classList.remove("hidden");
           }
         } catch (error) {
           console.error("Load data error:", error);
@@ -643,25 +620,19 @@
       // Render table
       function renderTable(data) {
         const tableBody = document.getElementById("tableBody");
-        const emptyState = document.getElementById("emptyState");
-
-        if (data.length === 0) {
-          emptyState.classList.remove("hidden");
-          return;
-        }
-
-        emptyState.classList.add("hidden");
 
         tableBody.innerHTML = data
           .map(
             (item) => `
           <tr class="fade-in hover:bg-gray-50">
             <td class="px-6 py-4">
-              <img src="${item.foto_url}" alt="${
-              item.judul
-            }" class="w-24 h-24 object-cover rounded-lg shadow-sm cursor-pointer hover:scale-105 transition" onclick="viewImage('${
-              item.foto_url
-            }')">
+              <img 
+                src="${item.foto_url}" 
+                alt="${item.judul}" 
+                class="w-24 h-24 object-cover rounded-lg shadow-sm cursor-pointer hover:scale-105 transition" 
+                onclick="viewImage('${item.foto_url}')"
+                onerror="this.src='https://via.placeholder.com/96?text=No+Image'"
+              >
             </td>
             <td class="px-6 py-4 text-sm font-medium text-gray-900">${
               item.judul
@@ -670,16 +641,18 @@
               item.tanggal
             )}</td>
             <td class="px-6 py-4 text-sm space-x-2">
-              <button onclick="editGaleri(${item.id}, '${item.foto_url}', '${
+              <button 
+                onclick='editGaleri(${item.id}, \`${item.foto_url}\`, \`${
               item.judul
-            }', '${
-              item.tanggal
-            }')" class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">
+            }\`, "${item.tanggal}")' 
+                class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
+              >
                 Edit
               </button>
-              <button onclick="deleteGaleri(${
-                item.id
-              })" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition">
+              <button 
+                onclick="deleteGaleri(${item.id})" 
+                class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+              >
                 Hapus
               </button>
             </td>
@@ -697,6 +670,7 @@
         document.getElementById("fotoUrl").value = fotoUrl;
         document.getElementById("judul").value = judul;
         document.getElementById("tanggal").value = tanggal;
+        document.getElementById("fileName").textContent = "Foto sudah ada";
 
         // Preview gambar
         const preview = document.getElementById("imagePreview");
@@ -720,21 +694,12 @@
         }
 
         try {
-          if (DEMO_MODE) {
-            // MODE DEMO: Hapus dari localStorage
-            let demoData = getDemoData();
-            demoData = demoData.filter((item) => item.id !== id);
-            saveDemoData(demoData);
-            console.log("Demo Mode: Data dihapus dari localStorage");
-          } else {
-            // MODE PRODUCTION: Hapus via API
-            const response = await fetch(`${API_GALERI_URL}/${id}`, {
-              method: "DELETE",
-            });
+          const response = await fetch(`${API_GALERI_URL}/${id}`, {
+            method: "DELETE",
+          });
 
-            if (!response.ok) {
-              throw new Error("Gagal menghapus data");
-            }
+          if (!response.ok) {
+            throw new Error("Gagal menghapus data");
           }
 
           showToast("Data berhasil dihapus!", "success");
@@ -745,27 +710,20 @@
         }
       }
 
-      // Demo Mode: LocalStorage functions
-      function getDemoData() {
-        const data = localStorage.getItem("galeri_demo_data");
-        return data ? JSON.parse(data) : [];
-      }
-
-      function saveDemoData(data) {
-        localStorage.setItem("galeri_demo_data", JSON.stringify(data));
-      }
-
       // Reset form
       function resetForm() {
         document.getElementById("galeriForm").reset();
         document.getElementById("fotoUrl").value = "";
         document.getElementById("fileInput").value = "";
-        document.getElementById("uploadStatus").textContent =
+        document.getElementById("fileName").textContent =
           "Belum ada file dipilih";
+        document.getElementById("uploadStatus").textContent = "";
         document.getElementById("imagePreview").classList.add("hidden");
         document.getElementById("formTitle").textContent = "Tambah Galeri";
         document.getElementById("btnText").textContent = "Simpan";
         document.getElementById("btnCancel").classList.add("hidden");
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("tanggal").value = today;
         editingId = null;
         uploadedFotoUrl = "";
       }
@@ -782,12 +740,13 @@
 
         toastMessage.textContent = message;
 
+        // Remove all background classes first
+        toast.classList.remove("bg-green-500", "bg-red-500");
+
         if (type === "error") {
-          toast.classList.remove("bg-green-500");
-          toast.classList.add("bg-red-500");
+          toast.classList.add("bg-red-500", "text-white");
         } else {
-          toast.classList.remove("bg-red-500");
-          toast.classList.add("bg-green-500");
+          toast.classList.add("bg-green-500", "text-white");
         }
 
         toast.classList.remove("hidden");
@@ -803,21 +762,16 @@
         return new Date(dateString).toLocaleDateString("id-ID", options);
       }
 
-      // Ambil elemen tombol logout
-      const logoutButton = document.getElementById("logoutButton");
-
-      logoutButton.addEventListener("click", function (event) {
-        event.preventDefault(); // Mencegah link langsung berpindah
-
-        // Tampilkan popup konfirmasi
-        const confirmLogout = confirm("Apakah Anda yakin ingin keluar?");
-
-        if (confirmLogout) {
-          // Jika user klik "OK", arahkan ke halaman login
-          window.location.href = "Login_admin.html";
-        }
-        // Jika klik "Batal", tidak melakukan apa pun
-      });
+      // Logout handler
+      document
+        .getElementById("logoutButton")
+        .addEventListener("click", function (event) {
+          event.preventDefault();
+          const confirmLogout = confirm("Apakah Anda yakin ingin keluar?");
+          if (confirmLogout) {
+            window.location.href = "Login_admin.html";
+          }
+        });
     </script>
   </body>
 </html>

@@ -551,17 +551,188 @@
       // ========================================
       // API CONFIGURATION
       // ========================================
-      // GANTI URL INI DENGAN API ENDPOINT YANG SEBENARNYA
-      const API_BASE_URL = "https://api.example.com";
-      const API_UPLOAD_URL = `${API_BASE_URL}/upload`;
+      const API_BASE_URL =
+        "https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev/api";
       const API_PRESTASI_URL = `${API_BASE_URL}/prestasi`;
+      const API_UPLOAD_IMAGE_URL = `${API_BASE_URL}/upload`;
 
       // ========================================
       // STATE MANAGEMENT
       // ========================================
       let prestasiData = [];
       let editMode = false;
-      let isUploading = false;
+      let currentEditId = null;
+      let uploadedImageUrl = null;
+
+      // Get auth token from localStorage (sesuaikan dengan key yang digunakan saat login)
+      function getAuthToken() {
+        return (
+          localStorage.getItem("token") ||
+          localStorage.getItem("authToken") ||
+          ""
+        );
+      }
+
+      // Get headers with authorization
+      function getAuthHeaders() {
+        const token = getAuthToken();
+        const headers = {
+          "Content-Type": "application/json",
+        };
+
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        return headers;
+      }
+
+      // ========================================
+      // LOAD PRESTASI DATA
+      // ========================================
+      async function loadPrestasi() {
+        const tableLoading = document.getElementById("tableLoading");
+        const tableContainer = document.getElementById("tableContainer");
+        const emptyState = document.getElementById("emptyState");
+
+        try {
+          // Show loading
+          if (tableLoading) tableLoading.classList.remove("hidden");
+          if (tableContainer) tableContainer.classList.add("hidden");
+
+          // Fetch data dari API dengan auth header
+          const token = getAuthToken();
+          const headers = {};
+          if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+          }
+
+          const response = await fetch(API_PRESTASI_URL, { headers });
+
+          if (!response.ok) {
+            if (response.status === 401) {
+              showNotification(
+                "Session expired. Silakan login kembali!",
+                "error"
+              );
+              setTimeout(() => {
+                window.location.href = "Login_admin.html";
+              }, 2000);
+              return;
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          // Update data
+          prestasiData = data.map((item) => ({
+            id: item.id,
+            foto_url: item.foto_url,
+            juara: item.juara,
+            nama_siswa: item.nama,
+            kelas: item.kelas,
+            judul_lomba: item.judul,
+            deskripsi: item.deskripsi,
+            author_id: item.author_id,
+          }));
+
+          renderTable();
+        } catch (error) {
+          console.error("Error loading prestasi:", error);
+          showNotification(`Gagal memuat data: ${error.message}`, "error");
+          if (emptyState) emptyState.classList.remove("hidden");
+        } finally {
+          if (tableLoading) tableLoading.classList.add("hidden");
+          if (tableContainer) tableContainer.classList.remove("hidden");
+        }
+      }
+
+      // ========================================
+      // UPLOAD IMAGE TO SERVER
+      // ========================================
+      async function uploadImageToServer(file) {
+        try {
+          // Tampilkan loading
+          showNotification("Mengupload gambar...", "success");
+
+          // Buat FormData untuk upload
+          const formData = new FormData();
+          formData.append("foto", file);
+
+          console.log("Uploading image to:", API_UPLOAD_IMAGE_URL);
+
+          // Tambahkan auth header untuk upload
+          const token = getAuthToken();
+          const headers = {};
+          if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+          }
+
+          // Kirim request ke API upload
+          const response = await fetch(API_UPLOAD_IMAGE_URL, {
+            method: "POST",
+            headers: headers,
+            body: formData,
+          });
+
+          console.log("Upload response status:", response.status);
+
+          if (!response.ok) {
+            if (response.status === 401) {
+              showNotification(
+                "Session expired. Silakan login kembali!",
+                "error"
+              );
+              setTimeout(() => {
+                window.location.href = "Login_admin.html";
+              }, 2000);
+              return;
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          console.log("Upload result:", result);
+
+          // Ambil URL gambar dari response
+          let imageUrl = null;
+
+          if (result.url) {
+            imageUrl = result.url;
+          } else if (result.foto_url) {
+            imageUrl = result.foto_url;
+          } else if (result.data && result.data.url) {
+            imageUrl = result.data.url;
+          } else if (result.data && result.data.foto_url) {
+            imageUrl = result.data.foto_url;
+          } else if (result.link) {
+            imageUrl = result.link;
+          }
+
+          if (!imageUrl) {
+            throw new Error("URL gambar tidak ditemukan dalam response");
+          }
+
+          // Simpan URL ke state dan form
+          uploadedImageUrl = imageUrl;
+          document.getElementById("fotoUrl").value = imageUrl;
+
+          showNotification("Gambar berhasil diupload!", "success");
+          console.log("Image URL saved:", imageUrl);
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          showNotification(
+            `Gagal mengupload gambar: ${error.message}`,
+            "error"
+          );
+
+          // Reset input file jika gagal
+          document.getElementById("fileInput").value = "";
+          document.getElementById("imagePreview").classList.add("hidden");
+          uploadedImageUrl = null;
+        }
+      }
 
       // ========================================
       // FILE UPLOAD HANDLER
@@ -580,19 +751,19 @@
               "Format file tidak valid! Gunakan JPG, JPEG, atau PNG",
               "error"
             );
-            e.target.value = ""; // Reset input
+            e.target.value = "";
             return;
           }
 
           // Validasi ukuran file (max 2MB)
-          const maxSize = 2 * 1024 * 1024; // 2MB
+          const maxSize = 2 * 1024 * 1024;
           if (file.size > maxSize) {
             showNotification("Ukuran file terlalu besar! Maximum 2MB", "error");
-            e.target.value = ""; // Reset input
+            e.target.value = "";
             return;
           }
 
-          // Preview image
+          // Preview image langsung
           const reader = new FileReader();
           reader.onload = (e) => {
             document.getElementById("previewImg").src = e.target.result;
@@ -600,93 +771,9 @@
           };
           reader.readAsDataURL(file);
 
-          // Upload ke API
-          await uploadImage(file);
+          // Upload gambar ke server
+          await uploadImageToServer(file);
         });
-
-      // ========================================
-      // UPLOAD IMAGE TO API
-      // ========================================
-      async function uploadImage(file) {
-        // Cegah upload ganda
-        if (isUploading) {
-          showNotification(
-            "Upload sedang berlangsung, mohon tunggu...",
-            "error"
-          );
-          return;
-        }
-
-        isUploading = true;
-
-        // Show loading
-        document.getElementById("uploadProgress").classList.remove("hidden");
-        document.getElementById("uploadBtn").disabled = true;
-
-        try {
-          // Buat FormData untuk upload file
-          const formData = new FormData();
-          formData.append("foto", file); // Key 'foto' sesuai API
-
-          // UNCOMMENT KODE DI BAWAH UNTUK MENGGUNAKAN API SEBENARNYA
-          /*
-                const response = await fetch(API_UPLOAD_URL, {
-                    method: 'POST',
-                    body: formData,
-                    // Jika perlu authentication, tambahkan headers
-                    // headers: {
-                    //     'Authorization': 'Bearer YOUR_TOKEN'
-                    // }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                
-                if (data.status === 'success' && data.image_url) {
-                    document.getElementById('fotoUrl').value = data.image_url;
-                    showNotification('Gambar berhasil diupload!', 'success');
-                } else {
-                    throw new Error(data.message || 'Upload gagal');
-                }
-                */
-
-          // ====================================
-          // DEMO MODE: SIMULASI UPLOAD
-          // ====================================
-          // Hapus bagian ini dan uncomment kode di atas untuk production
-          await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulasi delay
-
-          const simulatedResponse = {
-            status: "success",
-            image_url: URL.createObjectURL(file), // Temporary URL untuk demo
-          };
-
-          if (simulatedResponse.status === "success") {
-            document.getElementById("fotoUrl").value =
-              simulatedResponse.image_url;
-            showNotification("Gambar berhasil diupload!", "success");
-          } else {
-            throw new Error("Upload gagal");
-          }
-          // ====================================
-        } catch (error) {
-          console.error("Error uploading:", error);
-          showNotification(`Gagal upload gambar: ${error.message}`, "error");
-
-          // Reset preview
-          document.getElementById("imagePreview").classList.add("hidden");
-          document.getElementById("fotoUrl").value = "";
-          document.getElementById("fileInput").value = "";
-        } finally {
-          // Hide loading
-          document.getElementById("uploadProgress").classList.add("hidden");
-          document.getElementById("uploadBtn").disabled = false;
-          isUploading = false;
-        }
-      }
 
       // ========================================
       // REMOVE IMAGE
@@ -696,6 +783,7 @@
         document.getElementById("fotoUrl").value = "";
         document.getElementById("fileInput").value = "";
         document.getElementById("previewImg").src = "";
+        uploadedImageUrl = null;
       }
 
       // ========================================
@@ -726,20 +814,22 @@
             return;
           }
 
-          // Siapkan data untuk dikirim
+          // Siapkan data sesuai format API
           const data = {
-            foto_url,
-            juara,
-            nama_siswa: namaSiswa,
-            kelas,
-            judul_lomba: judulLomba,
-            deskripsi,
+            juara: juara,
+            nama: namaSiswa,
+            kelas: kelas,
+            judul: judulLomba,
+            deskripsi: deskripsi,
+            foto_url: foto_url,
+            author_id: 2,
           };
+
+          console.log("Form data to submit:", data);
 
           // Kirim data (Create atau Update)
           if (editMode) {
-            const id = document.getElementById("editId").value;
-            await updatePrestasi(id, data);
+            await updatePrestasi(currentEditId, data);
           } else {
             await createPrestasi(data);
           }
@@ -749,86 +839,68 @@
       // CREATE PRESTASI (POST)
       // ========================================
       async function createPrestasi(data) {
-        // Show loading
         setFormLoading(true);
 
         try {
-          // UNCOMMENT KODE DI BAWAH UNTUK MENGGUNAKAN API SEBENARNYA
-          /*
-                const response = await fetch(API_PRESTASI_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // Jika perlu authentication
-                        // 'Authorization': 'Bearer YOUR_TOKEN'
-                    },
-                    body: JSON.stringify(data)
-                });
+          console.log("Sending data:", data);
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+          const response = await fetch(API_PRESTASI_URL, {
+            method: "POST",
+            headers: getAuthHeaders(),
+            body: JSON.stringify(data),
+          });
 
-                const result = await response.json();
+          console.log("Response status:", response.status);
 
-                if (result.status === 'success') {
-                    showNotification('Data prestasi berhasil disimpan!', 'success');
-                // ====================================
-
-            } catch (error) {
-                console.error('Error creating:', error);
-                showNotification(`Gagal menyimpan data: ${error.message}`, 'error');
-            } finally {
-                setFormLoading(false);
+          if (!response.ok) {
+            if (response.status === 401) {
+              showNotification(
+                "Session expired. Silakan login kembali!",
+                "error"
+              );
+              setTimeout(() => {
+                window.location.href = "Login_admin.html";
+              }, 2000);
+              return;
             }
-        }
+            const result = await response.json();
+            throw new Error(result.message || `HTTP Error ${response.status}`);
+          }
 
-        // ========================================
-        // READ/LOAD PRESTASI (GET)
-        // ========================================
-        async function loadPrestasi() {
-            // Show loading
-            document.getElementById('tableLoading').classList.remove('hidden');
-            document.getElementById('tableContainer').classList.add('hidden');
-            document.getElementById('emptyState').classList.add('hidden');
+          const result = await response.json();
+          console.log("Response data:", result);
+          console.log("Response structure:", JSON.stringify(result, null, 2));
 
-            try {
-                // UNCOMMENT KODE DI BAWAH UNTUK MENGGUNAKAN API SEBENARNYA
-                /*
-                const response = await fetch(API_PRESTASI_URL, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // Jika perlu authentication
-                        // 'Authorization': 'Bearer YOUR_TOKEN'
-                    }
-                });
+          // Jika response status 200/201, anggap berhasil
+          // Cek berbagai kemungkinan format response
+          const isSuccess =
+            (result.message &&
+              result.message.toLowerCase().includes("berhasil")) ||
+            (result.message &&
+              result.message.toLowerCase().includes("success")) ||
+            (result.prestasi && result.prestasi.id) ||
+            (result.data && result.data.id) ||
+            result.id || // Response langsung berisi ID
+            response.status === 200 ||
+            response.status === 201;
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-                prestasiData = result.data || result; // Sesuaikan dengan struktur response API
-                */
-
-          // ====================================
-          // DEMO MODE: SIMULASI LOAD DATA
-          // ====================================
-          await new Promise((resolve) => setTimeout(resolve, 800));
-
-          // Data tetap dari memori (untuk demo)
-          // Dalam production, data akan di-fetch dari API
-          // ====================================
-
-          renderTable();
+          if (isSuccess) {
+            showNotification("Data prestasi berhasil ditambahkan!", "success");
+            await loadPrestasi();
+            resetForm();
+          } else {
+            // Tampilkan struktur response di console untuk debugging
+            console.warn("Unexpected response format:", result);
+            // Tetap anggap berhasil jika status 200/201
+            showNotification("Data berhasil disimpan!", "success");
+            await loadPrestasi();
+            resetForm();
+          }
         } catch (error) {
-          console.error("Error loading:", error);
-          showNotification(`Gagal memuat data: ${error.message}`, "error");
-          document.getElementById("emptyState").classList.remove("hidden");
+          console.error("Error creating prestasi:", error);
+          showNotification(`Gagal menambahkan data: ${error.message}`, "error");
         } finally {
-          document.getElementById("tableLoading").classList.add("hidden");
-          document.getElementById("tableContainer").classList.remove("hidden");
+          setFormLoading(false);
         }
       }
 
@@ -836,55 +908,39 @@
       // UPDATE PRESTASI (PUT)
       // ========================================
       async function updatePrestasi(id, data) {
-        // Show loading
         setFormLoading(true);
 
         try {
-          // UNCOMMENT KODE DI BAWAH UNTUK MENGGUNAKAN API SEBENARNYA
-          /*
-                const response = await fetch(`${API_PRESTASI_URL}/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // Jika perlu authentication
-                        // 'Authorization': 'Bearer YOUR_TOKEN'
-                    },
-                    body: JSON.stringify(data)
-                });
+          const response = await fetch(`${API_PRESTASI_URL}/${id}`, {
+            method: "PUT",
+            headers: getAuthHeaders(),
+            body: JSON.stringify(data),
+          });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    showNotification('Data prestasi berhasil diupdate!', 'success');
-                    await loadPrestasi(); // Reload data
-                    resetForm();
-                } else {
-                    throw new Error(result.message || 'Gagal update data');
-                }
-                */
-
-          // ====================================
-          // DEMO MODE: SIMULASI UPDATE
-          // ====================================
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-
-          const index = prestasiData.findIndex((item) => item.id == id);
-          if (index !== -1) {
-            prestasiData[index] = {
-              ...prestasiData[index],
-              ...data,
-              updated_at: new Date().toISOString(),
-            };
+          if (!response.ok) {
+            if (response.status === 401) {
+              showNotification(
+                "Session expired. Silakan login kembali!",
+                "error"
+              );
+              setTimeout(() => {
+                window.location.href = "Login_admin.html";
+              }, 2000);
+              return;
+            }
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Gagal update prestasi");
           }
 
-          renderTable();
-          resetForm();
-          showNotification("Data prestasi berhasil diupdate!", "success");
-          // ====================================
+          const result = await response.json();
+
+          if (result.message === "Prestasi berhasil diperbarui") {
+            showNotification("Data prestasi berhasil diupdate!", "success");
+            await loadPrestasi();
+            resetForm();
+          } else {
+            throw new Error("Gagal update prestasi");
+          }
         } catch (error) {
           console.error("Error updating:", error);
           showNotification(`Gagal update data: ${error.message}`, "error");
@@ -897,47 +953,39 @@
       // DELETE PRESTASI (DELETE)
       // ========================================
       async function deletePrestasi(id) {
-        // Konfirmasi hapus
         if (!confirm("Yakin ingin menghapus data prestasi ini?")) return;
 
         try {
-          // Show loading notification
           showNotification("Menghapus data...", "success");
 
-          // UNCOMMENT KODE DI BAWAH UNTUK MENGGUNAKAN API SEBENARNYA
-          /*
-                const response = await fetch(`${API_PRESTASI_URL}/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // Jika perlu authentication
-                        // 'Authorization': 'Bearer YOUR_TOKEN'
-                    }
-                });
+          const token = getAuthToken();
+          const headers = {};
+          if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+          }
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+          const response = await fetch(`${API_PRESTASI_URL}/${id}`, {
+            method: "DELETE",
+            headers: headers,
+          });
 
-                const result = await response.json();
+          if (!response.ok) {
+            if (response.status === 401) {
+              showNotification(
+                "Session expired. Silakan login kembali!",
+                "error"
+              );
+              setTimeout(() => {
+                window.location.href = "Login_admin.html";
+              }, 2000);
+              return;
+            }
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Gagal menghapus prestasi");
+          }
 
-                if (result.status === 'success') {
-                    showNotification('Data prestasi berhasil dihapus!', 'success');
-                    await loadPrestasi(); // Reload data
-                } else {
-                    throw new Error(result.message || 'Gagal menghapus data');
-                }
-                */
-
-          // ====================================
-          // DEMO MODE: SIMULASI DELETE
-          // ====================================
-          await new Promise((resolve) => setTimeout(resolve, 500));
-
-          prestasiData = prestasiData.filter((item) => item.id != id);
-          renderTable();
           showNotification("Data prestasi berhasil dihapus!", "success");
-          // ====================================
+          await loadPrestasi();
         } catch (error) {
           console.error("Error deleting:", error);
           showNotification(`Gagal menghapus data: ${error.message}`, "error");
@@ -954,17 +1002,19 @@
           return;
         }
 
-        // Set mode edit
         editMode = true;
+        currentEditId = id;
 
         // Isi form dengan data
-        document.getElementById("editId").value = id;
         document.getElementById("juara").value = data.juara;
         document.getElementById("namaSiswa").value = data.nama_siswa;
         document.getElementById("kelas").value = data.kelas;
         document.getElementById("judulLomba").value = data.judul_lomba;
         document.getElementById("deskripsi").value = data.deskripsi;
         document.getElementById("fotoUrl").value = data.foto_url;
+
+        // Simpan URL gambar yang sudah ada
+        uploadedImageUrl = data.foto_url;
 
         // Tampilkan preview gambar
         document.getElementById("previewImg").src = data.foto_url;
@@ -997,12 +1047,14 @@
       // ========================================
       function resetForm() {
         editMode = false;
+        currentEditId = null;
+        uploadedImageUrl = null;
+
         document.getElementById("prestasiForm").reset();
-        document.getElementById("editId").value = "";
         document.getElementById("fotoUrl").value = "";
         document.getElementById("imagePreview").classList.add("hidden");
         document.getElementById("cancelBtn").classList.add("hidden");
-        document.getElementById("submitBtn").innerHTML = "Simpan";
+        document.getElementById("submitBtn").innerHTML = "💾 Simpan Data";
         document.getElementById("fileInput").value = "";
       }
 
@@ -1013,80 +1065,74 @@
         const tbody = document.getElementById("tableBody");
         const emptyState = document.getElementById("emptyState");
 
-        // Jika tidak ada data
         if (prestasiData.length === 0) {
           tbody.innerHTML = "";
           emptyState.classList.remove("hidden");
           return;
         }
 
-        // Sembunyikan empty state
         emptyState.classList.add("hidden");
 
-        // Badge colors untuk juara
         const juaraColors = {
-          "Juara 1": "bg-yellow-100 text-yellow-800 border border-yellow-300",
-          "Juara 2": "bg-gray-100 text-gray-800 border border-gray-300",
-          "Juara 3": "bg-orange-100 text-orange-800 border border-orange-300",
-          "Juara Harapan": "bg-blue-100 text-blue-800 border border-blue-300",
+          1: "bg-yellow-100 text-yellow-800 border border-yellow-300",
+          2: "bg-gray-100 text-gray-800 border border-gray-300",
+          3: "bg-orange-100 text-orange-800 border border-orange-300",
+          Harapan: "bg-blue-100 text-blue-800 border border-blue-300",
         };
 
-        // Generate table rows
         tbody.innerHTML = prestasiData
           .map(
             (item, index) => `
-                <tr class="hover:bg-gray-50 transition fade-in" style="animation-delay: ${
-                  index * 0.05
-                }s">
-                    <td class="px-6 py-4">
-                        <img src="${item.foto_url}" 
-                             alt="${item.nama_siswa}" 
-                             class="table-img shadow-sm"
-                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E'">
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          juaraColors[item.juara] || "bg-gray-100 text-gray-800"
-                        }">
-                            ${item.juara}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <p class="font-semibold text-gray-800">${escapeHtml(
-                          item.nama_siswa
-                        )}</p>
-                    </td>
-                    <td class="px-6 py-4 text-gray-600">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800">
-                            ${escapeHtml(item.kelas)}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-gray-800">
-                        <p class="font-medium">${escapeHtml(
-                          item.judul_lomba
-                        )}</p>
-                    </td>
-                    <td class="px-6 py-4 text-gray-600">
-                        <p class="line-clamp-2" title="${escapeHtml(
-                          item.deskripsi
-                        )}">${escapeHtml(item.deskripsi)}</p>
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <div class="flex items-center justify-center space-x-2">
-                            <button onclick="editPrestasi(${item.id})" 
-                                    class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition transform hover:scale-105"
-                                    title="Edit data">
-                                ✏️ Edit
-                            </button>
-                            <button onclick="deletePrestasi(${item.id})" 
-                                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition transform hover:scale-105"
-                                    title="Hapus data">
-                                🗑️ Hapus
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `
+        <tr class="hover:bg-gray-50 transition fade-in" style="animation-delay: ${
+          index * 0.05
+        }s">
+            <td class="px-6 py-4">
+                <img src="${item.foto_url}" 
+                     alt="${escapeHtml(item.nama_siswa)}" 
+                     class="w-20 h-20 object-cover rounded-lg shadow-sm"
+                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+            </td>
+            <td class="px-6 py-4">
+                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  juaraColors[item.juara] || "bg-gray-100 text-gray-800"
+                }">
+                    Juara ${item.juara}
+                </span>
+            </td>
+            <td class="px-6 py-4">
+                <p class="font-semibold text-gray-800">${escapeHtml(
+                  item.nama_siswa
+                )}</p>
+            </td>
+            <td class="px-6 py-4 text-gray-600">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800">
+                    ${escapeHtml(item.kelas)}
+                </span>
+            </td>
+            <td class="px-6 py-4 text-gray-800">
+                <p class="font-medium">${escapeHtml(item.judul_lomba)}</p>
+            </td>
+            <td class="px-6 py-4 text-gray-600">
+                <p class="line-clamp-2" title="${escapeHtml(
+                  item.deskripsi
+                )}">${escapeHtml(item.deskripsi)}</p>
+            </td>
+            <td class="px-6 py-4 text-center">
+                <div class="flex items-center justify-center space-x-2">
+                    <button onclick="editPrestasi(${item.id})" 
+                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition transform hover:scale-105"
+                            title="Edit data">
+                        ✏️ Edit
+                    </button>
+                    <button onclick="deletePrestasi(${item.id})" 
+                            class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition transform hover:scale-105"
+                            title="Hapus data">
+                        🗑️ Hapus
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `
           )
           .join("");
       }
@@ -1094,9 +1140,8 @@
       // ========================================
       // HELPER FUNCTIONS
       // ========================================
-
-      // Escape HTML untuk mencegah XSS
       function escapeHtml(text) {
+        if (!text) return "";
         const map = {
           "&": "&amp;",
           "<": "&lt;",
@@ -1104,10 +1149,9 @@
           '"': "&quot;",
           "'": "&#039;",
         };
-        return text.replace(/[&<>"']/g, (m) => map[m]);
+        return String(text).replace(/[&<>"']/g, (m) => map[m]);
       }
 
-      // Set form loading state
       function setFormLoading(loading) {
         const submitBtn = document.getElementById("submitBtn");
         const formLoading = document.getElementById("formLoading");
@@ -1116,44 +1160,40 @@
         if (loading) {
           submitBtn.disabled = true;
           submitBtn.classList.add("opacity-50", "cursor-not-allowed");
-          formLoading.classList.remove("hidden");
+          if (formLoading) formLoading.classList.remove("hidden");
           if (!cancelBtn.classList.contains("hidden")) {
             cancelBtn.disabled = true;
           }
         } else {
           submitBtn.disabled = false;
           submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
-          formLoading.classList.add("hidden");
+          if (formLoading) formLoading.classList.add("hidden");
           if (!cancelBtn.classList.contains("hidden")) {
             cancelBtn.disabled = false;
           }
         }
       }
 
-      // Show notification
       function showNotification(message, type = "success") {
         const notification = document.createElement("div");
         notification.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg text-white z-50 transform transition-all duration-300 ${
           type === "success" ? "bg-green-500" : "bg-red-500"
         }`;
 
-        // Icon berdasarkan type
         const icon = type === "success" ? "✅" : "❌";
         notification.innerHTML = `
-                <div class="flex items-center space-x-3">
-                    <span class="text-2xl">${icon}</span>
-                    <span class="font-medium">${message}</span>
-                </div>
-            `;
+    <div class="flex items-center space-x-3">
+        <span class="text-2xl">${icon}</span>
+        <span class="font-medium">${message}</span>
+    </div>
+  `;
 
         document.body.appendChild(notification);
 
-        // Animate in
         setTimeout(() => {
           notification.style.transform = "translateX(0)";
         }, 10);
 
-        // Remove after 3 seconds
         setTimeout(() => {
           notification.style.transform = "translateX(400px)";
           setTimeout(() => {
@@ -1163,466 +1203,29 @@
       }
 
       // ========================================
-      // LOAD PAGE HANDLER (SIDEBAR NAVIGATION)
-      // ========================================
-      function loadPage(page) {
-        // Remove active class from all menu items
-        document.querySelectorAll(".sidebar-menu a").forEach((link) => {
-          link.classList.remove("active");
-        });
-
-        // Add active class to clicked menu
-        event.target.closest("a").classList.add("active");
-
-        // Update page title
-        document.querySelector("main h1").textContent = page.toUpperCase();
-
-        // Show notification
-        showNotification(
-          `Halaman ${page} sedang dalam pengembangan`,
-          "success"
-        );
-      }
-
-      // ========================================
       // INITIALIZE APP
       // ========================================
       document.addEventListener("DOMContentLoaded", () => {
-        console.log("✅ Dashboard Admin initialized");
-        console.log("📝 Mode: DEMO (gunakan API sebenarnya untuk production)");
-        console.log("🔧 API Base URL:", API_BASE_URL);
+        console.log("✅ Dashboard Admin Prestasi initialized");
+        console.log("🔧 API Prestasi URL:", API_PRESTASI_URL);
+        console.log("🔧 API Upload Image URL:", API_UPLOAD_IMAGE_URL);
 
-        // Load data prestasi
         loadPrestasi();
-
-        // Setup event listeners
-        setupEventListeners();
-
-        // Add demo data untuk testing (hapus di production)
-        if (prestasiData.length === 0) {
-          console.log("ℹ️ Tidak ada data, silakan tambahkan data baru");
-        }
       });
 
       // ========================================
-      // SETUP EVENT LISTENERS
+      // LOGOUT HANDLER
       // ========================================
-      function setupEventListeners() {
-        // Form submit handler
-        const form = document.getElementById("prestasiForm");
-        if (form) {
-          form.addEventListener("submit", handleFormSubmit);
-        }
-
-        // File upload handler
-        const fileInput = document.getElementById("foto");
-        const uploadBtn = document.getElementById("uploadBtn");
-
-        if (uploadBtn && fileInput) {
-          uploadBtn.addEventListener("click", () => {
-            fileInput.click();
-          });
-
-          fileInput.addEventListener("change", handleFileUpload);
-        }
-
-        // Cancel button handler
-        const cancelBtn = document.getElementById("cancelBtn");
-        if (cancelBtn) {
-          cancelBtn.addEventListener("click", () => {
-            resetForm();
-            showNotification("Form dibatalkan", "info");
-          });
-        }
-      }
-
-      // ========================================
-      // HANDLE FILE UPLOAD
-      // ========================================
-      async function handleFileUpload(event) {
-        const file = event.target.files[0];
-
-        if (!file) return;
-
-        // Validasi tipe file
-        const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-        if (!allowedTypes.includes(file.type)) {
-          showNotification(
-            "Hanya file JPG, JPEG, dan PNG yang diizinkan!",
-            "error"
-          );
-          event.target.value = "";
-          return;
-        }
-
-        // Validasi ukuran file (max 5MB)
-        const maxSize = 5 * 1024 * 1024; // 5MB
-        if (file.size > maxSize) {
-          showNotification("Ukuran file maksimal 5MB!", "error");
-          event.target.value = "";
-          return;
-        }
-
-        // Show loading
-        const uploadBtn = document.getElementById("uploadBtn");
-        const btnText = uploadBtn.querySelector("span");
-        const originalText = btnText.textContent;
-        btnText.textContent = "Mengupload...";
-        uploadBtn.disabled = true;
-
-        try {
-          // ====================================
-          // PRODUCTION MODE: UPLOAD KE SERVER
-          // ====================================
-          /*
-                const formData = new FormData();
-                formData.append('foto', file);
-
-                const response = await fetch(`${API_BASE_URL}/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    uploadedImageUrl = result.image_url;
-                    btnText.textContent = '✓ Gambar Terupload';
-                    uploadBtn.classList.add('bg-green-600');
-                    showNotification('Gambar berhasil diupload!', 'success');
-                } else {
-                    throw new Error(result.message || 'Upload gagal');
-                }
-                */
-
-          // ====================================
-          // DEMO MODE: SIMULASI UPLOAD
-          // ====================================
-          await new Promise((resolve) => setTimeout(resolve, 1500));
-
-          // Buat URL temporary untuk preview
-          uploadedImageUrl = URL.createObjectURL(file);
-
-          btnText.textContent = "✓ Gambar Terupload";
-          uploadBtn.classList.remove("bg-blue-600", "hover:bg-blue-700");
-          uploadBtn.classList.add("bg-green-600");
-          showNotification("Gambar berhasil diupload! (DEMO MODE)", "success");
-        } catch (error) {
-          console.error("Upload error:", error);
-          showNotification(
-            "Gagal mengupload gambar: " + error.message,
-            "error"
-          );
-          btnText.textContent = originalText;
-          uploadedImageUrl = null;
-        } finally {
-          uploadBtn.disabled = false;
-        }
-      }
-
-      // ========================================
-      // HANDLE FORM SUBMIT
-      // ========================================
-      async function handleFormSubmit(event) {
-        event.preventDefault();
-
-        // Validasi upload gambar
-        if (!uploadedImageUrl) {
-          showNotification("Silakan upload gambar terlebih dahulu!", "error");
-          return;
-        }
-
-        // Get form data
-        const formData = {
-          foto_url: uploadedImageUrl,
-          juara: document.getElementById("juara").value,
-          nama_siswa: document.getElementById("nama_siswa").value.trim(),
-          kelas: document.getElementById("kelas").value,
-          judul_lomba: document.getElementById("judul_lomba").value.trim(),
-          deskripsi: document.getElementById("deskripsi").value.trim(),
-        };
-
-        // Validasi input
-        if (
-          !formData.nama_siswa ||
-          !formData.judul_lomba ||
-          !formData.deskripsi
-        ) {
-          showNotification("Semua field harus diisi!", "error");
-          return;
-        }
-
-        // Check mode: edit atau create
-        if (isEditMode && currentEditId) {
-          await updatePrestasi(currentEditId, formData);
-        } else {
-          await createPrestasi(formData);
-        }
-      }
-
-      // ========================================
-      // CREATE PRESTASI (TAMBAH DATA)
-      // ========================================
-      async function createPrestasi(data) {
-        const submitBtn = document.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = "Menyimpan...";
-        submitBtn.disabled = true;
-
-        try {
-          // ====================================
-          // PRODUCTION MODE: POST KE API
-          // ====================================
-          /*
-                const response = await fetch(`${API_BASE_URL}/prestasi`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    showNotification('Data prestasi berhasil ditambahkan!', 'success');
-                    await loadPrestasi();
-                    resetForm();
-                } else {
-                    throw new Error(result.message || 'Gagal menyimpan data');
-                }
-                */
-
-          // ====================================
-          // DEMO MODE: SIMULASI CREATE
-          // ====================================
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-
-          const newData = {
-            id: Date.now(),
-            ...data,
-            created_at: new Date().toISOString(),
-          };
-
-          prestasiData.push(newData);
-          renderTable();
-          resetForm();
-          showNotification("Data prestasi berhasil ditambahkan!", "success");
-        } catch (error) {
-          console.error("Create error:", error);
-          showNotification("Gagal menyimpan data: " + error.message, "error");
-        } finally {
-          submitBtn.textContent = originalText;
-          submitBtn.disabled = false;
-        }
-      }
-
-      // ========================================
-      // UPDATE PRESTASI (EDIT DATA)
-      // ========================================
-      async function updatePrestasi(id, data) {
-        const submitBtn = document.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = "Memperbarui...";
-        submitBtn.disabled = true;
-
-        try {
-          // ====================================
-          // PRODUCTION MODE: PUT KE API
-          // ====================================
-          /*
-                const response = await fetch(`${API_BASE_URL}/prestasi/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    showNotification('Data prestasi berhasil diperbarui!', 'success');
-                    await loadPrestasi();
-                    resetForm();
-                } else {
-                    throw new Error(result.message || 'Gagal memperbarui data');
-                }
-                */
-
-          // ====================================
-          // DEMO MODE: SIMULASI UPDATE
-          // ====================================
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-
-          const index = prestasiData.findIndex((item) => item.id === id);
-          if (index !== -1) {
-            prestasiData[index] = {
-              ...prestasiData[index],
-              ...data,
-              updated_at: new Date().toISOString(),
-            };
-            renderTable();
-            resetForm();
-            showNotification("Data prestasi berhasil diperbarui!", "success");
-          } else {
-            throw new Error("Data tidak ditemukan");
-          }
-        } catch (error) {
-          console.error("Update error:", error);
-          showNotification("Gagal memperbarui data: " + error.message, "error");
-        } finally {
-          submitBtn.textContent = originalText;
-          submitBtn.disabled = false;
-        }
-      }
-
-      // ========================================
-      // DELETE PRESTASI (HAPUS DATA)
-      // ========================================
-      async function deletePrestasi(id) {
-        if (!confirm("Apakah Anda yakin ingin menghapus data prestasi ini?")) {
-          return;
-        }
-
-        try {
-          // ====================================
-          // PRODUCTION MODE: DELETE KE API
-          // ====================================
-          /*
-                const response = await fetch(`${API_BASE_URL}/prestasi/${id}`, {
-                    method: 'DELETE'
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    showNotification('Data prestasi berhasil dihapus!', 'success');
-                    await loadPrestasi();
-                } else {
-                    throw new Error(result.message || 'Gagal menghapus data');
-                }
-                */
-
-          // ====================================
-          // DEMO MODE: SIMULASI DELETE
-          // ====================================
-          await new Promise((resolve) => setTimeout(resolve, 500));
-
-          const index = prestasiData.findIndex((item) => item.id === id);
-          if (index !== -1) {
-            prestasiData.splice(index, 1);
-            renderTable();
-            showNotification("Data prestasi berhasil dihapus!", "success");
-          } else {
-            throw new Error("Data tidak ditemukan");
-          }
-        } catch (error) {
-          console.error("Delete error:", error);
-          showNotification("Gagal menghapus data: " + error.message, "error");
-        }
-      }
-
-      // ========================================
-      // EDIT PRESTASI (ISI FORM DENGAN DATA)
-      // ========================================
-      function editPrestasi(id) {
-        const data = prestasiData.find((item) => item.id === id);
-
-        if (!data) {
-          showNotification("Data tidak ditemukan!", "error");
-          return;
-        }
-
-        // Set mode edit
-        isEditMode = true;
-        currentEditId = id;
-
-        // Isi form dengan data
-        document.getElementById("juara").value = data.juara;
-        document.getElementById("nama_siswa").value = data.nama_siswa;
-        document.getElementById("kelas").value = data.kelas;
-        document.getElementById("judul_lomba").value = data.judul_lomba;
-        document.getElementById("deskripsi").value = data.deskripsi;
-
-        // Set uploaded image
-        uploadedImageUrl = data.foto_url;
-        const uploadBtn = document.getElementById("uploadBtn");
-        const btnText = uploadBtn.querySelector("span");
-        btnText.textContent = "✓ Gambar Terupload";
-        uploadBtn.classList.remove("bg-blue-600", "hover:bg-blue-700");
-        uploadBtn.classList.add("bg-green-600");
-
-        // Update tombol submit
-        const submitBtn = document.querySelector('button[type="submit"]');
-        submitBtn.textContent = "Perbarui Data";
-        submitBtn.classList.remove("bg-blue-600", "hover:bg-blue-700");
-        submitBtn.classList.add("bg-yellow-600", "hover:bg-yellow-700");
-
-        // Scroll ke form
-        document
-          .getElementById("prestasiForm")
-          .scrollIntoView({ behavior: "smooth" });
-
-        showNotification("Mode Edit: Silakan ubah data", "info");
-      }
-
-      // ========================================
-      // RESET FORM
-      // ========================================
-      function resetForm() {
-        // Reset form fields
-        document.getElementById("prestasiForm").reset();
-
-        // Reset mode
-        isEditMode = false;
-        currentEditId = null;
-        uploadedImageUrl = null;
-
-        // Reset upload button
-        const uploadBtn = document.getElementById("uploadBtn");
-        const btnText = uploadBtn.querySelector("span");
-        btnText.textContent = "Pilih Gambar";
-        uploadBtn.classList.remove("bg-green-600");
-        uploadBtn.classList.add("bg-blue-600", "hover:bg-blue-700");
-
-        // Reset file input
-        document.getElementById("foto").value = "";
-
-        // Reset submit button
-        const submitBtn = document.querySelector('button[type="submit"]');
-        submitBtn.textContent = "Simpan Data";
-        submitBtn.classList.remove("bg-yellow-600", "hover:bg-yellow-700");
-        submitBtn.classList.add("bg-blue-600", "hover:bg-blue-700");
-      }
-
-      // ========================================
-      // ERROR HANDLING GLOBAL
-      // ========================================
-      window.addEventListener("error", (e) => {
-        console.error("Global error:", e.error);
-      });
-
-      window.addEventListener("unhandledrejection", (e) => {
-        console.error("Unhandled promise rejection:", e.reason);
-        showNotification("Terjadi kesalahan: " + e.reason, "error");
-      });
-
-      // Ambil elemen tombol logout
       const logoutButton = document.getElementById("logoutButton");
-
-      logoutButton.addEventListener("click", function (event) {
-        event.preventDefault(); // Mencegah link langsung berpindah
-
-        // Tampilkan popup konfirmasi
-        const confirmLogout = confirm("Apakah Anda yakin ingin keluar?");
-
-        if (confirmLogout) {
-          // Jika user klik "OK", arahkan ke halaman login
-          window.location.href = "Login_admin.html";
-        }
-        // Jika klik "Batal", tidak melakukan apa pun
-      });
+      if (logoutButton) {
+        logoutButton.addEventListener("click", function (event) {
+          event.preventDefault();
+          const confirmLogout = confirm("Apakah Anda yakin ingin keluar?");
+          if (confirmLogout) {
+            window.location.href = "Login_admin.html";
+          }
+        });
+      }
     </script>
   </body>
 </html>

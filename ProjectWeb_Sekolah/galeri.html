@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SMA Negeri 1 Purwokerto - Galeri</title>
+    <title>SMA Negeri 1 Purwokerto - Galrieri</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -102,6 +102,82 @@
 
       .delay-300 {
         animation-delay: 0.3s;
+      }
+
+      /* Card hover effects */
+      .gallery-card {
+        transition: all 0.3s ease;
+      }
+
+      .gallery-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .gallery-card img {
+        transition: transform 0.5s ease;
+      }
+
+      .gallery-card:hover img {
+        transform: scale(1.05);
+      }
+
+      /* Loading spinner */
+      .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3b82f6;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Lightbox styles */
+      .lightbox {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        align-items: center;
+        justify-content: center;
+      }
+
+      .lightbox.active {
+        display: flex;
+      }
+
+      .lightbox-content {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+      }
+
+      .lightbox-close {
+        position: absolute;
+        top: 20px;
+        right: 40px;
+        color: white;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .lightbox-close:hover {
+        color: #bbb;
       }
     </style>
   </head>
@@ -219,9 +295,7 @@
             class="text-gray-700 hover:text-blue-900 font-medium transition"
             >Pengumuman</a
           >
-          <a
-            href="galeri.html"
-            class="text-gray-700 hover:text-blue-900 font-medium transition"
+          <a href="galeri.html" class="text-blue-900 font-medium transition"
             >Galeri</a
           >
           <a
@@ -266,86 +340,55 @@
       <!-- Gallery Section -->
       <section class="py-16 bg-gray-50">
         <div class="container mx-auto px-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Card 1 -->
-            <div
-              class="rounded-2xl shadow-lg bg-white overflow-hidden transition duration-300 hover:shadow-xl opacity-0 animate-fadeIn"
-            >
-              <div class="overflow-hidden rounded-t-2xl">
-                <img
-                  src="images/kepsek.png"
-                  alt="Kegiatan lomba Hari Kemerdekaan"
-                  class="w-full h-64 object-cover transition duration-500 hover:scale-105"
-                />
-              </div>
-              <div class="p-6">
-                <p class="text-sm text-gray-500 mb-3">10 Oktober 2025</p>
-                <h3 class="text-lg font-bold text-gray-900 mb-4 leading-snug">
-                  Kegiatan lomba Hari Kemerdekaan di halaman sekolah bersama
-                  seluruh siswa dan guru.
-                </h3>
-                <a
-                  href="#"
-                  class="text-blue-600 font-semibold hover:text-blue-800 transition duration-300"
-                >
-                  Lihat Detail
-                </a>
-              </div>
-            </div>
+          <!-- Loading State -->
+          <div id="loadingState" class="text-center py-12">
+            <div class="spinner mx-auto"></div>
+            <p class="text-gray-600 mt-4">Memuat galeri...</p>
+          </div>
 
-            <!-- Card 2 -->
-            <div
-              class="rounded-2xl shadow-lg bg-white overflow-hidden transition duration-300 hover:shadow-xl opacity-0 animate-fadeIn delay-200"
+          <!-- Empty State -->
+          <div id="emptyState" class="hidden text-center py-12">
+            <svg
+              class="w-24 h-24 mx-auto text-gray-400 mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <div class="overflow-hidden rounded-t-2xl">
-                <img
-                  src="images/dummy prestasi.jpeg"
-                  alt="Lomba Olahraga Antar Kelas"
-                  class="w-full h-64 object-cover transition duration-500 hover:scale-105"
-                />
-              </div>
-              <div class="p-6">
-                <p class="text-sm text-gray-500 mb-3">10 Januari 2025</p>
-                <h3 class="text-lg font-bold text-gray-900 mb-4 leading-snug">
-                  Lomba Olahraga Antar Kelas
-                </h3>
-                <a
-                  href="#"
-                  class="text-blue-600 font-semibold hover:text-blue-800 transition duration-300"
-                >
-                  Lihat Detail
-                </a>
-              </div>
-            </div>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            <h3 class="text-xl font-semibold text-gray-700 mb-2">
+              Belum Ada Galeri
+            </h3>
+            <p class="text-gray-500">Galeri foto akan ditampilkan di sini</p>
+          </div>
 
-            <!-- Card 3 -->
-            <div
-              class="rounded-2xl shadow-lg bg-white overflow-hidden transition duration-300 hover:shadow-xl opacity-0 animate-fadeIn delay-300"
-            >
-              <div class="overflow-hidden rounded-t-2xl">
-                <img
-                  src="images/kepsek.png"
-                  alt="Rapat Guru Tahunan"
-                  class="w-full h-64 object-cover transition duration-500 hover:scale-105"
-                />
-              </div>
-              <div class="p-6">
-                <p class="text-sm text-gray-500 mb-3">5 Januari 2025</p>
-                <h3 class="text-lg font-bold text-gray-900 mb-4 leading-snug">
-                  Rapat Guru Tahunan
-                </h3>
-                <a
-                  href="#"
-                  class="text-blue-600 font-semibold hover:text-blue-800 transition duration-300"
-                >
-                  Lihat Detail
-                </a>
-              </div>
-            </div>
+          <!-- Gallery Grid -->
+          <div
+            id="galleryGrid"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            <!-- Cards will be inserted here -->
           </div>
         </div>
       </section>
     </main>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox">
+      <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+      <img id="lightboxImage" class="lightbox-content" src="" alt="" />
+      <div
+        class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white text-center"
+      >
+        <p id="lightboxTitle" class="text-xl font-semibold mb-2"></p>
+        <p id="lightboxDate" class="text-sm text-gray-300"></p>
+      </div>
+    </div>
 
     <!-- Footer -->
     <footer id="kontak" class="bg-slate-900 text-white py-12">
@@ -430,7 +473,6 @@
                     />
                   </svg>
                 </a>
-
                 <a
                   href="#"
                   class="w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-700 transition-colors"
@@ -460,5 +502,164 @@
         </div>
       </div>
     </footer>
+
+    <script>
+      // API Configuration
+      const API_BASE_URL =
+        "https://chool-ekarahma2846311-08tanrqk.apn.iaepcell.dev";
+      const API_GALERI_URL = `${API_BASE_URL}/api/galeri`;
+
+      // Load gallery data on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        loadGallery();
+        initScrollAnimation();
+      });
+
+      // Load gallery from API
+      async function loadGallery() {
+        const loadingState = document.getElementById("loadingState");
+        const emptyState = document.getElementById("emptyState");
+        const galleryGrid = document.getElementById("galleryGrid");
+
+        try {
+          const response = await fetch(API_GALERI_URL);
+
+          if (!response.ok) {
+            throw new Error("Gagal memuat galeri");
+          }
+
+          const result = await response.json();
+          const data = result.galeri || result;
+
+          loadingState.classList.add("hidden");
+
+          if (!data || data.length === 0) {
+            emptyState.classList.remove("hidden");
+            return;
+          }
+
+          // Render gallery cards
+          renderGallery(data);
+        } catch (error) {
+          console.error("Error loading gallery:", error);
+          loadingState.classList.add("hidden");
+          emptyState.classList.remove("hidden");
+        }
+      }
+
+      // Render gallery cards
+      function renderGallery(data) {
+        const galleryGrid = document.getElementById("galleryGrid");
+
+        galleryGrid.innerHTML = data
+          .map(
+            (item, index) => `
+            <div class="gallery-card bg-white rounded-xl shadow-lg overflow-hidden scroll-animate" data-index="${index}">
+              <div class="relative overflow-hidden h-64 cursor-pointer" onclick="openLightbox('${
+                item.foto_url
+              }', '${item.judul}', '${item.tanggal}')">
+                <img 
+                  src="${item.foto_url}" 
+                  alt="${item.judul}" 
+                  class="w-full h-full object-cover"
+                  onerror="this.src='https://via.placeholder.com/400x300?text=Image+Not+Found'"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
+                  <div class="p-4 text-white">
+                    <p class="text-sm font-medium">Klik untuk melihat</p>
+                  </div>
+                </div>
+              </div>
+              <div class="p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-2">${
+                  item.judul
+                }</h3>
+                <div class="flex items-center text-gray-600 text-sm">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>${formatDate(item.tanggal)}</span>
+                </div>
+              </div>
+            </div>
+          `
+          )
+          .join("");
+
+        // Trigger scroll animation
+        setTimeout(() => {
+          const elements = document.querySelectorAll(".scroll-animate");
+          elements.forEach((el) => el.classList.add("show"));
+        }, 100);
+      }
+
+      // Format date to Indonesian
+      function formatDate(dateString) {
+        const options = { year: "numeric", month: "long", day: "numeric" };
+        return new Date(dateString).toLocaleDateString("id-ID", options);
+      }
+
+      // Open lightbox
+      function openLightbox(imageUrl, title, date) {
+        const lightbox = document.getElementById("lightbox");
+        const lightboxImage = document.getElementById("lightboxImage");
+        const lightboxTitle = document.getElementById("lightboxTitle");
+        const lightboxDate = document.getElementById("lightboxDate");
+
+        lightboxImage.src = imageUrl;
+        lightboxTitle.textContent = title;
+        lightboxDate.textContent = formatDate(date);
+        lightbox.classList.add("active");
+
+        // Prevent body scroll
+        document.body.style.overflow = "hidden";
+      }
+
+      // Close lightbox
+      function closeLightbox() {
+        const lightbox = document.getElementById("lightbox");
+        lightbox.classList.remove("active");
+
+        // Restore body scroll
+        document.body.style.overflow = "auto";
+      }
+
+      // Close lightbox on ESC key
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          closeLightbox();
+        }
+      });
+
+      // Close lightbox on click outside image
+      document
+        .getElementById("lightbox")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            closeLightbox();
+          }
+        });
+
+      // Scroll animation initialization
+      function initScrollAnimation() {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("show");
+              }
+            });
+          },
+          {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px",
+          }
+        );
+
+        // Observe all scroll-animate elements
+        const animatedElements = document.querySelectorAll(".scroll-animate");
+        animatedElements.forEach((el) => observer.observe(el));
+      }
+    </script>
   </body>
 </html>

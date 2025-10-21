@@ -279,32 +279,29 @@
     </div>
 
     <script>
-      // ========================================
+      // ==================================================
       // PASSWORD TOGGLE FUNCTIONALITY
-      // ========================================
-
+      // ==================================================
       const togglePassword = document.getElementById("togglePassword");
       const passwordInput = document.getElementById("password");
       const eyeIcon = document.getElementById("eyeIcon");
       const eyeSlashIcon = document.getElementById("eyeSlashIcon");
 
-      togglePassword.addEventListener("click", function () {
-        // Toggle password visibility
-        const type =
-          passwordInput.getAttribute("type") === "password"
-            ? "text"
-            : "password";
-        passwordInput.setAttribute("type", type);
+      if (togglePassword && passwordInput && eyeIcon && eyeSlashIcon) {
+        togglePassword.addEventListener("click", function () {
+          const type =
+            passwordInput.getAttribute("type") === "password"
+              ? "text"
+              : "password";
+          passwordInput.setAttribute("type", type);
+          eyeIcon.classList.toggle("hidden");
+          eyeSlashIcon.classList.toggle("hidden");
+        });
+      }
 
-        // Toggle icon
-        eyeIcon.classList.toggle("hidden");
-        eyeSlashIcon.classList.toggle("hidden");
-      });
-
-      // ========================================
-      // LOGIN HANDLER SCRIPT
-      // ========================================
-
+      // ==================================================
+      // LOGIN HANDLER (KHUSUS UNTUK login.html)
+      // ==================================================
       const loginForm = document.getElementById("loginForm");
       const alertError = document.getElementById("alertError");
       const alertMessage = document.getElementById("alertMessage");
@@ -312,133 +309,122 @@
       const btnText = document.getElementById("btnText");
       const btnLoader = document.getElementById("btnLoader");
 
-      // Hide alert function
+      // Ganti URL dengan endpoint API login kamu
+      const API_LOGIN_URL =
+        "https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/login";
+
       function hideAlert() {
-        alertError.classList.add("hidden");
+        if (alertError) alertError.classList.add("hidden");
       }
 
-      // Show alert function
       function showAlert(message) {
-        alertMessage.textContent = message;
-        alertError.classList.remove("hidden");
-
-        // Auto hide after 5 seconds
-        setTimeout(hideAlert, 5000);
+        if (alertMessage && alertError) {
+          alertMessage.textContent = message;
+          alertError.classList.remove("hidden");
+          setTimeout(hideAlert, 5000);
+        }
       }
 
-      // Toggle loading state
       function setLoading(isLoading) {
-        if (isLoading) {
-          loginBtn.disabled = true;
-          loginBtn.classList.add("opacity-75", "cursor-not-allowed");
-          btnText.classList.add("hidden");
-          btnLoader.classList.remove("hidden");
-        } else {
-          loginBtn.disabled = false;
-          loginBtn.classList.remove("opacity-75", "cursor-not-allowed");
-          btnText.classList.remove("hidden");
-          btnLoader.classList.add("hidden");
+        if (loginBtn && btnText && btnLoader) {
+          if (isLoading) {
+            loginBtn.disabled = true;
+            btnText.classList.add("hidden");
+            btnLoader.classList.remove("hidden");
+          } else {
+            loginBtn.disabled = false;
+            btnText.classList.remove("hidden");
+            btnLoader.classList.add("hidden");
+          }
         }
       }
 
-      // Form submit handler
-      loginForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
+      if (loginForm) {
+        loginForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          hideAlert();
 
-        // Hide any previous alerts
-        hideAlert();
+          const username = document.getElementById("username").value.trim();
+          const password = document.getElementById("password").value;
 
-        // Get form data
-        const formData = {
-          username: document.getElementById("username").value,
-          password: document.getElementById("password").value,
-        };
+          if (!username || !password) {
+            showAlert("Mohon lengkapi username dan password.");
+            return;
+          }
 
-        // Basic validation
-        if (!formData.username || !formData.password) {
-          showAlert("Mohon lengkapi username dan password.");
-          return;
+          setLoading(true);
+
+          try {
+            const response = await fetch(API_LOGIN_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.user) {
+              // Simpan data user di localStorage
+              localStorage.setItem("username", data.user.username);
+              localStorage.setItem("userId", data.user.id);
+              localStorage.setItem("token", data.token || "sample_token");
+
+              alert("Login berhasil! Mengalihkan ke halaman tambah berita...");
+              window.location.href = "tambah_berita.html";
+            } else {
+              const errorMsg =
+                data.error ||
+                data.message ||
+                "Username atau password tidak valid.";
+              showAlert(errorMsg);
+            }
+          } catch (error) {
+            console.error("Login error:", error);
+            showAlert("Terjadi kesalahan koneksi. Silakan coba lagi.");
+          } finally {
+            setLoading(false);
+          }
+        });
+      }
+
+      // ==================================================
+      // AUTO REDIRECT (JIKA SUDAH LOGIN)
+      // ==================================================
+      document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
+
+        // Jika user sudah login & berada di halaman login → langsung ke tambah_berita.html
+        if (token && window.location.pathname.includes("login.html")) {
+          window.location.href = "tambah_berita.html";
         }
 
-        // Set loading state
-        setLoading(true);
+        // Jika user belum login tapi buka tambah_berita.html → paksa ke login.html
+        if (!token && window.location.pathname.includes("tambah_berita.html")) {
+          window.location.href = "login.html";
+        }
 
-        try {
-          // API Endpoint (ganti dengan endpoint yang sebenarnya)
-          const API_URL = "https://api.example.com/admin/login";
-
-          // Send POST request
-          const response = await fetch(API_URL, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify(formData),
-          });
-
-          // Parse response
-          const data = await response.json();
-
-          // Check if login successful
-          if (response.ok && data.success) {
-            // Store token if provided
-            if (data.token) {
-              // Note: localStorage is not supported in Claude artifacts
-              // In production, you would use:
-              // localStorage.setItem('authToken', data.token);
-              console.log("Token received:", data.token);
-            }
-
-            // Show success message
-            alert("Login berhasil! Mengalihkan ke dashboard...");
-
-            // Redirect to dashboard
-            // window.location.href = '/admin/dashboard';
-          } else {
-            // Show error message
-            const errorMsg =
-              data.message || "Username atau password tidak valid.";
-            showAlert(errorMsg);
-          }
-        } catch (error) {
-          // Handle network errors
-          console.error("Login error:", error);
-          showAlert("Terjadi kesalahan koneksi. Silakan coba lagi.");
-        } finally {
-          // Remove loading state
-          setLoading(false);
+        // Jika ada user yang login, tampilkan namanya di halaman tambah berita
+        const username = localStorage.getItem("username");
+        const userDisplay = document.getElementById("userDisplay");
+        if (userDisplay && username) {
+          userDisplay.textContent = username;
         }
       });
 
-      // ========================================
-      // DEMO MODE - REMOVE IN PRODUCTION
-      // ========================================
-      // Untuk testing, uncomment kode di bawah untuk simulasi login
-
-      /*
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            hideAlert();
-            setLoading(true);
-            
-            // Simulasi delay network
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            // Contoh validasi sederhana
-            if (username === 'admin' && password === 'admin123') {
-                alert('Login berhasil! (Demo Mode)');
-                // Redirect ke dashboard
-            } else {
-                showAlert('Username atau password salah. Coba: admin / admin123');
-            }
-            
-            setLoading(false);
+      // ==================================================
+      // LOGOUT FUNCTIONALITY
+      // ==================================================
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", function () {
+          if (confirm("Apakah Anda yakin ingin logout?")) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("username");
+            localStorage.removeItem("userId");
+            window.location.href = "login.html";
+          }
         });
-        */
+      }
     </script>
   </body>
 </html>
