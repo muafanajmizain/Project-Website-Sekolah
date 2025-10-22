@@ -400,14 +400,15 @@
       // 🌟 Scroll Animation Observer
       // ====================================================
       const observerOptions = {
-        threshold: 0.1,
-        rootMargin: "0px 0px -50px 0px",
+        threshold: 0.15,
+        rootMargin: "0px 0px -60px 0px",
       };
 
-      const observer = new IntersectionObserver(function (entries) {
+      const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("show");
+            observer.unobserve(entry.target); // animasi hanya sekali
           }
         });
       }, observerOptions);
@@ -415,71 +416,81 @@
       // ====================================================
       // 📱 Jalankan setelah halaman selesai dimuat
       // ====================================================
-      document.addEventListener("DOMContentLoaded", function () {
-        // 🔹 Efek animasi scroll
+      document.addEventListener("DOMContentLoaded", () => {
+        // ====================================================
+        // ✨ Efek animasi scroll
+        // ====================================================
         const animateElements = document.querySelectorAll(
-          "section > .container, .grid > div"
+          ".scroll-animate, section > .container, .grid > div, .card"
         );
+
         animateElements.forEach((el) => {
-          el.classList.add("scroll-animate");
-          if (typeof observer !== "undefined") observer.observe(el);
+          el.classList.add("pre-animate");
+          observer.observe(el);
         });
 
         // ====================================================
         // 📰 Fetch Data Berita dari API
         // ====================================================
         const apiUrl =
-          "https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/berita";
+          "https://school-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/berita";
+        const container = document.getElementById("beritaContainer");
 
-        fetch(apiUrl)
-          .then((response) => response.json())
-          .then((data) => {
-            const container = document.getElementById("beritaContainer");
+        if (container) {
+          fetch(apiUrl)
+            .then((response) => {
+              if (!response.ok) throw new Error("Gagal memuat data berita");
+              return response.json();
+            })
+            .then((data) => {
+              container.innerHTML = "";
 
-            if (!container) {
-              console.error("Elemen #beritaContainer tidak ditemukan!");
-              return;
-            }
+              data.forEach((item) => {
+                const card = document.createElement("div");
+                card.className =
+                  "bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transform hover:-translate-y-1 transition duration-300 scroll-animate";
 
-            container.innerHTML = "";
+                // Format tanggal ke DD-MM-YYYY
+                const dateObj = new Date(item.tanggal);
+                const formattedDate = `${String(dateObj.getDate()).padStart(
+                  2,
+                  "0"
+                )}-${String(dateObj.getMonth() + 1).padStart(
+                  2,
+                  "0"
+                )}-${dateObj.getFullYear()}`;
 
-            data.forEach((item) => {
-              const card = document.createElement("div");
-
-              // Format tanggal ke DD-MM-YYYY
-              const dateObj = new Date(item.tanggal);
-              const formattedDate = `${String(dateObj.getDate()).padStart(
-                2,
-                "0"
-              )}-${String(dateObj.getMonth() + 1).padStart(
-                2,
-                "0"
-              )}-${dateObj.getFullYear()}`;
-
-              card.className =
-                "bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition transform hover:-translate-y-1";
-
-              card.innerHTML = `
-            <div class="relative group">
-              <img src="${item.foto_url}" alt="${item.judul}" class="w-full h-48 object-cover" />
-              <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                <button onclick="openModal('${item.foto_url}', '${formattedDate}', \`${item.judul}\`, \`${item.deskripsi}\`)" 
-                  class="bg-white text-blue-900 px-6 py-2 rounded-full font-semibold hover:bg-blue-100 transition">
-                  Lihat Detail
-                </button>
+                card.innerHTML = `
+              <div class="relative group">
+                <img src="${item.foto_url}" alt="${item.judul}" 
+                  class="w-full h-48 object-cover group-hover:scale-105 transition duration-300" />
+                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                  <button 
+                    onclick="openModal('${item.foto_url}', '${formattedDate}', \`${item.judul}\`, \`${item.deskripsi}\`)" 
+                    class="bg-white text-blue-900 px-6 py-2 rounded-full font-semibold hover:bg-blue-100 transition">
+                    Lihat Detail
+                  </button>
+                </div>
               </div>
-            </div>
-            <div class="p-4 text-center">
-              <h3 class="text-blue-900 font-bold text-lg mb-1">${item.judul}</h3>
-              <p class="text-sm text-gray-500 mb-2">${formattedDate}</p>
-              <p class="text-gray-700 text-sm leading-snug line-clamp-3">${item.deskripsi}</p>
-            </div>
-          `;
+              <div class="p-4 text-center">
+                <h3 class="text-blue-900 font-bold text-lg mb-1 line-clamp-1">${item.judul}</h3>
+                <p class="text-sm text-gray-500 mb-2">${formattedDate}</p>
+                <p class="text-gray-700 text-sm leading-snug line-clamp-3">${item.deskripsi}</p>
+              </div>
+            `;
 
-              container.appendChild(card);
-            });
-          })
-          .catch((error) => console.error("Gagal memuat data berita:", error));
+                container.appendChild(card);
+                observer.observe(card);
+              });
+            })
+            .catch((error) =>
+              console.error("❌ Terjadi kesalahan saat memuat berita:", error)
+            );
+        } else {
+          console.warn(
+            "⚠️ Elemen #beritaContainer tidak ditemukan di halaman."
+          );
+        }
 
         // ====================================================
         // 🍔 HAMBURGER MENU (Navbar Mobile)
@@ -489,25 +500,53 @@
 
         if (menuButton && mobileMenu) {
           menuButton.addEventListener("click", () => {
-            mobileMenu.classList.toggle("active");
+            const isActive = mobileMenu.classList.toggle("active");
+            menuButton.classList.toggle("open");
 
-            // Animasi smooth saat menu muncul
-            if (mobileMenu.classList.contains("active")) {
+            if (isActive) {
+              mobileMenu.style.display = "flex";
               mobileMenu.style.opacity = "0";
               mobileMenu.style.transform = "translateY(-10px)";
               setTimeout(() => {
                 mobileMenu.style.opacity = "1";
                 mobileMenu.style.transform = "translateY(0)";
-              }, 50);
+                mobileMenu.style.transition =
+                  "opacity 0.3s ease, transform 0.3s ease";
+              }, 30);
+            } else {
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.display = "none";
+              }, 250);
             }
           });
 
           // Tutup otomatis saat salah satu link diklik
-          const menuLinks = mobileMenu.querySelectorAll("a");
-          menuLinks.forEach((link) => {
+          mobileMenu.querySelectorAll("a").forEach((link) => {
             link.addEventListener("click", () => {
               mobileMenu.classList.remove("active");
+              menuButton.classList.remove("open");
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.display = "none";
+              }, 200);
             });
+          });
+        }
+
+        // ====================================================
+        // 🧭 Sticky Header (opsional)
+        // ====================================================
+        const header = document.querySelector("header");
+        if (header) {
+          window.addEventListener("scroll", () => {
+            if (window.scrollY > 50) {
+              header.classList.add("scrolled");
+            } else {
+              header.classList.remove("scrolled");
+            }
           });
         }
       });
@@ -518,16 +557,16 @@
       function openModal(foto, tanggal, judul, deskripsi) {
         const modal = document.createElement("div");
         modal.className =
-          "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4";
+          "fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in";
 
         modal.innerHTML = `
-      <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-5 relative animate-fade-in">
-        <button onclick="this.parentElement.parentElement.remove()" 
-          class="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-lg">&times;</button>
-        <img src="${foto}" alt="Gambar" class="w-full h-56 object-cover rounded-lg mb-4">
-        <h3 class="text-lg font-semibold text-blue-900 mb-2">${judul}</h3>
-        <p class="text-gray-600 text-sm mb-2"><b>Tanggal:</b> ${tanggal}</p>
-        <p class="text-gray-700 text-sm leading-snug">${deskripsi}</p>
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-5 relative scale-95 animate-zoom-in">
+        <button onclick="this.closest('.fixed').remove()" 
+          class="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-xl font-bold">&times;</button>
+        <img src="${foto}" alt="Gambar Berita" class="w-full h-56 object-cover rounded-lg mb-4">
+        <h3 class="text-lg font-bold text-blue-900 mb-2">${judul}</h3>
+        <p class="text-gray-600 text-sm mb-1"><b>Tanggal:</b> ${tanggal}</p>
+        <p class="text-gray-700 text-sm leading-snug text-justify">${deskripsi}</p>
       </div>
     `;
 

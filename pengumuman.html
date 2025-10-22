@@ -473,7 +473,9 @@
     </footer>
 
     <script>
-      // 🔹 Scroll Animation Observer
+      // ====================================================
+      // 🌟 Scroll Animation Observer
+      // ====================================================
       const observerOptions = {
         threshold: 0.1,
         rootMargin: "0px 0px -50px 0px",
@@ -487,9 +489,11 @@
         });
       }, observerOptions);
 
-      // 🔹 Jalankan setelah DOM siap
-      document.addEventListener("DOMContentLoaded", function () {
-        // Efek animasi scroll
+      // ====================================================
+      // 📱 Jalankan setelah halaman selesai dimuat
+      // ====================================================
+      document.addEventListener("DOMContentLoaded", () => {
+        // 🔹 Efek animasi scroll untuk elemen di halaman
         const animateElements = document.querySelectorAll(
           "section > .container, .grid > div"
         );
@@ -498,18 +502,54 @@
           observer.observe(el);
         });
 
-        // ✅ Hamburger Menu (versi mobile rapi)
+        // ====================================================
+        // 🍔 HAMBURGER MENU (Responsif + Animasi Smooth)
+        // ====================================================
         const menuButton = document.getElementById("menu-toggle");
         const mobileMenu = document.getElementById("mobile-menu");
 
         if (menuButton && mobileMenu) {
           menuButton.addEventListener("click", () => {
-            // toggle class untuk menampilkan/menyembunyikan menu
-            mobileMenu.classList.toggle("hidden");
-            mobileMenu.classList.toggle("flex");
-            mobileMenu.classList.toggle("flex-col");
-            mobileMenu.classList.toggle("space-y-2"); // jarak antar menu
-            mobileMenu.classList.toggle("mt-3"); // jarak dari tombol
+            // Toggle tampilan menu
+            const isActive = mobileMenu.classList.toggle("active");
+
+            if (isActive) {
+              // Ketika menu dibuka
+              mobileMenu.classList.remove("hidden");
+              mobileMenu.classList.add("flex", "flex-col", "space-y-2", "mt-3");
+
+              // Efek animasi muncul
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.opacity = "1";
+                mobileMenu.style.transform = "translateY(0)";
+                mobileMenu.style.transition =
+                  "opacity 0.3s ease, transform 0.3s ease";
+              }, 50);
+            } else {
+              // Ketika menu ditutup
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.classList.add("hidden");
+                mobileMenu.classList.remove(
+                  "flex",
+                  "flex-col",
+                  "space-y-2",
+                  "mt-3"
+                );
+              }, 250);
+            }
+          });
+
+          // Tutup otomatis jika link di menu diklik
+          const menuLinks = mobileMenu.querySelectorAll("a");
+          menuLinks.forEach((link) => {
+            link.addEventListener("click", () => {
+              mobileMenu.classList.remove("active");
+              mobileMenu.classList.add("hidden");
+            });
           });
         }
       });

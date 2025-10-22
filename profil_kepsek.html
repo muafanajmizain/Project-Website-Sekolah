@@ -482,6 +482,7 @@
         </div>
       </div>
     </footer>
+
     <script>
       // ====================================================
       // 🌟 Scroll Animation Observer
@@ -491,7 +492,7 @@
         rootMargin: "0px 0px -50px 0px",
       };
 
-      const observer = new IntersectionObserver(function (entries) {
+      const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("show");
@@ -502,10 +503,12 @@
       // ====================================================
       // 📱 DOM Loaded
       // ====================================================
-      document.addEventListener("DOMContentLoaded", function () {
-        // 🔹 Efek animasi scroll pada elemen section & grid
+      document.addEventListener("DOMContentLoaded", () => {
+        // ====================================================
+        // ✨ Efek Animasi Scroll
+        // ====================================================
         const animateElements = document.querySelectorAll(
-          "section > .container, .grid > div"
+          "section > .container, .grid > div, .card, .fade-up"
         );
         animateElements.forEach((el) => {
           el.classList.add("scroll-animate");
@@ -519,31 +522,60 @@
         const mobileMenu = document.getElementById("mobile-menu");
 
         if (menuButton && mobileMenu) {
+          // Animasi buka/tutup menu mobile
           menuButton.addEventListener("click", () => {
-            // Toggle menu aktif
-            mobileMenu.classList.toggle("active");
+            const isActive = mobileMenu.classList.toggle("active");
+            menuButton.classList.toggle("open");
 
-            // Efek animasi halus saat buka menu
-            if (mobileMenu.classList.contains("active")) {
+            // Efek transisi halus saat muncul
+            if (isActive) {
+              mobileMenu.style.display = "flex";
               mobileMenu.style.opacity = "0";
-              mobileMenu.style.transform = "translateY(-10px)";
+              mobileMenu.style.transform = "translateY(-15px)";
               setTimeout(() => {
                 mobileMenu.style.opacity = "1";
                 mobileMenu.style.transform = "translateY(0)";
-              }, 50);
+                mobileMenu.style.transition =
+                  "opacity 0.3s ease, transform 0.3s ease";
+              }, 30);
+            } else {
+              // Efek hilang lembut
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.display = "none";
+              }, 250);
             }
           });
 
           // ====================================================
-          // ✅ Tutup menu otomatis jika salah satu link diklik
+          // ✅ Tutup menu otomatis saat link diklik
           // ====================================================
           const menuLinks = mobileMenu.querySelectorAll("a");
           menuLinks.forEach((link) => {
             link.addEventListener("click", () => {
               mobileMenu.classList.remove("active");
+              menuButton.classList.remove("open");
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.display = "none";
+              }, 200);
             });
           });
         }
+
+        // ====================================================
+        // 🧭 Efek Navbar Sticky (Tambahan Opsional)
+        // ====================================================
+        const header = document.querySelector("header");
+        window.addEventListener("scroll", () => {
+          if (window.scrollY > 50) {
+            header.classList.add("scrolled");
+          } else {
+            header.classList.remove("scrolled");
+          }
+        });
       });
     </script>
   </body>

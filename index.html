@@ -1018,22 +1018,21 @@
       </div>
     </footer>
     <script>
-      // Scroll Animation Observer
-      const observerOptions = {
-        threshold: 0.1,
-        rootMargin: "0px 0px -50px 0px",
-      };
-
-      const observer = new IntersectionObserver(function (entries) {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("show");
-          }
-        });
-      }, observerOptions);
-
-      // Observe all sections and cards
       document.addEventListener("DOMContentLoaded", function () {
+        // Scroll Animation Observer
+        const observerOptions = {
+          threshold: 0.1,
+          rootMargin: "0px 0px -50px 0px",
+        };
+
+        const observer = new IntersectionObserver(function (entries) {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("show");
+            }
+          });
+        }, observerOptions);
+
         const animateElements = document.querySelectorAll(
           "section > .container, .grid > div"
         );
@@ -1042,13 +1041,20 @@
           observer.observe(el);
         });
 
-        // ✅ Tambahan: Script Hamburger Menu
-        const menuButton = document.querySelector("button.md\\:hidden");
-        const navMenu = document.querySelector(".hidden.md\\:flex");
+        // ✅ Perbaikan: Hamburger Menu versi mobile
+        const menuToggle = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
 
-        if (menuButton && navMenu) {
-          menuButton.addEventListener("click", () => {
-            navMenu.classList.toggle("hidden");
+        if (menuToggle && mobileMenu) {
+          menuToggle.addEventListener("click", () => {
+            mobileMenu.classList.toggle("active");
+
+            // Tambahan animasi buka/tutup halus
+            if (mobileMenu.classList.contains("active")) {
+              mobileMenu.style.maxHeight = mobileMenu.scrollHeight + "px";
+            } else {
+              mobileMenu.style.maxHeight = "0";
+            }
           });
         }
       });

@@ -570,6 +570,7 @@
         </div>
       </div>
     </footer>
+
     <script>
       // ============================================
       // 🌟 Scroll Animation Observer
@@ -601,24 +602,39 @@
         });
 
         // ============================================
-        // 🍔 HAMBURGER MENU (versi mobile)
+        // 🍔 HAMBURGER MENU (versi mobile, disesuaikan)
         // ============================================
         const menuButton = document.getElementById("menu-toggle");
         const mobileMenu = document.getElementById("mobile-menu");
 
         if (menuButton && mobileMenu) {
+          // Set animasi dasar
+          mobileMenu.style.transition = "all 0.3s ease-in-out";
+          mobileMenu.style.overflow = "hidden";
+          mobileMenu.style.maxHeight = "0";
+          mobileMenu.style.opacity = "0";
+          mobileMenu.style.transform = "translateY(-10px)";
+          mobileMenu.style.display = "none";
+
           menuButton.addEventListener("click", () => {
-            // Toggle kelas 'active' untuk tampilkan/sembunyikan menu mobile
             mobileMenu.classList.toggle("active");
 
-            // Animasi kecil saat buka/tutup menu
             if (mobileMenu.classList.contains("active")) {
+              // 🟢 Tampilkan menu dengan animasi slide + fade
+              mobileMenu.style.display = "block";
+              setTimeout(() => {
+                mobileMenu.style.maxHeight = mobileMenu.scrollHeight + "px";
+                mobileMenu.style.opacity = "1";
+                mobileMenu.style.transform = "translateY(0)";
+              }, 10);
+            } else {
+              // 🔴 Tutup menu dengan animasi halus
+              mobileMenu.style.maxHeight = "0";
               mobileMenu.style.opacity = "0";
               mobileMenu.style.transform = "translateY(-10px)";
               setTimeout(() => {
-                mobileMenu.style.opacity = "1";
-                mobileMenu.style.transform = "translateY(0)";
-              }, 50);
+                mobileMenu.style.display = "none";
+              }, 300); // durasi harus sama dengan transition
             }
           });
         }

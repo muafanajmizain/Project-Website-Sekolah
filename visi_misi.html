@@ -504,6 +504,7 @@
         </div>
       </div>
     </footer>
+
     <script>
       // ============================================
       // 🌟 Scroll Animation Observer
@@ -535,29 +536,33 @@
         });
 
         // ============================================
-        // 🍔 HAMBURGER MENU (versi mobile)
+        // 🍔 HAMBURGER MENU (versi mobile, disesuaikan)
         // ============================================
-        const menuButton = document.querySelector("button.md\\:hidden"); // tombol hamburger
-        const navMenu = document.querySelector(".hidden.md\\:flex"); // menu navigasi utama
+        const menuToggle = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
 
-        if (menuButton && navMenu) {
-          menuButton.addEventListener("click", () => {
-            // toggle class 'hidden' agar menu muncul atau hilang
-            navMenu.classList.toggle("hidden");
-            navMenu.classList.toggle("flex");
+        if (menuToggle && mobileMenu) {
+          // tambahkan transisi halus via inline style
+          mobileMenu.style.transition = "all 0.3s ease-in-out";
+          mobileMenu.style.overflow = "hidden";
+          mobileMenu.style.maxHeight = "0";
 
-            // tambahkan gaya agar list muncul rapi ke bawah
-            navMenu.classList.toggle("flex-col");
-            navMenu.classList.toggle("items-start");
-            navMenu.classList.toggle("bg-white");
-            navMenu.classList.toggle("p-4");
-            navMenu.classList.toggle("rounded-lg");
-            navMenu.classList.toggle("shadow-lg");
-            navMenu.classList.toggle("absolute");
-            navMenu.classList.toggle("top-16");
-            navMenu.classList.toggle("left-0");
-            navMenu.classList.toggle("w-full");
-            navMenu.classList.toggle("z-50");
+          menuToggle.addEventListener("click", () => {
+            mobileMenu.classList.toggle("active");
+
+            if (mobileMenu.classList.contains("active")) {
+              // buka menu: animasi slide down
+              mobileMenu.style.display = "block";
+              setTimeout(() => {
+                mobileMenu.style.maxHeight = mobileMenu.scrollHeight + "px";
+              }, 10);
+            } else {
+              // tutup menu: animasi slide up
+              mobileMenu.style.maxHeight = "0";
+              setTimeout(() => {
+                mobileMenu.style.display = "none";
+              }, 300);
+            }
           });
         }
       });

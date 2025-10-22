@@ -512,10 +512,10 @@
     </footer>
 
     <script>
-      // ==========================================
-      // SCROLL ANIMATION
-      // ==========================================
       document.addEventListener("DOMContentLoaded", function () {
+        // ======================================================
+        // 🌟 SCROLL ANIMATION
+        // ======================================================
         const observerOptions = {
           threshold: 0.1,
           rootMargin: "0px 0px -50px 0px",
@@ -529,32 +529,66 @@
           });
         }, observerOptions);
 
-        // Observe semua elemen dengan class "scroll-animate"
+        // Tambahkan dan observe semua elemen scroll-animate
         document.querySelectorAll(".scroll-animate").forEach((el) => {
           observer.observe(el);
         });
 
-        // ==========================================
-        // FORM SUBMISSION HANDLER
-        // ==========================================
+        // ======================================================
+        // 📩 FORM SUBMISSION HANDLER
+        // ======================================================
         const form = document.querySelector("form");
         if (form) {
           form.addEventListener("submit", (e) => {
             e.preventDefault();
-            alert("✅ Terima kasih! Pesan Anda telah dikirim.");
+
+            // Notifikasi sukses animatif
+            const notif = document.createElement("div");
+            notif.textContent = "✅ Terima kasih! Pesan Anda telah dikirim.";
+            notif.className =
+              "fixed bottom-6 right-6 bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg animate-fadeIn";
+            document.body.appendChild(notif);
+
+            setTimeout(() => notif.remove(), 3000);
+
             e.target.reset();
           });
         }
 
-        // ==========================================
-        // HAMBURGER MENU HANDLER
-        // ==========================================
-        const menuButton = document.querySelector("button.md\\:hidden");
-        const navMenu = document.querySelector(".hidden.md\\:flex");
+        // ======================================================
+        // 🍔 HAMBURGER MENU (Versi Mobile)
+        // ======================================================
+        const menuButton = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
 
-        if (menuButton && navMenu) {
+        if (menuButton && mobileMenu) {
           menuButton.addEventListener("click", () => {
-            navMenu.classList.toggle("hidden");
+            mobileMenu.classList.toggle("active");
+
+            // Animasi smooth saat menu muncul
+            if (mobileMenu.classList.contains("active")) {
+              mobileMenu.style.display = "flex";
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.opacity = "1";
+                mobileMenu.style.transform = "translateY(0)";
+              }, 50);
+            } else {
+              mobileMenu.style.opacity = "0";
+              setTimeout(() => {
+                mobileMenu.style.display = "none";
+              }, 200);
+            }
+          });
+
+          // Tutup otomatis saat link di menu diklik
+          const links = mobileMenu.querySelectorAll("a");
+          links.forEach((link) => {
+            link.addEventListener("click", () => {
+              mobileMenu.classList.remove("active");
+              mobileMenu.style.display = "none";
+            });
           });
         }
       });

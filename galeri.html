@@ -437,27 +437,27 @@
     </footer>
 
     <script>
-      // ==========================================
-      // KONFIGURASI API
-      // ==========================================
+      // ====================================================
+      // 🌐 KONFIGURASI API
+      // ====================================================
       const API_BASE_URL =
-        "https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev";
+        "https://school-ekarahma2846311-08tanrqk.apn.leapcell.dev";
       const API_GALERI_URL = `${API_BASE_URL}/api/galeri`;
 
-      // ==========================================
-      // INISIALISASI APLIKASI
-      // ==========================================
-      document.addEventListener("DOMContentLoaded", function () {
-        console.log("🚀 Aplikasi User Galeri dimulai");
+      // ====================================================
+      // 🚀 INISIALISASI APLIKASI
+      // ====================================================
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("🚀 Aplikasi Galeri User dimulai...");
         loadGallery();
         initScrollAnimation();
         initLightboxHandlers();
-        initHamburgerMenu(); // ✅ Tambahan baru
+        initHamburgerMenu();
       });
 
-      // ==========================================
-      // FUNGSI LOAD GALERI (TANPA AUTHOR)
-      // ==========================================
+      // ====================================================
+      // 📸 LOAD DATA GALERI
+      // ====================================================
       async function loadGallery() {
         const loadingState = document.getElementById("loadingState");
         const emptyState = document.getElementById("emptyState");
@@ -468,23 +468,17 @@
           emptyState.classList.add("hidden");
           galleryGrid.innerHTML = "";
 
-          console.log("📥 Memuat galeri dari:", API_GALERI_URL);
-
+          console.log("📥 Mengambil data dari:", API_GALERI_URL);
           const response = await fetch(API_GALERI_URL, {
-            method: "GET",
-            headers: {
-              Accept: "application/json",
-            },
+            headers: { Accept: "application/json" },
           });
 
-          console.log("Response status:", response.status);
-          if (!response.ok) throw new Error("Gagal memuat galeri");
+          if (!response.ok) throw new Error("Gagal memuat data galeri");
 
           const result = await response.json();
-          console.log("Response galeri:", result);
-
           const data = Array.isArray(result) ? result : result.data || [];
-          console.log("Total item galeri:", data.length);
+
+          console.log("✅ Total galeri:", data.length);
 
           loadingState.classList.add("hidden");
 
@@ -495,100 +489,88 @@
 
           renderGallery(data);
         } catch (error) {
-          console.error("❌ Error loading gallery:", error);
+          console.error("❌ Gagal memuat galeri:", error);
           loadingState.classList.add("hidden");
           emptyState.classList.remove("hidden");
 
-          const emptyStateText = emptyState.querySelector("p");
-          if (emptyStateText) {
-            emptyStateText.textContent =
-              "Gagal memuat galeri. Silakan refresh halaman.";
-          }
+          const msg = emptyState.querySelector("p");
+          if (msg)
+            msg.textContent = "Gagal memuat galeri. Silakan refresh halaman.";
         }
       }
 
-      // ==========================================
-      // FUNGSI RENDER GALERI
-      // ==========================================
+      // ====================================================
+      // 🖼️ RENDER KARTU GALERI
+      // ====================================================
       function renderGallery(data) {
         const galleryGrid = document.getElementById("galleryGrid");
 
         galleryGrid.innerHTML = data
           .map(
-            (item, index) => `
-      <div class="gallery-card bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300" data-index="${index}">
-        <div class="relative overflow-hidden h-64 cursor-pointer group" 
-             onclick="openLightbox('${getImageUrl(
-               item.foto_url
-             )}', '${escapeHtml(item.judul || "Tanpa Judul")}')">
-          <img 
-            src="${getImageUrl(item.foto_url)}" 
-            alt="${escapeHtml(item.judul || "Gallery")}" 
-            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"
-            loading="lazy"
-          >
-          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-            <div class="p-4 text-white w-full">
-              <p class="text-sm font-medium flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
-                Klik untuk melihat detail
-              </p>
+            (item, i) => `
+        <div class="gallery-card bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" data-index="${i}">
+          <div class="relative h-64 overflow-hidden group cursor-pointer" 
+               onclick="openLightbox('${getImageUrl(
+                 item.foto_url
+               )}', '${escapeHtml(item.judul || "Tanpa Judul")}')">
+            <img src="${getImageUrl(item.foto_url)}" 
+                 alt="${escapeHtml(item.judul || "Galeri")}"
+                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                 onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div class="p-4 text-white">
+                <p class="text-sm flex items-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7
+                      -1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                  Klik untuk melihat detail
+                </p>
+              </div>
             </div>
           </div>
+          <div class="p-5 text-center">
+            <h3 class="text-lg font-semibold text-gray-800 line-clamp-2 hover:text-blue-600 transition">
+              ${escapeHtml(item.judul || "Tanpa Judul")}
+            </h3>
+          </div>
         </div>
-        
-        <div class="p-6">
-          <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-2 hover:text-blue-600 transition-colors">
-            ${escapeHtml(item.judul || "Tanpa Judul")}
-          </h3>
-        </div>
-      </div>
-    `
+      `
           )
           .join("");
 
-        // Animasi muncul bertahap
+        // Efek animasi masuk bertahap
         setTimeout(() => {
           document.querySelectorAll(".gallery-card").forEach((el, idx) => {
-            setTimeout(() => {
-              el.classList.add("show");
-            }, idx * 100);
+            setTimeout(() => el.classList.add("show"), idx * 100);
           });
         }, 100);
       }
 
-      // ==========================================
-      // FUNGSI GET IMAGE URL
-      // ==========================================
-      function getImageUrl(foto_url) {
-        if (!foto_url)
-          return "https://via.placeholder.com/400x300?text=No+Image";
-        if (foto_url.startsWith("http")) return foto_url;
-        return `${API_BASE_URL}${foto_url}`;
+      // ====================================================
+      // 🔗 IMAGE URL HANDLER
+      // ====================================================
+      function getImageUrl(url) {
+        if (!url) return "https://via.placeholder.com/400x300?text=No+Image";
+        return url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
       }
 
-      // ==========================================
-      // FUNGSI LIGHTBOX
-      // ==========================================
+      // ====================================================
+      // 💡 LIGHTBOX
+      // ====================================================
       function openLightbox(imageUrl, title) {
         const lightbox = document.getElementById("lightbox");
-        const lightboxImage = document.getElementById("lightboxImage");
-        const lightboxTitle = document.getElementById("lightboxTitle");
+        const img = document.getElementById("lightboxImage");
+        const text = document.getElementById("lightboxTitle");
 
-        if (!lightbox || !lightboxImage || !lightboxTitle) {
-          console.error("❌ Lightbox elements tidak ditemukan!");
-          return;
-        }
+        if (!lightbox || !img || !text)
+          return console.error("❌ Elemen lightbox tidak ditemukan!");
 
-        lightboxImage.src = imageUrl;
-        lightboxTitle.textContent = title || "Tanpa Judul";
-
-        const lightboxDate = document.getElementById("lightboxDate");
-        if (lightboxDate) lightboxDate.style.display = "none";
+        img.src = imageUrl;
+        text.textContent = title || "Tanpa Judul";
 
         lightbox.classList.add("active");
         document.body.style.overflow = "hidden";
@@ -610,9 +592,9 @@
         if (e.key === "Escape") closeLightbox();
       }
 
-      // ==========================================
-      // INIT LIGHTBOX HANDLERS
-      // ==========================================
+      // ====================================================
+      // 🧩 LIGHTBOX HANDLERS
+      // ====================================================
       function initLightboxHandlers() {
         const lightbox = document.getElementById("lightbox");
         if (!lightbox) return;
@@ -627,9 +609,9 @@
         });
       }
 
-      // ==========================================
-      // SCROLL ANIMATION
-      // ==========================================
+      // ====================================================
+      // 🎞️ SCROLL ANIMATION
+      // ====================================================
       function initScrollAnimation() {
         const observer = new IntersectionObserver(
           (entries) => {
@@ -650,27 +632,58 @@
         window.addEventListener("galleryLoaded", observeCards);
       }
 
-      // ==========================================
-      // ✅ HAMBURGER MENU (TAMPIL RAPIH DI MOBILE)
-      // ==========================================
+      // ====================================================
+      // 🍔 HAMBURGER MENU (RESPONSIF + ANIMASI)
+      // ====================================================
       function initHamburgerMenu() {
         const menuButton = document.getElementById("menu-toggle");
         const mobileMenu = document.getElementById("mobile-menu");
 
         if (menuButton && mobileMenu) {
           menuButton.addEventListener("click", () => {
-            mobileMenu.classList.toggle("hidden");
-            mobileMenu.classList.toggle("flex");
-            mobileMenu.classList.toggle("flex-col");
-            mobileMenu.classList.toggle("space-y-2");
-            mobileMenu.classList.toggle("mt-3");
+            const isActive = mobileMenu.classList.toggle("active");
+
+            if (isActive) {
+              mobileMenu.classList.remove("hidden");
+              mobileMenu.classList.add("flex", "flex-col", "space-y-2", "mt-3");
+
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.opacity = "1";
+                mobileMenu.style.transform = "translateY(0)";
+                mobileMenu.style.transition =
+                  "opacity 0.3s ease, transform 0.3s ease";
+              }, 50);
+            } else {
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.classList.add("hidden");
+                mobileMenu.classList.remove(
+                  "flex",
+                  "flex-col",
+                  "space-y-2",
+                  "mt-3"
+                );
+              }, 250);
+            }
           });
+
+          // Tutup otomatis saat salah satu link di menu diklik
+          const menuLinks = mobileMenu.querySelectorAll("a");
+          menuLinks.forEach((link) =>
+            link.addEventListener("click", () => {
+              mobileMenu.classList.remove("active");
+              mobileMenu.classList.add("hidden");
+            })
+          );
         }
       }
 
-      // ==========================================
-      // HELPER FUNCTIONS
-      // ==========================================
+      // ====================================================
+      // 🧰 HELPER
+      // ====================================================
       function escapeHtml(str) {
         if (!str) return "";
         const div = document.createElement("div");

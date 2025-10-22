@@ -417,115 +417,175 @@
     </footer>
 
     <script>
-      // Scroll Animation Observer
+      // ====================================================
+      // 🌟 Scroll Animation Observer
+      // ====================================================
       const observerOptions = {
-        threshold: 0.1,
-        rootMargin: "0px 0px -50px 0px",
+        threshold: 0.15,
+        rootMargin: "0px 0px -60px 0px",
       };
 
-      const observer = new IntersectionObserver(function (entries) {
+      const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("show");
+            observer.unobserve(entry.target);
           }
         });
       }, observerOptions);
 
-      // Jalankan setelah DOM siap
-      document.addEventListener("DOMContentLoaded", function () {
-        // 🔹 Animasi Scroll
+      // ====================================================
+      // 📱 Jalankan setelah halaman selesai dimuat
+      // ====================================================
+      document.addEventListener("DOMContentLoaded", () => {
+        // ====================================================
+        // ✨ Efek animasi scroll untuk elemen tertentu
+        // ====================================================
         const animateElements = document.querySelectorAll(
-          "section > .container, .grid > div"
+          ".scroll-animate, section > .container, .grid > div, .card"
         );
         animateElements.forEach((el) => {
-          el.classList.add("scroll-animate");
+          el.classList.add("pre-animate");
           observer.observe(el);
         });
 
-        // 🔹 Modal untuk gambar prestasi
-        window.openModal = function (imageSrc) {
-          const modal = document.getElementById("imageModal");
-          const modalImg = document.getElementById("modalImage");
-
-          if (modal && modalImg) {
-            modalImg.src = imageSrc;
-            modal.classList.remove("hidden");
-            modal.classList.add("flex");
-          }
-        };
-
-        window.closeModal = function () {
-          const modal = document.getElementById("imageModal");
-          if (modal) {
-            modal.classList.add("hidden");
-            modal.classList.remove("flex");
-          }
-        };
-
-        // 🔹 Ambil data dari API Prestasi
+        // ====================================================
+        // 🏆 Ambil Data Prestasi dari API
+        // ====================================================
         const apiUrl =
-          "https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/prestasi";
+          "https://school-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/prestasi";
+        const container = document.getElementById("prestasiContainer");
 
-        fetch(apiUrl)
-          .then((response) => response.json())
-          .then((data) => {
-            console.log("Data Prestasi:", data);
+        if (container) {
+          fetch(apiUrl)
+            .then((response) => {
+              if (!response.ok) throw new Error("Gagal memuat data prestasi");
+              return response.json();
+            })
+            .then((data) => {
+              container.innerHTML = "";
 
-            const container = document.getElementById("prestasiContainer");
-            if (!container) return;
-            container.innerHTML = "";
+              data.forEach((item) => {
+                const nama = item.nama || item.username || "Nama belum diisi";
+                const kelas = item.kelas || "-";
+                const juara = item.juara || "1";
+                const foto =
+                  item.foto_url ||
+                  "https://via.placeholder.com/400x250?text=No+Image";
+                const judul = item.judul || "Tidak ada judul";
+                const deskripsi = item.deskripsi || "Tidak ada deskripsi";
 
-            data.forEach((item) => {
-              const nama = item.nama || item.username || "Nama belum diisi";
-              const kelas = item.kelas || "-";
-              const juara = item.juara || "1";
-              const foto =
-                item.foto_url ||
-                "https://via.placeholder.com/400x250?text=No+Image";
-              const judul = item.judul || "Tidak ada judul";
-              const deskripsi = item.deskripsi || "Tidak ada deskripsi";
+                const card = document.createElement("div");
+                card.className =
+                  "bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transform hover:-translate-y-1 transition duration-300 scroll-animate";
 
-              const card = document.createElement("div");
-              card.className =
-                "bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition";
-
-              card.innerHTML = `
-            <div class="relative group">
-              <img src="${foto}" alt="${judul}" class="w-full h-48 object-cover"/>
-              <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                <button onclick="openModal('${foto}')" 
-                  class="bg-white text-blue-900 px-6 py-2 rounded-full font-semibold hover:bg-blue-100 transition">
-                  Lihat Gambar
-                </button>
+                card.innerHTML = `
+              <div class="relative group">
+                <img src="${foto}" alt="${judul}" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300" />
+                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                  <button onclick="openModal('${foto}', '${judul}', '${nama}', '${kelas}', '${juara}', \`${deskripsi}\`)" 
+                    class="bg-white text-blue-900 px-6 py-2 rounded-full font-semibold hover:bg-blue-100 transition">
+                    Lihat Detail
+                  </button>
+                </div>
               </div>
-            </div>
-            <div class="p-4 text-center">
-              <h3 class="text-blue-900 font-bold text-lg">${nama}</h3>
-              <p class="text-sm text-gray-500 mb-2">Kelas : ${kelas}</p>
-              <div class="bg-blue-700 text-white inline-block px-4 py-1 rounded-full text-xs font-semibold mb-3">
-                Juara ${juara}
+              <div class="p-4 text-center">
+                <h3 class="text-blue-900 font-bold text-lg">${nama}</h3>
+                <p class="text-sm text-gray-500 mb-2">Kelas: ${kelas}</p>
+                <div class="bg-blue-700 text-white inline-block px-4 py-1 rounded-full text-xs font-semibold mb-3">
+                  Juara ${juara}
+                </div>
+                <p class="text-gray-700 text-sm leading-snug">
+                  Kategori: ${judul} - ${deskripsi}
+                </p>
               </div>
-              <p class="text-gray-700 text-sm leading-snug">
-                Kategori Lomba : ${judul} - ${deskripsi}
-              </p>
-            </div>
-          `;
-              container.appendChild(card);
-            });
-          })
-          .catch((error) =>
-            console.error("Gagal memuat data prestasi:", error)
-          );
+            `;
 
-        // ✅ Script Hamburger Menu (Versi mobile rapi ke bawah)
-        const menuButton = document.querySelector("#menu-toggle");
-        const mobileMenu = document.querySelector("#mobile-menu");
+                container.appendChild(card);
+                observer.observe(card);
+              });
+            })
+            .catch((error) =>
+              console.error("❌ Gagal memuat data prestasi:", error)
+            );
+        } else {
+          console.warn("⚠️ Elemen #prestasiContainer tidak ditemukan.");
+        }
+
+        // ====================================================
+        // 🪟 Fungsi Modal Gambar Prestasi
+        // ====================================================
+        window.openModal = function (
+          foto,
+          judul,
+          nama,
+          kelas,
+          juara,
+          deskripsi
+        ) {
+          // Tutup modal lain jika masih terbuka
+          const existingModal = document.querySelector(".custom-modal");
+          if (existingModal) existingModal.remove();
+
+          const modal = document.createElement("div");
+          modal.className =
+            "custom-modal fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in";
+
+          modal.innerHTML = `
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-5 relative scale-95 animate-zoom-in">
+          <button onclick="this.closest('.custom-modal').remove()" 
+            class="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-xl font-bold">&times;</button>
+          <img src="${foto}" alt="Gambar Prestasi" class="w-full h-56 object-cover rounded-lg mb-4">
+          <h3 class="text-lg font-bold text-blue-900 mb-2">${nama} (${kelas})</h3>
+          <p class="text-sm text-gray-600 mb-2"><b>Juara:</b> ${juara}</p>
+          <p class="text-gray-700 text-sm leading-snug text-justify"><b>${judul}</b> - ${deskripsi}</p>
+        </div>
+      `;
+
+          document.body.appendChild(modal);
+        };
+
+        // ====================================================
+        // 🍔 HAMBURGER MENU (Versi mobile)
+        // ====================================================
+        const menuButton = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
 
         if (menuButton && mobileMenu) {
           menuButton.addEventListener("click", () => {
-            mobileMenu.classList.toggle("hidden");
-            mobileMenu.classList.toggle("flex");
-            mobileMenu.classList.toggle("flex-col");
+            const isActive = mobileMenu.classList.toggle("active");
+            menuButton.classList.toggle("open");
+
+            if (isActive) {
+              mobileMenu.style.display = "flex";
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.opacity = "1";
+                mobileMenu.style.transform = "translateY(0)";
+                mobileMenu.style.transition =
+                  "opacity 0.3s ease, transform 0.3s ease";
+              }, 30);
+            } else {
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.display = "none";
+              }, 250);
+            }
+          });
+
+          // Tutup otomatis saat link di menu diklik
+          mobileMenu.querySelectorAll("a").forEach((link) => {
+            link.addEventListener("click", () => {
+              mobileMenu.classList.remove("active");
+              menuButton.classList.remove("open");
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.display = "none";
+              }, 200);
+            });
           });
         }
       });
