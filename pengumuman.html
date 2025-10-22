@@ -20,12 +20,10 @@
         background-color: rgba(255, 255, 255, 0.85);
       }
 
-      /* Smooth scroll behavior */
       html {
         scroll-behavior: smooth;
       }
 
-      /* Hide scrollbar */
       body::-webkit-scrollbar {
         display: none;
       }
@@ -36,59 +34,61 @@
         transform: translateY(50px);
         transition: opacity 0.8s ease-out, transform 0.8s ease-out;
       }
-
       .scroll-animate.show {
         opacity: 1;
         transform: translateY(0);
       }
 
-      /* Staggered animation delays */
-      .scroll-animate:nth-child(1) {
-        transition-delay: 0.1s;
-      }
-      .scroll-animate:nth-child(2) {
-        transition-delay: 0.2s;
-      }
-      .scroll-animate:nth-child(3) {
-        transition-delay: 0.3s;
-      }
-      .scroll-animate:nth-child(4) {
-        transition-delay: 0.4s;
-      }
-
-      /* FIX DROPDOWN: Hapus gap dan perluas area hover tanpa mengubah visual */
+      /* Dropdown */
       .dropdown-wrapper {
         position: relative;
       }
-
-      .dropdown-wrapper::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 8px; /* Area invisible untuk hover */
-      }
-
       .dropdown-menu {
         position: absolute;
-        top: 100%; /* Langsung menempel di bawah button */
+        top: 100%;
         left: 0;
         opacity: 0;
         visibility: hidden;
         transform: translateY(-10px);
         transition: all 0.2s ease-in-out;
+        z-index: 40;
       }
-
       .dropdown-wrapper:hover .dropdown-menu {
         opacity: 1;
         visibility: visible;
         transform: translateY(0);
       }
+
+      /* ✅ Mobile menu styling tambahan */
+      @media (max-width: 768px) {
+        #mobile-menu {
+          display: none;
+        }
+        #mobile-menu.active {
+          display: block;
+          background: white;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          border-top: 1px solid #eee;
+        }
+        #mobile-menu a {
+          display: block;
+          padding: 12px 20px;
+          border-bottom: 1px solid #f3f3f3;
+          color: #333;
+        }
+        #mobile-menu a:hover {
+          background-color: #f8f8f8;
+          color: #1e40af;
+        }
+      }
     </style>
   </head>
   <body class="bg-gray-50">
-    <!-- Header / Navbar with Blur Effect -->
+    <!-- ✅ Header / Navbar -->
     <header class="navbar-blur shadow-md fixed w-full top-0 z-50">
       <nav
         class="container mx-auto px-4 py-4 flex items-center justify-between"
@@ -107,6 +107,28 @@
             >SMA Negeri 1 Purwokerto</span
           >
         </div>
+
+        <!-- ✅ Tombol Hamburger (muncul hanya di mobile) -->
+        <button
+          id="menu-toggle"
+          class="md:hidden text-gray-700 focus:outline-none"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+          </svg>
+        </button>
+
+        <!-- ✅ Menu Desktop -->
         <div class="hidden md:flex items-center space-x-8">
           <a
             href="index.html"
@@ -114,10 +136,10 @@
             >Beranda</a
           >
 
-          <!-- Dropdown: Tentang Sekolah -->
+          <!-- Dropdown Tentang -->
           <div class="dropdown-wrapper">
             <button
-              class="text-gray-700 hover:text-blue-900 flex items-center transition font-medium"
+              class="text-gray-700 hover:text-blue-900 flex items-center font-medium transition"
             >
               Tentang Sekolah
               <svg
@@ -160,10 +182,10 @@
             </div>
           </div>
 
-          <!-- Dropdown: Akademik -->
+          <!-- Dropdown Akademik -->
           <div class="dropdown-wrapper">
             <button
-              class="text-gray-700 hover:text-blue-900 flex items-center transition font-medium"
+              class="text-gray-700 hover:text-blue-900 flex items-center font-medium transition"
             >
               Akademik
               <svg
@@ -212,22 +234,25 @@
             >Contact</a
           >
         </div>
-        <button class="md:hidden text-gray-700">
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            ></path>
-          </svg>
-        </button>
       </nav>
+
+      <!-- ✅ Menu Mobile (tampil saat toggle ditekan) -->
+      <div id="mobile-menu" class="md:hidden">
+        <a href="index.html">Beranda</a>
+        <a href="visi_misi.html">Visi Misi</a>
+        <a href="profil_sekolah.html">Profil Sekolah</a>
+        <a href="profil_kepsek.html">Profil Kepala Sekolah</a>
+        <a href="struktur_organisasi.html">Struktur Organisasi</a>
+        <a href="berita.html">Berita</a>
+        <a href="prestasi_siswa.html">Prestasi</a>
+        <a href="pengumuman.html">Pengumuman</a>
+        <a href="galeri.html">Galeri</a>
+        <a
+          href="kontak.html"
+          class="bg-yellow-400 block text-center font-medium py-2"
+          >Contact</a
+        >
+      </div>
     </header>
 
     <!-- Hero Section Mini -->
@@ -446,14 +471,15 @@
         </div>
       </div>
     </footer>
+
     <script>
-      // Scroll Animation Observer
+      // 🔹 Scroll Animation Observer
       const observerOptions = {
         threshold: 0.1,
         rootMargin: "0px 0px -50px 0px",
       };
 
-      const observer = new IntersectionObserver(function (entries) {
+      const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("show");
@@ -461,8 +487,9 @@
         });
       }, observerOptions);
 
-      // Observe all sections and cards
+      // 🔹 Jalankan setelah DOM siap
       document.addEventListener("DOMContentLoaded", function () {
+        // Efek animasi scroll
         const animateElements = document.querySelectorAll(
           "section > .container, .grid > div"
         );
@@ -471,13 +498,18 @@
           observer.observe(el);
         });
 
-        // ✅ Tambahan: Script Hamburger Menu
-        const menuButton = document.querySelector("button.md\\:hidden");
-        const navMenu = document.querySelector(".hidden.md\\:flex");
+        // ✅ Hamburger Menu (versi mobile rapi)
+        const menuButton = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
 
-        if (menuButton && navMenu) {
+        if (menuButton && mobileMenu) {
           menuButton.addEventListener("click", () => {
-            navMenu.classList.toggle("hidden");
+            // toggle class untuk menampilkan/menyembunyikan menu
+            mobileMenu.classList.toggle("hidden");
+            mobileMenu.classList.toggle("flex");
+            mobileMenu.classList.toggle("flex-col");
+            mobileMenu.classList.toggle("space-y-2"); // jarak antar menu
+            mobileMenu.classList.toggle("mt-3"); // jarak dari tombol
           });
         }
       });

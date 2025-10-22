@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SMA Negeri 1 Purwokerto - Galrieri</title>
+    <title>SMA Negeri 1 Purwokerto - Official Website</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,43 +28,21 @@
         display: none;
       }
 
+      /* Scroll animations */
       .scroll-animate {
         opacity: 0;
         transform: translateY(50px);
         transition: opacity 0.8s ease-out, transform 0.8s ease-out;
       }
-
       .scroll-animate.show {
         opacity: 1;
         transform: translateY(0);
       }
 
-      .scroll-animate:nth-child(1) {
-        transition-delay: 0.1s;
-      }
-      .scroll-animate:nth-child(2) {
-        transition-delay: 0.2s;
-      }
-      .scroll-animate:nth-child(3) {
-        transition-delay: 0.3s;
-      }
-      .scroll-animate:nth-child(4) {
-        transition-delay: 0.4s;
-      }
-
+      /* Dropdown */
       .dropdown-wrapper {
         position: relative;
       }
-
-      .dropdown-wrapper::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 8px;
-      }
-
       .dropdown-menu {
         position: absolute;
         top: 100%;
@@ -73,116 +51,44 @@
         visibility: hidden;
         transform: translateY(-10px);
         transition: all 0.2s ease-in-out;
+        z-index: 40;
       }
-
       .dropdown-wrapper:hover .dropdown-menu {
         opacity: 1;
         visibility: visible;
         transform: translateY(0);
       }
 
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
+      /* ✅ Mobile menu styling tambahan */
+      @media (max-width: 768px) {
+        #mobile-menu {
+          display: none;
         }
-        to {
-          opacity: 1;
-          transform: translateY(0);
+        #mobile-menu.active {
+          display: block;
+          background: white;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          border-top: 1px solid #eee;
         }
-      }
-
-      .animate-fadeIn {
-        animation: fadeIn 0.8s ease-out forwards;
-      }
-
-      .delay-200 {
-        animation-delay: 0.2s;
-      }
-
-      .delay-300 {
-        animation-delay: 0.3s;
-      }
-
-      /* Card hover effects */
-      .gallery-card {
-        transition: all 0.3s ease;
-      }
-
-      .gallery-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-      }
-
-      .gallery-card img {
-        transition: transform 0.5s ease;
-      }
-
-      .gallery-card:hover img {
-        transform: scale(1.05);
-      }
-
-      /* Loading spinner */
-      .spinner {
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #3b82f6;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-      }
-
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
+        #mobile-menu a {
+          display: block;
+          padding: 12px 20px;
+          border-bottom: 1px solid #f3f3f3;
+          color: #333;
         }
-        100% {
-          transform: rotate(360deg);
+        #mobile-menu a:hover {
+          background-color: #f8f8f8;
+          color: #1e40af;
         }
-      }
-
-      /* Lightbox styles */
-      .lightbox {
-        display: none;
-        position: fixed;
-        z-index: 9999;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.9);
-        align-items: center;
-        justify-content: center;
-      }
-
-      .lightbox.active {
-        display: flex;
-      }
-
-      .lightbox-content {
-        max-width: 90%;
-        max-height: 90%;
-        object-fit: contain;
-      }
-
-      .lightbox-close {
-        position: absolute;
-        top: 20px;
-        right: 40px;
-        color: white;
-        font-size: 40px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.3s;
-      }
-
-      .lightbox-close:hover {
-        color: #bbb;
       }
     </style>
   </head>
   <body class="bg-gray-50">
-    <!-- Header / Navbar -->
+    <!-- ✅ Header / Navbar -->
     <header class="navbar-blur shadow-md fixed w-full top-0 z-50">
       <nav
         class="container mx-auto px-4 py-4 flex items-center justify-between"
@@ -201,6 +107,28 @@
             >SMA Negeri 1 Purwokerto</span
           >
         </div>
+
+        <!-- ✅ Tombol Hamburger (muncul hanya di mobile) -->
+        <button
+          id="menu-toggle"
+          class="md:hidden text-gray-700 focus:outline-none"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+          </svg>
+        </button>
+
+        <!-- ✅ Menu Desktop -->
         <div class="hidden md:flex items-center space-x-8">
           <a
             href="index.html"
@@ -208,10 +136,10 @@
             >Beranda</a
           >
 
-          <!-- Dropdown: Tentang Sekolah -->
+          <!-- Dropdown Tentang -->
           <div class="dropdown-wrapper">
             <button
-              class="text-gray-700 hover:text-blue-900 flex items-center transition font-medium"
+              class="text-gray-700 hover:text-blue-900 flex items-center font-medium transition"
             >
               Tentang Sekolah
               <svg
@@ -254,10 +182,10 @@
             </div>
           </div>
 
-          <!-- Dropdown: Akademik -->
+          <!-- Dropdown Akademik -->
           <div class="dropdown-wrapper">
             <button
-              class="text-gray-700 hover:text-blue-900 flex items-center transition font-medium"
+              class="text-gray-700 hover:text-blue-900 flex items-center font-medium transition"
             >
               Akademik
               <svg
@@ -295,7 +223,9 @@
             class="text-gray-700 hover:text-blue-900 font-medium transition"
             >Pengumuman</a
           >
-          <a href="galeri.html" class="text-blue-900 font-medium transition"
+          <a
+            href="galeri.html"
+            class="text-gray-700 hover:text-blue-900 font-medium transition"
             >Galeri</a
           >
           <a
@@ -304,22 +234,25 @@
             >Contact</a
           >
         </div>
-        <button class="md:hidden text-gray-700">
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            ></path>
-          </svg>
-        </button>
       </nav>
+
+      <!-- ✅ Menu Mobile (tampil saat toggle ditekan) -->
+      <div id="mobile-menu" class="md:hidden">
+        <a href="index.html">Beranda</a>
+        <a href="visi_misi.html">Visi Misi</a>
+        <a href="profil_sekolah.html">Profil Sekolah</a>
+        <a href="profil_kepsek.html">Profil Kepala Sekolah</a>
+        <a href="struktur_organisasi.html">Struktur Organisasi</a>
+        <a href="berita.html">Berita</a>
+        <a href="prestasi_siswa.html">Prestasi</a>
+        <a href="pengumuman.html">Pengumuman</a>
+        <a href="galeri.html">Galeri</a>
+        <a
+          href="kontak.html"
+          class="bg-yellow-400 block text-center font-medium py-2"
+          >Contact</a
+        >
+      </div>
     </header>
 
     <!-- Hero Section Mini -->
@@ -519,6 +452,7 @@
         loadGallery();
         initScrollAnimation();
         initLightboxHandlers();
+        initHamburgerMenu(); // ✅ Tambahan baru
       });
 
       // ==========================================
@@ -544,7 +478,6 @@
           });
 
           console.log("Response status:", response.status);
-
           if (!response.ok) throw new Error("Gagal memuat galeri");
 
           const result = await response.json();
@@ -566,7 +499,6 @@
           loadingState.classList.add("hidden");
           emptyState.classList.remove("hidden");
 
-          // Tampilkan pesan error yang lebih informatif
           const emptyStateText = emptyState.querySelector("p");
           if (emptyStateText) {
             emptyStateText.textContent =
@@ -576,7 +508,7 @@
       }
 
       // ==========================================
-      // FUNGSI RENDER GALERI (TANPA AUTHOR)
+      // FUNGSI RENDER GALERI
       // ==========================================
       function renderGallery(data) {
         const galleryGrid = document.getElementById("galleryGrid");
@@ -584,51 +516,47 @@
         galleryGrid.innerHTML = data
           .map(
             (item, index) => `
-        <div class="gallery-card bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300" data-index="${index}">
-          <!-- Gambar dengan hover effect -->
-          <div class="relative overflow-hidden h-64 cursor-pointer group" 
-               onclick="openLightbox('${getImageUrl(
-                 item.foto_url
-               )}', '${escapeHtml(item.judul || "Tanpa Judul")}')">
-            <img 
-              src="${getImageUrl(item.foto_url)}" 
-              alt="${escapeHtml(item.judul || "Gallery")}" 
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"
-              loading="lazy"
-            >
-            <!-- Overlay hover -->
-            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-              <div class="p-4 text-white w-full">
-                <p class="text-sm font-medium flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                  </svg>
-                  Klik untuk melihat detail
-                </p>
-              </div>
+      <div class="gallery-card bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300" data-index="${index}">
+        <div class="relative overflow-hidden h-64 cursor-pointer group" 
+             onclick="openLightbox('${getImageUrl(
+               item.foto_url
+             )}', '${escapeHtml(item.judul || "Tanpa Judul")}')">
+          <img 
+            src="${getImageUrl(item.foto_url)}" 
+            alt="${escapeHtml(item.judul || "Gallery")}" 
+            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"
+            loading="lazy"
+          >
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+            <div class="p-4 text-white w-full">
+              <p class="text-sm font-medium flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                Klik untuk melihat detail
+              </p>
             </div>
           </div>
-          
-          <!-- Info Card (TANPA AUTHOR) -->
-          <div class="p-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-2 hover:text-blue-600 transition-colors">
-              ${escapeHtml(item.judul || "Tanpa Judul")}
-            </h3>
-            <!-- TIDAK ADA INFO AUTHOR DI SINI -->
-          </div>
         </div>
-      `
+        
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-2 hover:text-blue-600 transition-colors">
+            ${escapeHtml(item.judul || "Tanpa Judul")}
+          </h3>
+        </div>
+      </div>
+    `
           )
           .join("");
 
-        // Trigger animasi muncul
+        // Animasi muncul bertahap
         setTimeout(() => {
           document.querySelectorAll(".gallery-card").forEach((el, idx) => {
             setTimeout(() => {
               el.classList.add("show");
-            }, idx * 100); // Stagger animation
+            }, idx * 100);
           });
         }, 100);
       }
@@ -644,7 +572,7 @@
       }
 
       // ==========================================
-      // FUNGSI LIGHTBOX (TANPA AUTHOR)
+      // FUNGSI LIGHTBOX
       // ==========================================
       function openLightbox(imageUrl, title) {
         const lightbox = document.getElementById("lightbox");
@@ -657,19 +585,14 @@
         }
 
         lightboxImage.src = imageUrl;
-        lightboxImage.alt = title || "Gallery Image";
         lightboxTitle.textContent = title || "Tanpa Judul";
 
-        // HAPUS ATAU SEMBUNYIKAN ELEMENT lightboxDate jika ada
         const lightboxDate = document.getElementById("lightboxDate");
-        if (lightboxDate) {
-          lightboxDate.style.display = "none"; // Atau lightboxDate.remove();
-        }
+        if (lightboxDate) lightboxDate.style.display = "none";
 
         lightbox.classList.add("active");
         document.body.style.overflow = "hidden";
 
-        // Tambahkan event listener untuk tombol escape
         document.addEventListener("keydown", handleEscapeKey);
       }
 
@@ -680,14 +603,11 @@
         lightbox.classList.remove("active");
         document.body.style.overflow = "auto";
 
-        // Remove escape key listener
         document.removeEventListener("keydown", handleEscapeKey);
       }
 
       function handleEscapeKey(e) {
-        if (e.key === "Escape") {
-          closeLightbox();
-        }
+        if (e.key === "Escape") closeLightbox();
       }
 
       // ==========================================
@@ -697,8 +617,7 @@
         const lightbox = document.getElementById("lightbox");
         if (!lightbox) return;
 
-        // Close saat klik di luar gambar
-        lightbox.addEventListener("click", function (e) {
+        lightbox.addEventListener("click", (e) => {
           if (
             e.target === lightbox ||
             e.target.classList.contains("lightbox-close")
@@ -715,39 +634,38 @@
         const observer = new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add("show");
-              }
+              if (entry.isIntersecting) entry.target.classList.add("show");
             });
           },
-          {
-            threshold: 0.1,
-            rootMargin: "0px 0px -50px 0px",
-          }
+          { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
         );
 
-        // Observe semua gallery cards
-        const observeGalleryCards = () => {
-          document.querySelectorAll(".gallery-card").forEach((el) => {
-            observer.observe(el);
-          });
-
-          // ✅ Tambahan: Script Hamburger Menu
-          const menuButton = document.querySelector("button.md\\:hidden");
-          const navMenu = document.querySelector(".hidden.md\\:flex");
-
-          if (menuButton && navMenu) {
-            menuButton.addEventListener("click", () => {
-              navMenu.classList.toggle("hidden");
-            });
-          }
+        const observeCards = () => {
+          document
+            .querySelectorAll(".gallery-card")
+            .forEach((el) => observer.observe(el));
         };
 
-        // Initial observe
-        observeGalleryCards();
+        observeCards();
+        window.addEventListener("galleryLoaded", observeCards);
+      }
 
-        // Re-observe setelah load gallery
-        window.addEventListener("galleryLoaded", observeGalleryCards);
+      // ==========================================
+      // ✅ HAMBURGER MENU (TAMPIL RAPIH DI MOBILE)
+      // ==========================================
+      function initHamburgerMenu() {
+        const menuButton = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        if (menuButton && mobileMenu) {
+          menuButton.addEventListener("click", () => {
+            mobileMenu.classList.toggle("hidden");
+            mobileMenu.classList.toggle("flex");
+            mobileMenu.classList.toggle("flex-col");
+            mobileMenu.classList.toggle("space-y-2");
+            mobileMenu.classList.toggle("mt-3");
+          });
+        }
       }
 
       // ==========================================
@@ -760,7 +678,6 @@
         return div.innerHTML;
       }
 
-      // Fungsi untuk refresh gallery
       function refreshGallery() {
         loadGallery();
       }

@@ -20,12 +20,10 @@
         background-color: rgba(255, 255, 255, 0.85);
       }
 
-      /* Smooth scroll behavior */
       html {
         scroll-behavior: smooth;
       }
 
-      /* Hide scrollbar */
       body::-webkit-scrollbar {
         display: none;
       }
@@ -36,59 +34,61 @@
         transform: translateY(50px);
         transition: opacity 0.8s ease-out, transform 0.8s ease-out;
       }
-
       .scroll-animate.show {
         opacity: 1;
         transform: translateY(0);
       }
 
-      /* Staggered animation delays */
-      .scroll-animate:nth-child(1) {
-        transition-delay: 0.1s;
-      }
-      .scroll-animate:nth-child(2) {
-        transition-delay: 0.2s;
-      }
-      .scroll-animate:nth-child(3) {
-        transition-delay: 0.3s;
-      }
-      .scroll-animate:nth-child(4) {
-        transition-delay: 0.4s;
-      }
-
-      /* FIX DROPDOWN: Hapus gap dan perluas area hover tanpa mengubah visual */
+      /* Dropdown */
       .dropdown-wrapper {
         position: relative;
       }
-
-      .dropdown-wrapper::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 8px; /* Area invisible untuk hover */
-      }
-
       .dropdown-menu {
         position: absolute;
-        top: 100%; /* Langsung menempel di bawah button */
+        top: 100%;
         left: 0;
         opacity: 0;
         visibility: hidden;
         transform: translateY(-10px);
         transition: all 0.2s ease-in-out;
+        z-index: 40;
       }
-
       .dropdown-wrapper:hover .dropdown-menu {
         opacity: 1;
         visibility: visible;
         transform: translateY(0);
       }
+
+      /* ✅ Mobile menu styling tambahan */
+      @media (max-width: 768px) {
+        #mobile-menu {
+          display: none;
+        }
+        #mobile-menu.active {
+          display: block;
+          background: white;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          border-top: 1px solid #eee;
+        }
+        #mobile-menu a {
+          display: block;
+          padding: 12px 20px;
+          border-bottom: 1px solid #f3f3f3;
+          color: #333;
+        }
+        #mobile-menu a:hover {
+          background-color: #f8f8f8;
+          color: #1e40af;
+        }
+      }
     </style>
   </head>
   <body class="bg-gray-50">
-    <!-- Header / Navbar with Blur Effect -->
+    <!-- ✅ Header / Navbar -->
     <header class="navbar-blur shadow-md fixed w-full top-0 z-50">
       <nav
         class="container mx-auto px-4 py-4 flex items-center justify-between"
@@ -107,6 +107,28 @@
             >SMA Negeri 1 Purwokerto</span
           >
         </div>
+
+        <!-- ✅ Tombol Hamburger (muncul hanya di mobile) -->
+        <button
+          id="menu-toggle"
+          class="md:hidden text-gray-700 focus:outline-none"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+          </svg>
+        </button>
+
+        <!-- ✅ Menu Desktop -->
         <div class="hidden md:flex items-center space-x-8">
           <a
             href="index.html"
@@ -114,10 +136,10 @@
             >Beranda</a
           >
 
-          <!-- Dropdown: Tentang Sekolah -->
+          <!-- Dropdown Tentang -->
           <div class="dropdown-wrapper">
             <button
-              class="text-gray-700 hover:text-blue-900 flex items-center transition font-medium"
+              class="text-gray-700 hover:text-blue-900 flex items-center font-medium transition"
             >
               Tentang Sekolah
               <svg
@@ -160,10 +182,10 @@
             </div>
           </div>
 
-          <!-- Dropdown: Akademik -->
+          <!-- Dropdown Akademik -->
           <div class="dropdown-wrapper">
             <button
-              class="text-gray-700 hover:text-blue-900 flex items-center transition font-medium"
+              class="text-gray-700 hover:text-blue-900 flex items-center font-medium transition"
             >
               Akademik
               <svg
@@ -212,22 +234,25 @@
             >Contact</a
           >
         </div>
-        <button class="md:hidden text-gray-700">
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            ></path>
-          </svg>
-        </button>
       </nav>
+
+      <!-- ✅ Menu Mobile (tampil saat toggle ditekan) -->
+      <div id="mobile-menu" class="md:hidden">
+        <a href="index.html">Beranda</a>
+        <a href="visi_misi.html">Visi Misi</a>
+        <a href="profil_sekolah.html">Profil Sekolah</a>
+        <a href="profil_kepsek.html">Profil Kepala Sekolah</a>
+        <a href="struktur_organisasi.html">Struktur Organisasi</a>
+        <a href="berita.html">Berita</a>
+        <a href="prestasi_siswa.html">Prestasi</a>
+        <a href="pengumuman.html">Pengumuman</a>
+        <a href="galeri.html">Galeri</a>
+        <a
+          href="kontak.html"
+          class="bg-yellow-400 block text-center font-medium py-2"
+          >Contact</a
+        >
+      </div>
     </header>
 
     <!-- Hero Section Mini -->
@@ -369,8 +394,11 @@
         </div>
       </div>
     </footer>
+
     <script>
-      // Scroll Animation Observer
+      // ====================================================
+      // 🌟 Scroll Animation Observer
+      // ====================================================
       const observerOptions = {
         threshold: 0.1,
         rootMargin: "0px 0px -50px 0px",
@@ -384,9 +412,11 @@
         });
       }, observerOptions);
 
-      // Jalankan setelah halaman selesai dimuat
+      // ====================================================
+      // 📱 Jalankan setelah halaman selesai dimuat
+      // ====================================================
       document.addEventListener("DOMContentLoaded", function () {
-        // Animasi scroll (kalau sebelumnya sudah ada observer, tetap bisa dipakai)
+        // 🔹 Efek animasi scroll
         const animateElements = document.querySelectorAll(
           "section > .container, .grid > div"
         );
@@ -395,15 +425,15 @@
           if (typeof observer !== "undefined") observer.observe(el);
         });
 
-        // Ganti URL ini dengan API berita sekolah kamu
+        // ====================================================
+        // 📰 Fetch Data Berita dari API
+        // ====================================================
         const apiUrl =
           "https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/berita";
 
-        // Ambil data dari API
         fetch(apiUrl)
           .then((response) => response.json())
           .then((data) => {
-            console.log(data); // lihat di console untuk cek struktur data
             const container = document.getElementById("beritaContainer");
 
             if (!container) {
@@ -411,13 +441,12 @@
               return;
             }
 
-            // Hapus konten lama (jika ada)
             container.innerHTML = "";
 
-            // Loop data dan buat card
             data.forEach((item) => {
               const card = document.createElement("div");
-              // Ubah tanggal ISO ke format lokal
+
+              // Format tanggal ke DD-MM-YYYY
               const dateObj = new Date(item.tanggal);
               const formattedDate = `${String(dateObj.getDate()).padStart(
                 2,
@@ -431,54 +460,77 @@
                 "bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition transform hover:-translate-y-1";
 
               card.innerHTML = `
-          <div class="relative group">
-            <img src="${item.foto_url}" alt="${item.judul}" class="w-full h-48 object-cover" />
-            <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-              <button onclick="openModal('${item.foto_url}', '${formattedDate}', \`${item.judul}\`, \`${item.deskripsi}\`)" 
-                class="bg-white text-blue-900 px-6 py-2 rounded-full font-semibold hover:bg-blue-100 transition">
-                Lihat Detail
-              </button>
+            <div class="relative group">
+              <img src="${item.foto_url}" alt="${item.judul}" class="w-full h-48 object-cover" />
+              <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                <button onclick="openModal('${item.foto_url}', '${formattedDate}', \`${item.judul}\`, \`${item.deskripsi}\`)" 
+                  class="bg-white text-blue-900 px-6 py-2 rounded-full font-semibold hover:bg-blue-100 transition">
+                  Lihat Detail
+                </button>
+              </div>
             </div>
-          </div>
-          <div class="p-4 text-center">
-            <h3 class="text-blue-900 font-bold text-lg mb-1">${item.judul}</h3>
-            <p class="text-sm text-gray-500 mb-2">${formattedDate}</p>
-            <p class="text-gray-700 text-sm leading-snug line-clamp-3">
-              ${item.deskripsi}
-            </p>
-          </div>
-        `;
+            <div class="p-4 text-center">
+              <h3 class="text-blue-900 font-bold text-lg mb-1">${item.judul}</h3>
+              <p class="text-sm text-gray-500 mb-2">${formattedDate}</p>
+              <p class="text-gray-700 text-sm leading-snug line-clamp-3">${item.deskripsi}</p>
+            </div>
+          `;
+
               container.appendChild(card);
             });
           })
           .catch((error) => console.error("Gagal memuat data berita:", error));
-        // ✅ Tambahan: Script Hamburger Menu
-        const menuButton = document.querySelector("button.md\\:hidden");
-        const navMenu = document.querySelector(".hidden.md\\:flex");
 
-        if (menuButton && navMenu) {
+        // ====================================================
+        // 🍔 HAMBURGER MENU (Navbar Mobile)
+        // ====================================================
+        const menuButton = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        if (menuButton && mobileMenu) {
           menuButton.addEventListener("click", () => {
-            navMenu.classList.toggle("hidden");
+            mobileMenu.classList.toggle("active");
+
+            // Animasi smooth saat menu muncul
+            if (mobileMenu.classList.contains("active")) {
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.opacity = "1";
+                mobileMenu.style.transform = "translateY(0)";
+              }, 50);
+            }
+          });
+
+          // Tutup otomatis saat salah satu link diklik
+          const menuLinks = mobileMenu.querySelectorAll("a");
+          menuLinks.forEach((link) => {
+            link.addEventListener("click", () => {
+              mobileMenu.classList.remove("active");
+            });
           });
         }
       });
 
-      // Fungsi untuk popup detail
+      // ====================================================
+      // 🪟 Fungsi Popup Modal Berita
+      // ====================================================
       function openModal(foto, tanggal, judul, deskripsi) {
         const modal = document.createElement("div");
         modal.className =
           "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4";
 
         modal.innerHTML = `
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-5 relative animate-fade-in">
-      <button onclick="this.parentElement.parentElement.remove()" 
-        class="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-lg">&times;</button>
-      <img src="${foto}" alt="Gambar" class="w-full h-56 object-cover rounded-lg mb-4">
-      <h3 class="text-lg font-semibold text-blue-900 mb-2">${judul}</h3>
-      <p class="text-gray-600 text-sm mb-2"><b>Tanggal:</b> ${tanggal}</p>
-      <p class="text-gray-700 text-sm leading-snug">${deskripsi}</p>
-    </div>
-  `;
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-5 relative animate-fade-in">
+        <button onclick="this.parentElement.parentElement.remove()" 
+          class="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-lg">&times;</button>
+        <img src="${foto}" alt="Gambar" class="w-full h-56 object-cover rounded-lg mb-4">
+        <h3 class="text-lg font-semibold text-blue-900 mb-2">${judul}</h3>
+        <p class="text-gray-600 text-sm mb-2"><b>Tanggal:</b> ${tanggal}</p>
+        <p class="text-gray-700 text-sm leading-snug">${deskripsi}</p>
+      </div>
+    `;
+
         document.body.appendChild(modal);
       }
     </script>
