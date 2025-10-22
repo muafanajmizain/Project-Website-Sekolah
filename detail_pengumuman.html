@@ -3,67 +3,47 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Detail Pengumuman - SMA Negeri 1 Purwokerto</title>
+    <title>Detail Berita - SMA Negeri 1 Purwokerto</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <style>
-      * {
+      body {
         font-family: "Poppins", sans-serif;
-        scroll-behavior: smooth;
-      }
-      .navbar-blur {
-        backdrop-filter: blur(10px);
-        background-color: rgba(255, 255, 255, 0.9);
-      }
-      .fade-in {
-        animation: fadeIn 0.8s ease-in;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
       }
     </style>
   </head>
-
-  <body class="bg-gray-50 min-h-screen flex flex-col">
-    <!-- Header / Navbar with Blur Effect -->
-    <header class="navbar-blur shadow-md fixed w-full top-0 z-50">
+  <body class="bg-gray-50">
+    <!-- Header / Navbar -->
+    <header class="bg-white shadow-md fixed w-full top-0 z-50">
       <nav
         class="container mx-auto px-4 py-4 flex items-center justify-between"
       >
         <div class="flex items-center space-x-3">
-          <div
-            class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center overflow-hidden"
-          >
-            <img
-              src="images/logo.png"
-              alt="Logo SMA"
-              class="w-full h-full object-cover"
-            />
-          </div>
+          <img
+            src="images/logo.png"
+            alt="Logo Sekolah"
+            class="w-10 h-10 rounded-full"
+          />
           <span class="font-semibold text-gray-800 text-lg"
             >SMA Negeri 1 Purwokerto</span
           >
         </div>
         <div class="hidden md:flex items-center space-x-8">
           <a
-            href="index.html#home"
-            class="text-gray-700 hover:text-blue-900 font-medium transition"
+            href="index.html"
+            class="text-gray-700 hover:text-blue-900 font-medium"
             >Beranda</a
           >
+
           <!-- Dropdown: Tentang Sekolah -->
           <div class="relative group">
             <button
-              class="text-gray-700 hover:text-blue-900 flex items-center transition"
+              class="hover:text-blue-900 flex items-center focus:outline-none"
             >
               Tentang Sekolah
               <svg
@@ -84,31 +64,32 @@
               class="absolute hidden group-hover:block bg-white shadow-lg rounded-md py-2 w-48 mt-2 border border-gray-100"
             >
               <a
-                href="index.html#visi-misi"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
+                href="visi_misi.html"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100"
                 >Visi Misi</a
               >
               <a
-                href="index.html#profil-sekolah"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
+                href="profil_sekolah.html"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100"
                 >Profil Sekolah</a
               >
               <a
-                href="index.html#profil-kepala-sekolah"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
+                href="profil_kepala_sekolah.html"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100"
                 >Profil Kepala Sekolah</a
               >
               <a
-                href="index.html#struktur-organisasi"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
+                href="struktur_organisasi.html"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100"
                 >Struktur Organisasi</a
               >
             </div>
           </div>
+
           <!-- Dropdown: Akademik -->
           <div class="relative group">
             <button
-              class="text-gray-700 hover:text-blue-900 flex items-center transition"
+              class="hover:text-blue-900 flex items-center focus:outline-none"
             >
               Akademik
               <svg
@@ -129,35 +110,58 @@
               class="absolute hidden group-hover:block bg-white shadow-lg rounded-md py-2 w-48 mt-2 border border-gray-100"
             >
               <a
-                href="index.html#berita"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
+                href="berita.html"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100"
                 >Berita</a
               >
               <a
-                href="index.html#prestasi"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
+                href="prestasi_siswa.html"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100"
                 >Prestasi</a
               >
             </div>
           </div>
-          <a
-            href="pengumuman.html"
-            class="text-gray-700 hover:text-blue-900 font-medium transition"
+
+          <a href="#" class="text-gray-700 hover:text-blue-900 font-medium"
             >Pengumuman</a
           >
-          <a
-            href="index.html#galeri"
-            class="text-gray-700 hover:text-blue-900 font-medium transition"
+          <a href="#" class="text-gray-700 hover:text-blue-900 font-medium"
             >Galeri</a
           >
           <a
-            href="index.html#kontak"
+            href="contact.html"
             class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-6 py-2 rounded-full font-medium transition"
             >Contact</a
           >
         </div>
+        <!-- Hamburger untuk mobile -->
+        <button class="md:hidden text-gray-700">
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+          </svg>
+        </button>
       </nav>
     </header>
+
+    <!-- Hero Section Mini -->
+    <section class="bg-gray-100 py-16 mt-16">
+      <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-blue-900 mb-3">
+          PENGUMUMAN
+        </h1>
+        <p class="text-blue-600 text-sm">Pengumuman</p>
+      </div>
+    </section>
 
     <!-- Konten Utama -->
     <main class="flex-grow container mx-auto px-6 py-32 fade-in">
@@ -188,58 +192,169 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-900 text-white py-6 mt-auto">
-      <div class="text-center text-gray-400 text-sm">
-        © 2025 SMA Negeri 1 Purwokerto. All Rights Reserved.
+    <footer id="kontak" class="bg-slate-900 text-white py-12">
+      <div class="container mx-auto px-6">
+        <!-- Ubah di sini -->
+        <div class="grid md:grid-cols-3 gap-8 mb-8 items-start">
+          <!-- TAMBAHAN -->
+          <div class="flex flex-col justify-start">
+            <!-- TAMBAHAN -->
+            <div class="flex items-center space-x-3 mb-4">
+              <!-- Logo sekolah -->
+              <img
+                src="images/logo2.png"
+                alt="Logo SMK Negeri 1 Purwokerto"
+                class="w-12 h-12 rounded-full object-cover"
+              />
+              <span class="text-xl font-bold leading-tight"
+                >SMK Negeri 1 Purwokerto</span
+              >
+              <!-- TAMBAHAN -->
+            </div>
+            <p class="text-gray-400">
+              Mencetak generasi unggul dan berakhlak mulia melalui pendidikan
+              berkualitas, berkarakter, serta berwawasan global yang kreatif,
+              dan berintegritas tinggi demi masa depan bangsa.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-xl font-bold mb-4">Navigasi Cepat</h3>
+            <ul class="space-y-2">
+              <li>
+                <a
+                  href="#home"
+                  class="text-gray-400 hover:text-blue-400 transition-colors"
+                  >Beranda</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#kepala-sekolah"
+                  class="text-gray-400 hover:text-blue-400 transition-colors"
+                  >Tentang Sekolah</a
+                >
+              </li>
+              <li>
+                <a
+                  href="pengumuman.html"
+                  class="text-gray-400 hover:text-blue-400 transition-colors"
+                  >Pengumuman</a
+                >
+              </li>
+              <li>
+                <a
+                  href="Login_admin.html"
+                  class="text-gray-400 hover:text-blue-400 transition-colors"
+                  >Login Admin</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-xl font-bold mb-4">Kontak</h3>
+            <ul class="space-y-3 text-gray-400">
+              <li>📍 Jl. Jenderal Sudirman No. 123, Purwokerto</li>
+              <li>📞 (0281) 123456</li>
+              <li>✉️ info@smkn1purwokerto.sch.id</li>
+              <li class="flex space-x-4 mt-4">
+                <a
+                  href="#"
+                  class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                    />
+                  </svg>
+                </a>
+                <a
+                  href="#"
+                  class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="M20.52 3.48A11.93 11.93 0 0012 0C5.373 0 0 5.373 0 12a11.94 11.94 0 001.64 6.02L0 24l6.18-1.61A11.92 11.92 0 0012 24c6.627 0 12-5.373 12-12 0-3.19-1.25-6.19-3.48-8.52zM12 22a9.93 9.93 0 01-5.06-1.4l-.36-.22-3.66.96.98-3.57-.23-.37A9.94 9.94 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10zm5.52-7.48c-.3-.15-1.77-.88-2.04-.98-.27-.1-.47-.15-.66.15-.19.3-.76.98-.94 1.18-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.89-.79-1.5-1.76-1.68-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.66-1.59-.9-2.18-.24-.58-.48-.5-.66-.51h-.56c-.19 0-.5.07-.76.37-.26.3-1 1-1 2.43s1.03 2.82 1.18 3.01c.15.2 2.02 3.09 4.89 4.33.68.29 1.2.46 1.61.59.67.21 1.28.18 1.76.11.54-.08 1.77-.72 2.02-1.42.25-.7.25-1.31.17-1.42-.07-.11-.27-.17-.56-.31z"
+                    />
+                  </svg>
+                </a>
+
+                <a
+                  href="#"
+                  class="w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-700 transition-colors"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
+                    />
+                  </svg>
+                </a>
+                <a
+                  href="#"
+                  class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700 transition-colors"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+                    />
+                  </svg>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="border-t border-gray-700 pt-8 text-center text-gray-400">
+          <p>© 2025 SMK Negeri 1 Purwokerto. All Rights Reserved.</p>
+        </div>
       </div>
     </footer>
 
     <script>
-      // Data pengumuman dummy
-      const dataPengumuman = [
-        {
-          id: 1,
-          judul: "Sumatif Ujian Tengah Semester",
-          tanggal: "19/05/2026",
-          isi: "Pengumuman mengenai pelaksanaan Sumatif Ujian Tengah Semester bagi seluruh peserta didik SMA Negeri 1 Purwokerto. Diharapkan seluruh siswa mempersiapkan diri dengan baik. Jadwal dan ketentuan ujian dapat dilihat pada papan pengumuman sekolah.",
-        },
-        {
-          id: 2,
-          judul: "Penerimaan Rapor Semester Genap",
-          tanggal: "28/06/2026",
-          isi: "Pengumuman resmi tentang jadwal pembagian rapor semester genap tahun ajaran 2025/2026. Pembagian akan dilaksanakan di aula utama sekolah dengan tetap memperhatikan protokol kesehatan.",
-        },
-        {
-          id: 3,
-          judul: "Kegiatan MPLS Siswa Baru",
-          tanggal: "10/07/2026",
-          isi: "Kegiatan Masa Pengenalan Lingkungan Sekolah (MPLS) untuk siswa baru tahun ajaran 2026/2027 akan dimulai pada tanggal 10 Juli 2026. Seluruh peserta diharapkan hadir tepat waktu sesuai jadwal yang telah ditentukan.",
-        },
-        {
-          id: 4,
-          judul: "Libur Akhir Tahun Pelajaran",
-          tanggal: "30/06/2026",
-          isi: "Diberitahukan kepada seluruh peserta didik bahwa libur akhir tahun pelajaran dimulai tanggal 30 Juni 2026 sampai dengan 14 Juli 2026. Siswa diharapkan memanfaatkan waktu libur dengan kegiatan positif.",
-        },
-      ];
+      async function loadDetailPengumuman() {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("id");
 
-      // Ambil parameter ID dari URL
-      const params = new URLSearchParams(window.location.search);
-      const id = parseInt(params.get("id"));
-      const pengumuman = dataPengumuman.find((item) => item.id === id);
+        if (!id || isNaN(id)) {
+          showNotFound();
+          return;
+        }
 
-      const container = document.getElementById("pengumuman-container");
-      const notFound = document.getElementById("not-found");
+        try {
+          const response = await fetch(
+            `https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/pengumuman/${id}`
+          );
+          if (!response.ok) {
+            showNotFound();
+            return;
+          }
+          const pengumuman = await response.json();
 
-      if (pengumuman) {
-        document.getElementById("judul").textContent = pengumuman.judul;
-        document.getElementById("tanggal").textContent =
-          "Tanggal: " + pengumuman.tanggal;
-        document.getElementById("isi").textContent = pengumuman.isi;
-      } else {
-        container.classList.add("hidden");
-        notFound.classList.remove("hidden");
+          // Format tanggal ke format Indonesia: 08/10/2025
+          const date = new Date(pengumuman.tanggal);
+          const formattedDate = date.toLocaleDateString("id-ID", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          });
+
+          document.getElementById("judul").textContent = pengumuman.judul;
+          document.getElementById("tanggal").textContent =
+            "Tanggal: " + formattedDate;
+          document.getElementById("isi").textContent = pengumuman.isi;
+        } catch (error) {
+          console.error("Error fetching pengumuman:", error);
+          showNotFound();
+        }
       }
+
+      function showNotFound() {
+        document.getElementById("pengumuman-container").classList.add("hidden");
+        document.getElementById("not-found").classList.remove("hidden");
+      }
+
+      // Jalankan saat halaman dimuat
+      document.addEventListener("DOMContentLoaded", loadDetailPengumuman);
     </script>
   </body>
 </html>
