@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SMA Negeri 1 Purwokerto - Official Website</title>
+    <title>SMA Negeri 1 Purwokerto - Prestasi Siswa</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,7 +28,6 @@
         display: none;
       }
 
-      /* Scroll animations */
       .scroll-animate {
         opacity: 0;
         transform: translateY(50px);
@@ -39,7 +38,6 @@
         transform: translateY(0);
       }
 
-      /* Dropdown */
       .dropdown-wrapper {
         position: relative;
       }
@@ -59,7 +57,6 @@
         transform: translateY(0);
       }
 
-      /* ✅ Mobile menu styling tambahan */
       @media (max-width: 768px) {
         #mobile-menu {
           display: none;
@@ -88,7 +85,7 @@
     </style>
   </head>
   <body class="bg-gray-50">
-    <!-- ✅ Header / Navbar -->
+    <!-- Header / Navbar -->
     <header class="navbar-blur shadow-md fixed w-full top-0 z-50">
       <nav
         class="container mx-auto px-4 py-4 flex items-center justify-between"
@@ -108,7 +105,6 @@
           >
         </div>
 
-        <!-- ✅ Tombol Hamburger (muncul hanya di mobile) -->
         <button
           id="menu-toggle"
           class="md:hidden text-gray-700 focus:outline-none"
@@ -128,7 +124,6 @@
           </svg>
         </button>
 
-        <!-- ✅ Menu Desktop -->
         <div class="hidden md:flex items-center space-x-8">
           <a
             href="index.html"
@@ -136,7 +131,6 @@
             >Beranda</a
           >
 
-          <!-- Dropdown Tentang -->
           <div class="dropdown-wrapper">
             <button
               class="text-gray-700 hover:text-blue-900 flex items-center font-medium transition"
@@ -182,7 +176,6 @@
             </div>
           </div>
 
-          <!-- Dropdown Akademik -->
           <div class="dropdown-wrapper">
             <button
               class="text-gray-700 hover:text-blue-900 flex items-center font-medium transition"
@@ -236,7 +229,6 @@
         </div>
       </nav>
 
-      <!-- ✅ Menu Mobile (tampil saat toggle ditekan) -->
       <div id="mobile-menu" class="md:hidden">
         <a href="index.html">Beranda</a>
         <a href="visi_misi.html">Visi Misi</a>
@@ -268,12 +260,11 @@
     </section>
 
     <!-- Konten Utama -->
-    <!-- Daftar Prestasi -->
     <section
       class="py-10 px-6 max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
       id="prestasiContainer"
     >
-      <!-- Tambahkan kartu lain sesuai kebutuhan -->
+      <!-- Data akan dimuat dari API -->
     </section>
 
     <!-- Modal Gambar -->
@@ -300,13 +291,9 @@
     <!-- Footer -->
     <footer id="kontak" class="bg-slate-900 text-white py-12">
       <div class="container mx-auto px-6">
-        <!-- Ubah di sini -->
         <div class="grid md:grid-cols-3 gap-8 mb-8 items-start">
-          <!-- TAMBAHAN -->
           <div class="flex flex-col justify-start">
-            <!-- TAMBAHAN -->
             <div class="flex items-center space-x-3 mb-4">
-              <!-- Logo sekolah -->
               <img
                 src="images/logo2.png"
                 alt="Logo SMK Negeri 1 Purwokerto"
@@ -315,7 +302,6 @@
               <span class="text-xl font-bold leading-tight"
                 >SMK Negeri 1 Purwokerto</span
               >
-              <!-- TAMBAHAN -->
             </div>
             <p class="text-gray-400">
               Mencetak generasi unggul dan berakhlak mulia melalui pendidikan
@@ -385,7 +371,6 @@
                     />
                   </svg>
                 </a>
-
                 <a
                   href="#"
                   class="w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-700 transition-colors"
@@ -417,7 +402,6 @@
     </footer>
 
     <script>
-      // Scroll Animation Observer
       const observerOptions = {
         threshold: 0.1,
         rootMargin: "0px 0px -50px 0px",
@@ -431,9 +415,7 @@
         });
       }, observerOptions);
 
-      // Jalankan setelah DOM siap
       document.addEventListener("DOMContentLoaded", function () {
-        // 🔹 Animasi Scroll
         const animateElements = document.querySelectorAll(
           "section > .container, .grid > div"
         );
@@ -442,7 +424,6 @@
           observer.observe(el);
         });
 
-        // 🔹 Modal untuk gambar prestasi
         window.openModal = function (imageSrc) {
           const modal = document.getElementById("imageModal");
           const modalImg = document.getElementById("modalImage");
@@ -462,7 +443,7 @@
           }
         };
 
-        // 🔹 Ambil data dari API Prestasi
+        // 🔹 PERBAIKAN: Ambil data dari API
         const apiUrl =
           "https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/prestasi";
 
@@ -476,9 +457,10 @@
             container.innerHTML = "";
 
             data.forEach((item) => {
-              const nama = item.nama || item.username || "Nama belum diisi";
+              // ✅ PERBAIKAN: Gunakan field "nama" bukan "username"
+              const nama = item.nama || "Nama belum diisi";
               const kelas = item.kelas || "-";
-              const juara = item.juara || "1";
+              const juara = item.juara || "Juara 1";
               const foto =
                 item.foto_url ||
                 "https://via.placeholder.com/400x250?text=No+Image";
@@ -489,6 +471,7 @@
               card.className =
                 "bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition";
 
+              // ✅ PERBAIKAN: Hapus kata "Juara" manual karena data sudah ada "Juara 2"
               card.innerHTML = `
             <div class="relative group">
               <img src="${foto}" alt="${judul}" class="w-full h-48 object-cover"/>
@@ -503,7 +486,7 @@
               <h3 class="text-blue-900 font-bold text-lg">${nama}</h3>
               <p class="text-sm text-gray-500 mb-2">Kelas : ${kelas}</p>
               <div class="bg-blue-700 text-white inline-block px-4 py-1 rounded-full text-xs font-semibold mb-3">
-                Juara ${juara}
+                ${juara}
               </div>
               <p class="text-gray-700 text-sm leading-snug">
                 Kategori Lomba : ${judul} - ${deskripsi}
@@ -517,7 +500,6 @@
             console.error("Gagal memuat data prestasi:", error)
           );
 
-        // ✅ Script Hamburger Menu (Versi mobile rapi ke bawah)
         const menuButton = document.querySelector("#menu-toggle");
         const mobileMenu = document.querySelector("#mobile-menu");
 
