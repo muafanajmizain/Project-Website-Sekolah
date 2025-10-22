@@ -510,6 +510,16 @@
         e.preventDefault();
         alert("Terima kasih! Pesan Anda telah dikirim.");
         e.target.reset();
+
+        // ✅ Tambahan: Script Hamburger Menu
+        const menuButton = document.querySelector("button.md\\:hidden");
+        const navMenu = document.querySelector(".hidden.md\\:flex");
+
+        if (menuButton && navMenu) {
+          menuButton.addEventListener("click", () => {
+            navMenu.classList.toggle("hidden");
+          });
+        }
       });
     </script>
   </body>

@@ -452,6 +452,15 @@
             });
           })
           .catch((error) => console.error("Gagal memuat data berita:", error));
+        // ✅ Tambahan: Script Hamburger Menu
+        const menuButton = document.querySelector("button.md\\:hidden");
+        const navMenu = document.querySelector(".hidden.md\\:flex");
+
+        if (menuButton && navMenu) {
+          menuButton.addEventListener("click", () => {
+            navMenu.classList.toggle("hidden");
+          });
+        }
       });
 
       // Fungsi untuk popup detail
