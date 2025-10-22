@@ -313,7 +313,7 @@
                   id="btnSubmit"
                   class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:bg-gray-400"
                 >
-                  <span id="btnText">💾 Simpan</span>
+                  <span id="btnText"> Simpan</span>
                 </button>
                 <button
                   type="button"
@@ -330,29 +330,39 @@
           <!-- Gallery List -->
           <div class="bg-white p-6 rounded-lg shadow-md">
             <h2 class="text-xl font-semibold mb-6">Data Galeri</h2>
+
             <div id="loadingState" class="text-center py-12">
               <div
                 class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
               ></div>
               <p class="mt-4 text-gray-600">Memuat galeri...</p>
             </div>
+
             <div id="emptyState" class="hidden text-center py-12">
               <p class="text-gray-500">Belum ada data galeri</p>
             </div>
+
             <div class="overflow-x-auto">
               <table
-                class="min-w-full divide-y divide-gray-200 hidden"
                 id="galleryTable"
+                class="min-w-full divide-y divide-gray-200 hidden"
               >
                 <thead class="bg-gray-100">
                   <tr>
-                    <th class="px-6 py-3 text-left text-xs font-semibold">
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+                    >
                       Gambar
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold">
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+                    >
                       Judul
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold">
+                    <!-- Aksi agak ke kiri, kapital semua -->
+                    <th
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+                    >
                       Aksi
                     </th>
                   </tr>
