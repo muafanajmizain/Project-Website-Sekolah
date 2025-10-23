@@ -98,7 +98,7 @@
             class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center overflow-hidden"
           >
             <img
-              src="images/logo2"
+              src="images/logo.png"
               alt="Logo SMA"
               class="w-full h-full object-cover"
             />
@@ -434,21 +434,21 @@
 
           // Tambahkan daftar menu sesuai gambar
           const menuItems = [
-            "Beranda",
-            "Visi Misi",
-            "Profil Sekolah",
-            "Profil Kepala Sekolah",
-            "Struktur Organisasi",
-            "Berita",
-            "Prestasi",
-            "Pengumuman",
-            "Galeri",
+            { text: "Beranda", href: "index.html" },
+            { text: "Visi Misi", href: "visi_misi.html" },
+            { text: "Profil Sekolah", href: "profil.html" },
+            { text: "Profil Kepala Sekolah", href: "kepala_sekolah.html" },
+            { text: "Struktur Organisasi", href: "struktur.html" },
+            { text: "Berita", href: "berita.html" },
+            { text: "Prestasi", href: "prestasi.html" },
+            { text: "Pengumuman", href: "pengumuman.html" },
+            { text: "Galeri", href: "galeri.html" },
           ];
 
-          menuItems.forEach((text) => {
+          menuItems.forEach((menu) => {
             const item = document.createElement("a");
-            item.href = "#";
-            item.textContent = text;
+            item.href = menu.href; // 🔹 gunakan href dari objek
+            item.textContent = menu.text; // 🔹 gunakan text dari objek
             item.className =
               "block px-4 py-3 text-gray-800 hover:bg-gray-50 border-b border-gray-100 transition";
             mobileMenu.appendChild(item);
