@@ -512,10 +512,20 @@
     </footer>
 
     <script>
+      // ==========================================
+      // 🚀 INISIALISASI SAAT HALAMAN DIMUAT
+      // ==========================================
       document.addEventListener("DOMContentLoaded", function () {
-        // ======================================================
-        // 🌟 SCROLL ANIMATION
-        // ======================================================
+        console.log("✅ Halaman kontak dimuat");
+        initScrollAnimation();
+        initFormHandler();
+        initHamburgerMenu();
+      });
+
+      // ==========================================
+      // 🌟 SCROLL ANIMATION
+      // ==========================================
+      function initScrollAnimation() {
         const observerOptions = {
           threshold: 0.1,
           rootMargin: "0px 0px -50px 0px",
@@ -529,69 +539,116 @@
           });
         }, observerOptions);
 
-        // Tambahkan dan observe semua elemen scroll-animate
         document.querySelectorAll(".scroll-animate").forEach((el) => {
           observer.observe(el);
         });
+      }
 
-        // ======================================================
-        // 📩 FORM SUBMISSION HANDLER
-        // ======================================================
+      // ==========================================
+      // 📩 FORM HANDLER (NOTIFIKASI SUKSES)
+      // ==========================================
+      function initFormHandler() {
         const form = document.querySelector("form");
-        if (form) {
-          form.addEventListener("submit", (e) => {
-            e.preventDefault();
+        if (!form) return;
 
-            // Notifikasi sukses animatif
-            const notif = document.createElement("div");
-            notif.textContent = "✅ Terima kasih! Pesan Anda telah dikirim.";
-            notif.className =
-              "fixed bottom-6 right-6 bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg animate-fadeIn";
-            document.body.appendChild(notif);
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
 
-            setTimeout(() => notif.remove(), 3000);
+          const notif = document.createElement("div");
+          notif.textContent = "✅ Terima kasih! Pesan Anda telah dikirim.";
+          notif.className =
+            "fixed bottom-6 right-6 bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg animate-fadeIn";
+          document.body.appendChild(notif);
 
-            e.target.reset();
-          });
-        }
+          setTimeout(() => notif.remove(), 3000);
+          e.target.reset();
+        });
+      }
 
-        // ======================================================
-        // 🍔 HAMBURGER MENU (Versi Mobile)
-        // ======================================================
+      // ==========================================
+      // 🍔 HAMBURGER MENU (TAMPIL PAS DI BAWAH NAVBAR)
+      // ==========================================
+      function initHamburgerMenu() {
         const menuButton = document.getElementById("menu-toggle");
         const mobileMenu = document.getElementById("mobile-menu");
 
-        if (menuButton && mobileMenu) {
-          menuButton.addEventListener("click", () => {
-            mobileMenu.classList.toggle("active");
+        if (!menuButton || !mobileMenu) return;
 
-            // Animasi smooth saat menu muncul
-            if (mobileMenu.classList.contains("active")) {
-              mobileMenu.style.display = "flex";
-              mobileMenu.style.opacity = "0";
-              mobileMenu.style.transform = "translateY(-10px)";
-              setTimeout(() => {
-                mobileMenu.style.opacity = "1";
-                mobileMenu.style.transform = "translateY(0)";
-              }, 50);
-            } else {
-              mobileMenu.style.opacity = "0";
-              setTimeout(() => {
-                mobileMenu.style.display = "none";
-              }, 200);
-            }
-          });
+        // Atur gaya awal agar tersembunyi
+        mobileMenu.style.display = "none";
+        mobileMenu.style.flexDirection = "column";
+        mobileMenu.style.gap = "0";
+        mobileMenu.style.padding = "0";
+        mobileMenu.style.backgroundColor = "#ffffff";
+        mobileMenu.style.position = "absolute";
+        mobileMenu.style.top = "100%";
+        mobileMenu.style.left = "0";
+        mobileMenu.style.width = "100%";
+        mobileMenu.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)";
+        mobileMenu.style.transition = "all 0.3s ease";
 
-          // Tutup otomatis saat link di menu diklik
-          const links = mobileMenu.querySelectorAll("a");
-          links.forEach((link) => {
-            link.addEventListener("click", () => {
-              mobileMenu.classList.remove("active");
+        // Klik tombol hamburger
+        menuButton.addEventListener("click", () => {
+          if (
+            mobileMenu.style.display === "none" ||
+            mobileMenu.style.display === ""
+          ) {
+            mobileMenu.style.display = "flex";
+            mobileMenu.style.opacity = "0";
+            mobileMenu.style.transform = "translateY(-5px)";
+            setTimeout(() => {
+              mobileMenu.style.opacity = "1";
+              mobileMenu.style.transform = "translateY(0)";
+            }, 50);
+          } else {
+            mobileMenu.style.opacity = "0";
+            setTimeout(() => {
               mobileMenu.style.display = "none";
-            });
+            }, 200);
+          }
+        });
+
+        // Tutup otomatis setelah klik link
+        const links = mobileMenu.querySelectorAll("a");
+        links.forEach((link) => {
+          link.addEventListener("click", () => {
+            mobileMenu.style.display = "none";
           });
-        }
-      });
+        });
+      }
+
+      // ==========================================
+      // 🔧 HELPER ANIMASI FADE-IN + STYLE MENU
+      // ==========================================
+      const style = document.createElement("style");
+      style.textContent = `
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    /* ✅ Tampilan menu mobile pas seperti contoh */
+    #mobile-menu a {
+      display: block;
+      text-align: left;
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid #e5e7eb;
+      color: #1f2937;
+      font-weight: 500;
+      transition: background 0.3s, color 0.3s;
+    }
+    #mobile-menu a:last-child {
+      border-bottom: none;
+    }
+    #mobile-menu a:hover {
+      background: #f3f4f6;
+      color: #0d47a1;
+    }
+  `;
+      document.head.appendChild(style);
     </script>
   </body>
 </html>

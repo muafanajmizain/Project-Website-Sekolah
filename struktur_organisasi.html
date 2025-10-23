@@ -473,38 +473,45 @@
         const mobileMenu = document.getElementById("mobile-menu");
 
         if (menuButton && mobileMenu) {
+          // Gaya awal menu tersembunyi
+          mobileMenu.style.transition = "all 0.3s ease-in-out";
+          mobileMenu.style.overflow = "hidden";
+          mobileMenu.style.maxHeight = "0";
+          mobileMenu.style.opacity = "0";
+          mobileMenu.style.transform = "translateY(-10px)";
+          mobileMenu.style.display = "none";
+
+          // Klik tombol hamburger
           menuButton.addEventListener("click", () => {
             const isActive = mobileMenu.classList.toggle("active");
             menuButton.classList.toggle("open");
 
-            // Efek animasi smooth saat menu muncul/hilang
             if (isActive) {
-              mobileMenu.style.display = "flex";
-              mobileMenu.style.opacity = "0";
-              mobileMenu.style.transform = "translateY(-15px)";
+              // 🟢 Tampilkan menu dengan animasi halus
+              mobileMenu.style.display = "block";
               setTimeout(() => {
+                mobileMenu.style.maxHeight = mobileMenu.scrollHeight + "px";
                 mobileMenu.style.opacity = "1";
                 mobileMenu.style.transform = "translateY(0)";
-                mobileMenu.style.transition =
-                  "opacity 0.3s ease, transform 0.3s ease";
-              }, 30);
+              }, 10);
             } else {
+              // 🔴 Tutup menu dengan efek smooth
+              mobileMenu.style.maxHeight = "0";
               mobileMenu.style.opacity = "0";
               mobileMenu.style.transform = "translateY(-10px)";
               setTimeout(() => {
                 mobileMenu.style.display = "none";
-              }, 250);
+              }, 300);
             }
           });
 
-          // ====================================================
-          // ✅ Tutup otomatis saat link diklik
-          // ====================================================
+          // Tutup otomatis setelah klik salah satu link
           const menuLinks = mobileMenu.querySelectorAll("a");
           menuLinks.forEach((link) => {
             link.addEventListener("click", () => {
               mobileMenu.classList.remove("active");
               menuButton.classList.remove("open");
+              mobileMenu.style.maxHeight = "0";
               mobileMenu.style.opacity = "0";
               mobileMenu.style.transform = "translateY(-10px)";
               setTimeout(() => {

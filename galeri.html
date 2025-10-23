@@ -452,7 +452,7 @@
         loadGallery();
         initScrollAnimation();
         initLightboxHandlers();
-        initHamburgerMenu(); // ✅ Tambahan baru
+        initHamburgerMenu(); // ✅ gunakan versi animasi lembut
       });
 
       // ==========================================
@@ -472,17 +472,13 @@
 
           const response = await fetch(API_GALERI_URL, {
             method: "GET",
-            headers: {
-              Accept: "application/json",
-            },
+            headers: { Accept: "application/json" },
           });
 
           console.log("Response status:", response.status);
           if (!response.ok) throw new Error("Gagal memuat galeri");
 
           const result = await response.json();
-          console.log("Response galeri:", result);
-
           const data = Array.isArray(result) ? result : result.data || [];
           console.log("Total item galeri:", data.length);
 
@@ -498,12 +494,10 @@
           console.error("❌ Error loading gallery:", error);
           loadingState.classList.add("hidden");
           emptyState.classList.remove("hidden");
-
           const emptyStateText = emptyState.querySelector("p");
-          if (emptyStateText) {
+          if (emptyStateText)
             emptyStateText.textContent =
               "Gagal memuat galeri. Silakan refresh halaman.";
-          }
         }
       }
 
@@ -540,14 +534,12 @@
             </div>
           </div>
         </div>
-        
         <div class="p-6">
           <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-2 hover:text-blue-600 transition-colors">
             ${escapeHtml(item.judul || "Tanpa Judul")}
           </h3>
         </div>
-      </div>
-    `
+      </div>`
           )
           .join("");
 
@@ -586,23 +578,19 @@
 
         lightboxImage.src = imageUrl;
         lightboxTitle.textContent = title || "Tanpa Judul";
-
         const lightboxDate = document.getElementById("lightboxDate");
         if (lightboxDate) lightboxDate.style.display = "none";
 
         lightbox.classList.add("active");
         document.body.style.overflow = "hidden";
-
         document.addEventListener("keydown", handleEscapeKey);
       }
 
       function closeLightbox() {
         const lightbox = document.getElementById("lightbox");
         if (!lightbox) return;
-
         lightbox.classList.remove("active");
         document.body.style.overflow = "auto";
-
         document.removeEventListener("keydown", handleEscapeKey);
       }
 
@@ -641,9 +629,9 @@
         );
 
         const observeCards = () => {
-          document
-            .querySelectorAll(".gallery-card")
-            .forEach((el) => observer.observe(el));
+          document.querySelectorAll(".gallery-card").forEach((el) => {
+            observer.observe(el);
+          });
         };
 
         observeCards();
@@ -651,19 +639,41 @@
       }
 
       // ==========================================
-      // ✅ HAMBURGER MENU (TAMPIL RAPIH DI MOBILE)
+      // ✅ HAMBURGER MENU (SLIDE DAN FADE)
       // ==========================================
       function initHamburgerMenu() {
         const menuButton = document.getElementById("menu-toggle");
         const mobileMenu = document.getElementById("mobile-menu");
 
         if (menuButton && mobileMenu) {
+          // Awal: disembunyikan
+          mobileMenu.style.maxHeight = "0";
+          mobileMenu.style.opacity = "0";
+          mobileMenu.style.overflow = "hidden";
+          mobileMenu.style.transition = "all 0.3s ease-in-out";
+          mobileMenu.style.transform = "translateY(-10px)";
+          mobileMenu.style.display = "none";
+
           menuButton.addEventListener("click", () => {
-            mobileMenu.classList.toggle("hidden");
-            mobileMenu.classList.toggle("flex");
-            mobileMenu.classList.toggle("flex-col");
-            mobileMenu.classList.toggle("space-y-2");
-            mobileMenu.classList.toggle("mt-3");
+            mobileMenu.classList.toggle("active");
+
+            if (mobileMenu.classList.contains("active")) {
+              // 🟢 Buka menu
+              mobileMenu.style.display = "block";
+              setTimeout(() => {
+                mobileMenu.style.maxHeight = mobileMenu.scrollHeight + "px";
+                mobileMenu.style.opacity = "1";
+                mobileMenu.style.transform = "translateY(0)";
+              }, 10);
+            } else {
+              // 🔴 Tutup menu
+              mobileMenu.style.maxHeight = "0";
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.display = "none";
+              }, 300);
+            }
           });
         }
       }

@@ -109,7 +109,7 @@
         </div>
         <div class="hidden md:flex items-center space-x-8">
           <a
-            href="beranda.html"
+            href="index.html"
             class="text-gray-700 hover:text-blue-900 font-medium transition"
             >Beranda</a
           >
@@ -385,8 +385,11 @@
         </div>
       </div>
     </footer>
+
     <script>
-      // Scroll Animation Observer
+      // ======================================================
+      // 🌟 SCROLL ANIMATION
+      // ======================================================
       const observerOptions = {
         threshold: 0.1,
         rootMargin: "0px 0px -50px 0px",
@@ -400,8 +403,8 @@
         });
       }, observerOptions);
 
-      // Observe all sections and cards
       document.addEventListener("DOMContentLoaded", function () {
+        // Aktifkan animasi scroll
         const animateElements = document.querySelectorAll(
           "section > .container, .grid > div"
         );
@@ -409,13 +412,103 @@
           el.classList.add("scroll-animate");
           observer.observe(el);
         });
+
+        // ======================================================
+        // 🍔 HAMBURGER MENU HANDLER (Versi seperti gambar)
+        // ======================================================
+        const menuButton = document.querySelector(
+          "button.md\\:hidden, #menuBtn"
+        );
+        const navbar =
+          document.querySelector("nav") || document.querySelector("header");
+
+        if (!menuButton || !navbar) return;
+
+        // Cek apakah sudah ada menu mobile
+        let mobileMenu = document.querySelector("#mobile-menu");
+        if (!mobileMenu) {
+          mobileMenu = document.createElement("div");
+          mobileMenu.id = "mobile-menu";
+          mobileMenu.className =
+            "hidden flex-col absolute left-0 top-full w-full bg-white border-t border-gray-200 shadow-md z-50";
+
+          // Tambahkan daftar menu sesuai gambar
+          const menuItems = [
+            "Beranda",
+            "Visi Misi",
+            "Profil Sekolah",
+            "Profil Kepala Sekolah",
+            "Struktur Organisasi",
+            "Berita",
+            "Prestasi",
+            "Pengumuman",
+            "Galeri",
+          ];
+
+          menuItems.forEach((text) => {
+            const item = document.createElement("a");
+            item.href = "#";
+            item.textContent = text;
+            item.className =
+              "block px-4 py-3 text-gray-800 hover:bg-gray-50 border-b border-gray-100 transition";
+            mobileMenu.appendChild(item);
+          });
+
+          // Tambahkan tombol Contact di bawah
+          const contactBtn = document.createElement("div");
+          contactBtn.textContent = "Contact";
+          contactBtn.className =
+            "bg-yellow-400 text-center py-3 text-gray-800 font-medium cursor-pointer hover:bg-yellow-300";
+          mobileMenu.appendChild(contactBtn);
+
+          navbar.appendChild(mobileMenu);
+        }
+
+        // Fungsi toggle menu
+        menuButton.addEventListener("click", () => {
+          const isHidden = mobileMenu.classList.contains("hidden");
+          if (isHidden) {
+            mobileMenu.classList.remove("hidden");
+            mobileMenu.style.animation = "slideDown 0.3s ease forwards";
+          } else {
+            mobileMenu.style.animation = "slideUp 0.3s ease forwards";
+            setTimeout(() => {
+              mobileMenu.classList.add("hidden");
+            }, 250);
+          }
+        });
+
+        // Tutup otomatis saat klik salah satu link
+        mobileMenu.querySelectorAll("a").forEach((link) => {
+          link.addEventListener("click", () => {
+            mobileMenu.classList.add("hidden");
+          });
+        });
       });
+
+      // Animasi sederhana untuk slide menu
+      const style = document.createElement("style");
+      style.textContent = `
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideUp {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-10px); }
+    }
+  `;
+      document.head.appendChild(style);
     </script>
 
-    <!-- Script Fetch Data Pengumuman -->
+    <!-- ======================================================
+📢 FETCH DATA PENGUMUMAN (Tetap Sama)
+====================================================== -->
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const tableBody = document.querySelector("#pengumuman-list");
+        if (!tableBody) return;
+
         const endpoint =
           "https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/pengumuman";
 
@@ -434,7 +527,6 @@
               data.forEach((item, index) => {
                 const row = document.createElement("tr");
                 row.classList.add("border-b", "hover:bg-gray-50");
-
                 row.innerHTML = `
               <td class="px-4 py-3">${index + 1}</td>
               <td class="px-4 py-3">${
@@ -442,15 +534,12 @@
               }</td>
               <td class="px-4 py-3 text-left">${item.judul || "-"}</td>
               <td class="px-4 py-3">
-                <a 
-                  href="detail_pengumuman.html?id=${item.id}" 
-                  class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition inline-block"
-                >
+                <a href="detail_pengumuman.html?id=${item.id}"
+                  class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition inline-block">
                   Lihat
                 </a>
               </td>
             `;
-
                 tableBody.appendChild(row);
               });
             } else {

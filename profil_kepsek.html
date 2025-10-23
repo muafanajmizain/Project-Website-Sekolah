@@ -516,46 +516,51 @@
         });
 
         // ====================================================
-        // 🍔 Hamburger Menu (Mobile Navbar)
+        // 🍔 HAMBURGER MENU (Mobile Navbar)
         // ====================================================
         const menuButton = document.getElementById("menu-toggle");
         const mobileMenu = document.getElementById("mobile-menu");
 
         if (menuButton && mobileMenu) {
-          // Animasi buka/tutup menu mobile
+          // Atur gaya awal menu (tersembunyi)
+          mobileMenu.style.transition = "all 0.3s ease-in-out";
+          mobileMenu.style.overflow = "hidden";
+          mobileMenu.style.maxHeight = "0";
+          mobileMenu.style.opacity = "0";
+          mobileMenu.style.transform = "translateY(-10px)";
+          mobileMenu.style.display = "none";
+
+          // Tombol hamburger diklik
           menuButton.addEventListener("click", () => {
             const isActive = mobileMenu.classList.toggle("active");
             menuButton.classList.toggle("open");
 
-            // Efek transisi halus saat muncul
             if (isActive) {
-              mobileMenu.style.display = "flex";
-              mobileMenu.style.opacity = "0";
-              mobileMenu.style.transform = "translateY(-15px)";
+              // 🟢 Tampilkan menu (slide down + fade)
+              mobileMenu.style.display = "block";
               setTimeout(() => {
+                mobileMenu.style.maxHeight = mobileMenu.scrollHeight + "px";
                 mobileMenu.style.opacity = "1";
                 mobileMenu.style.transform = "translateY(0)";
-                mobileMenu.style.transition =
-                  "opacity 0.3s ease, transform 0.3s ease";
-              }, 30);
+              }, 10);
             } else {
-              // Efek hilang lembut
+              // 🔴 Tutup menu dengan animasi halus
+              mobileMenu.style.maxHeight = "0";
               mobileMenu.style.opacity = "0";
               mobileMenu.style.transform = "translateY(-10px)";
               setTimeout(() => {
                 mobileMenu.style.display = "none";
-              }, 250);
+              }, 300);
             }
           });
 
-          // ====================================================
-          // ✅ Tutup menu otomatis saat link diklik
-          // ====================================================
+          // Tutup otomatis setelah klik link di menu
           const menuLinks = mobileMenu.querySelectorAll("a");
           menuLinks.forEach((link) => {
             link.addEventListener("click", () => {
               mobileMenu.classList.remove("active");
               menuButton.classList.remove("open");
+              mobileMenu.style.maxHeight = "0";
               mobileMenu.style.opacity = "0";
               mobileMenu.style.transform = "translateY(-10px)";
               setTimeout(() => {
@@ -566,7 +571,7 @@
         }
 
         // ====================================================
-        // 🧭 Efek Navbar Sticky (Tambahan Opsional)
+        // 🧭 Sticky Navbar (efek tambahan)
         // ====================================================
         const header = document.querySelector("header");
         window.addEventListener("scroll", () => {
