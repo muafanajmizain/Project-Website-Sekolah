@@ -395,6 +395,231 @@
     </div>
 
     <script>
+      // ============= MODERN NOTIFICATION SYSTEM =============
+      const NotificationSystem = {
+        container: null,
+
+        init() {
+          if (!this.container) {
+            this.container = document.createElement("div");
+            this.container.id = "notification-container";
+            this.container.className =
+              "fixed top-4 right-4 z-50 space-y-3 max-w-md";
+            document.body.appendChild(this.container);
+            this.injectStyles();
+          }
+        },
+
+        injectStyles() {
+          if (!document.getElementById("notification-styles")) {
+            const style = document.createElement("style");
+            style.id = "notification-styles";
+            style.textContent = `
+        @keyframes slideIn {
+          from {
+            transform: translateX(400px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        @keyframes slideOut {
+          from {
+            transform: translateX(0);
+            opacity: 1;
+          }
+          to {
+            transform: translateX(400px);
+            opacity: 0;
+          }
+        }
+        .notification-item {
+          animation: slideIn 0.3s ease-out;
+        }
+        .notification-item.removing {
+          animation: slideOut 0.3s ease-out;
+        }
+      `;
+            document.head.appendChild(style);
+          }
+        },
+
+        show(message, type = "info", duration = 4000) {
+          this.init();
+
+          const notification = document.createElement("div");
+          notification.className = `notification-item bg-white shadow-lg rounded-lg p-4 flex items-start space-x-3 border-l-4 ${this.getBorderColor(
+            type
+          )}`;
+
+          const icon = this.getIcon(type);
+          const iconColor = this.getIconColor(type);
+
+          notification.innerHTML = `
+      <div class="flex-shrink-0">
+        <svg class="w-6 h-6 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          ${icon}
+        </svg>
+      </div>
+      <div class="flex-1 pt-0.5">
+        <p class="text-sm font-medium text-gray-900">${message}</p>
+      </div>
+      <button class="flex-shrink-0 ml-4 text-gray-400 hover:text-gray-600 transition" onclick="this.closest('.notification-item').remove()">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    `;
+
+          this.container.appendChild(notification);
+
+          if (duration > 0) {
+            setTimeout(() => {
+              notification.classList.add("removing");
+              setTimeout(() => notification.remove(), 300);
+            }, duration);
+          }
+
+          return notification;
+        },
+
+        success(message, duration = 4000) {
+          return this.show(message, "success", duration);
+        },
+
+        error(message, duration = 5000) {
+          return this.show(message, "error", duration);
+        },
+
+        warning(message, duration = 4000) {
+          return this.show(message, "warning", duration);
+        },
+
+        info(message, duration = 4000) {
+          return this.show(message, "info", duration);
+        },
+
+        loading(message) {
+          return this.show(message, "loading", 0);
+        },
+
+        confirm(message, onConfirm, onCancel) {
+          this.init();
+
+          const overlay = document.createElement("div");
+          overlay.className =
+            "fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4";
+          overlay.style.animation = "fadeIn 0.2s ease-out";
+
+          const modal = document.createElement("div");
+          modal.className = "bg-white rounded-lg shadow-xl max-w-md w-full p-6";
+          modal.style.animation = "slideIn 0.3s ease-out";
+
+          modal.innerHTML = `
+      <div class="flex items-start space-x-3">
+        <div class="flex-shrink-0">
+          <svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Konfirmasi</h3>
+          <p class="text-sm text-gray-600">${message}</p>
+        </div>
+      </div>
+      <div class="flex space-x-3 mt-6">
+        <button id="cancelBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-medium">
+          Batal
+        </button>
+        <button id="confirmBtn" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">
+          Ya, Lanjutkan
+        </button>
+      </div>
+    `;
+
+          overlay.appendChild(modal);
+          document.body.appendChild(overlay);
+
+          const confirmBtn = modal.querySelector("#confirmBtn");
+          const cancelBtn = modal.querySelector("#cancelBtn");
+
+          const close = () => {
+            overlay.style.animation = "fadeOut 0.2s ease-out";
+            setTimeout(() => overlay.remove(), 200);
+          };
+
+          confirmBtn.onclick = () => {
+            close();
+            if (onConfirm) onConfirm();
+          };
+
+          cancelBtn.onclick = () => {
+            close();
+            if (onCancel) onCancel();
+          };
+
+          overlay.onclick = (e) => {
+            if (e.target === overlay) {
+              close();
+              if (onCancel) onCancel();
+            }
+          };
+        },
+
+        getBorderColor(type) {
+          const colors = {
+            success: "border-green-500",
+            error: "border-red-500",
+            warning: "border-yellow-500",
+            info: "border-blue-500",
+            loading: "border-blue-500",
+          };
+          return colors[type] || colors.info;
+        },
+
+        getIconColor(type) {
+          const colors = {
+            success: "text-green-500",
+            error: "text-red-500",
+            warning: "text-yellow-500",
+            info: "text-blue-500",
+            loading: "text-blue-500",
+          };
+          return colors[type] || colors.info;
+        },
+
+        getIcon(type) {
+          const icons = {
+            success:
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+            error:
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+            warning:
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>',
+            info: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+            loading:
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>',
+          };
+          return icons[type] || icons.info;
+        },
+      };
+
+      // Tambahkan style fadeIn dan fadeOut
+      const additionalStyles = document.createElement("style");
+      additionalStyles.textContent = `
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+`;
+      document.head.appendChild(additionalStyles);
+
       // ============= NAVIGATION HANDLER =============
       function setActiveMenu() {
         const currentPage =
@@ -424,9 +649,7 @@
       let editingId = null;
       let uploadedImageUrl = "";
 
-      // Fungsi untuk mendapatkan token dari localStorage
       function getAuthToken() {
-        // Sesuaikan dengan key yang digunakan saat login
         return (
           localStorage.getItem("token") ||
           localStorage.getItem("authToken") ||
@@ -434,7 +657,6 @@
         );
       }
 
-      // Fungsi untuk membuat headers dengan autentikasi
       function getAuthHeaders(isFormData = false) {
         const token = getAuthToken();
         const headers = {};
@@ -453,7 +675,7 @@
       // Load data dari API
       async function loadData() {
         try {
-          console.log("Memuat data dari API...");
+          NotificationSystem.info("Memuat data berita...");
 
           const response = await fetch(API_URL);
 
@@ -462,11 +684,14 @@
           }
 
           beritaData = await response.json();
-          console.log("Data berhasil dimuat:", beritaData);
+          NotificationSystem.success(
+            `Berhasil memuat ${beritaData.length} berita`
+          );
 
           renderTable();
         } catch (error) {
           console.error("Error loading data:", error);
+          NotificationSystem.error("Gagal memuat data: " + error.message);
 
           const tableBody = document.getElementById("tableBody");
           const emptyState = document.getElementById("emptyState");
@@ -495,14 +720,18 @@
           // Validasi format file
           const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
           if (!allowedTypes.includes(file.type)) {
-            alert("Format file tidak didukung. Gunakan JPEG, JPG, atau PNG.");
+            NotificationSystem.error(
+              "Format file tidak didukung. Gunakan JPEG, JPG, atau PNG."
+            );
             e.target.value = "";
             return;
           }
 
           // Validasi ukuran file (max 5MB)
           if (file.size > 5 * 1024 * 1024) {
-            alert("Ukuran file terlalu besar. Maksimal 5MB.");
+            NotificationSystem.error(
+              "Ukuran file terlalu besar. Maksimal 5MB."
+            );
             e.target.value = "";
             return;
           }
@@ -510,23 +739,25 @@
           // Cek token dulu
           const token = getAuthToken();
           if (!token) {
-            alert("Anda belum login! Silakan login terlebih dahulu.");
-            window.location.href = "Login_admin.html";
+            NotificationSystem.error(
+              "Anda belum login! Silakan login terlebih dahulu."
+            );
+            setTimeout(() => {
+              window.location.href = "Login_admin.html";
+            }, 2000);
             return;
           }
 
           // Update status - mulai upload
           const uploadStatus = document.getElementById("uploadStatus");
-          uploadStatus.innerHTML =
-            '<span class="text-blue-600">⏳ Mengupload gambar...</span>';
+          const loadingNotif = NotificationSystem.loading(
+            "Mengupload gambar..."
+          );
 
           try {
             // Buat FormData untuk upload
             const formData = new FormData();
             formData.append("foto", file);
-
-            console.log("Mengupload file:", file.name);
-            console.log("Token:", token);
 
             // Upload ke API dengan token
             const response = await fetch(UPLOAD_API_URL, {
@@ -537,38 +768,38 @@
               body: formData,
             });
 
-            console.log("Upload response status:", response.status);
-
             if (response.status === 401) {
-              alert("Sesi login Anda telah berakhir. Silakan login kembali.");
-              window.location.href = "Login_admin.html";
+              loadingNotif.remove();
+              NotificationSystem.error(
+                "Sesi login Anda telah berakhir. Silakan login kembali."
+              );
+              setTimeout(() => {
+                window.location.href = "Login_admin.html";
+              }, 2000);
               return;
             }
 
             if (!response.ok) {
               const errorText = await response.text();
-              console.error("Upload error response:", errorText);
               throw new Error(`Upload gagal (${response.status})`);
             }
 
             const result = await response.json();
-            console.log("Upload result:", result);
 
             // Simpan URL gambar dari response
             uploadedImageUrl =
               result.url || result.foto_url || result.link || result.image_url;
 
             if (!uploadedImageUrl) {
-              console.error("Response tidak memiliki URL gambar:", result);
               throw new Error("URL gambar tidak ditemukan dalam response");
             }
-
-            console.log("Gambar berhasil diupload:", uploadedImageUrl);
 
             // Simpan URL ke hidden input
             document.getElementById("fotoUrl").value = uploadedImageUrl;
 
             // Update status
+            loadingNotif.remove();
+            NotificationSystem.success("Gambar berhasil diupload!");
             uploadStatus.innerHTML =
               '<span class="text-green-600">✓ Upload berhasil</span>';
 
@@ -578,6 +809,8 @@
             preview.classList.remove("hidden");
           } catch (error) {
             console.error("Upload error:", error);
+            loadingNotif.remove();
+            NotificationSystem.error("Upload gagal: " + error.message);
             uploadStatus.innerHTML =
               '<span class="text-red-600">✗ Upload gagal: ' +
               error.message +
@@ -597,8 +830,12 @@
           // Cek token dulu
           const token = getAuthToken();
           if (!token) {
-            alert("Anda belum login! Silakan login terlebih dahulu.");
-            window.location.href = "Login_admin.html";
+            NotificationSystem.error(
+              "Anda belum login! Silakan login terlebih dahulu."
+            );
+            setTimeout(() => {
+              window.location.href = "Login_admin.html";
+            }, 2000);
             return;
           }
 
@@ -609,22 +846,22 @@
 
           // Validasi input
           if (!judul) {
-            alert("Judul tidak boleh kosong");
+            NotificationSystem.warning("Judul tidak boleh kosong");
             return;
           }
 
           if (!tanggal) {
-            alert("Tanggal tidak boleh kosong");
+            NotificationSystem.warning("Tanggal tidak boleh kosong");
             return;
           }
 
           if (!deskripsi) {
-            alert("Deskripsi tidak boleh kosong");
+            NotificationSystem.warning("Deskripsi tidak boleh kosong");
             return;
           }
 
           if (!fotoUrl) {
-            alert("Harap upload gambar terlebih dahulu");
+            NotificationSystem.warning("Harap upload gambar terlebih dahulu");
             return;
           }
 
@@ -633,6 +870,8 @@
           const originalText = btnSubmit.textContent;
           btnSubmit.disabled = true;
           btnSubmit.textContent = "Menyimpan...";
+
+          const savingNotif = NotificationSystem.loading("Menyimpan berita...");
 
           try {
             // Format tanggal ke ISO 8601
@@ -646,31 +885,38 @@
               foto_url: fotoUrl,
             };
 
-            console.log("Data yang akan dikirim:", berita);
-
             if (editingId === null) {
               // Tambah data baru (POST)
               await createBerita(berita);
-              alert("Berita berhasil ditambahkan!");
+              savingNotif.remove();
+              NotificationSystem.success("Berita berhasil ditambahkan!");
             } else {
               // Update data (PUT)
               await updateBerita(editingId, berita);
-              alert("Berita berhasil diupdate!");
+              savingNotif.remove();
+              NotificationSystem.success("Berita berhasil diupdate!");
             }
 
             await loadData();
             resetForm();
           } catch (error) {
             console.error("Error saat menyimpan:", error);
+            savingNotif.remove();
 
             if (
               error.message.includes("401") ||
               error.message.includes("Unauthorized")
             ) {
-              alert("Sesi login Anda telah berakhir. Silakan login kembali.");
-              window.location.href = "Login_admin.html";
+              NotificationSystem.error(
+                "Sesi login Anda telah berakhir. Silakan login kembali."
+              );
+              setTimeout(() => {
+                window.location.href = "Login_admin.html";
+              }, 2000);
             } else {
-              alert("Gagal menyimpan berita: " + error.message);
+              NotificationSystem.error(
+                "Gagal menyimpan berita: " + error.message
+              );
             }
           } finally {
             btnSubmit.disabled = false;
@@ -683,10 +929,7 @@
       // CREATE - Tambah berita baru
       async function createBerita(data) {
         try {
-          console.log("Mengirim data ke API:", data);
-
           const token = getAuthToken();
-          console.log("Token untuk create:", token);
 
           const response = await fetch(API_URL, {
             method: "POST",
@@ -694,25 +937,20 @@
             body: JSON.stringify(data),
           });
 
-          console.log("Create response status:", response.status);
-
           if (response.status === 401) {
             throw new Error("401: Unauthorized - Silakan login kembali");
           }
 
           const responseText = await response.text();
-          console.log("Create response text:", responseText);
 
           let result;
           try {
             result = JSON.parse(responseText);
           } catch (e) {
-            console.error("Gagal parse JSON:", e);
             throw new Error("Server mengembalikan response yang tidak valid");
           }
 
           if (!response.ok) {
-            console.error("Response error:", result);
             throw new Error(
               result.message ||
                 result.error ||
@@ -720,7 +958,6 @@
             );
           }
 
-          console.log("Berhasil menambah berita:", result);
           return result;
         } catch (error) {
           console.error("Error detail di createBerita:", error);
@@ -731,8 +968,6 @@
       // UPDATE - Update berita
       async function updateBerita(id, data) {
         try {
-          console.log(`Mengupdate berita ID ${id}:`, data);
-
           const response = await fetch(`${API_URL}/${id}`, {
             method: "PUT",
             headers: getAuthHeaders(),
@@ -744,7 +979,6 @@
           }
 
           const responseText = await response.text();
-          console.log("Update response:", responseText);
 
           let result;
           try {
@@ -761,7 +995,6 @@
             );
           }
 
-          console.log("Berhasil update berita:", result);
           return result;
         } catch (error) {
           console.error("Error detail di updateBerita:", error);
@@ -771,50 +1004,64 @@
 
       // DELETE - Hapus berita
       async function deleteBerita(id) {
-        if (!confirm("Apakah Anda yakin ingin menghapus berita ini?")) {
-          return;
-        }
-
         // Cek token
         const token = getAuthToken();
         if (!token) {
-          alert("Anda belum login! Silakan login terlebih dahulu.");
-          window.location.href = "Login_admin.html";
+          NotificationSystem.error(
+            "Anda belum login! Silakan login terlebih dahulu."
+          );
+          setTimeout(() => {
+            window.location.href = "Login_admin.html";
+          }, 2000);
           return;
         }
 
-        try {
-          console.log("Menghapus berita ID:", id);
-
-          const response = await fetch(`${API_URL}/${id}`, {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          console.log("Delete status:", response.status);
-
-          if (response.status === 401) {
-            alert("Sesi login Anda telah berakhir. Silakan login kembali.");
-            window.location.href = "Login_admin.html";
-            return;
-          }
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Delete error:", errorText);
-            throw new Error(
-              `Gagal menghapus berita (Error ${response.status})`
+        // Gunakan confirm modal modern
+        NotificationSystem.confirm(
+          "Apakah Anda yakin ingin menghapus berita ini? Tindakan ini tidak dapat dibatalkan.",
+          async () => {
+            const deletingNotif = NotificationSystem.loading(
+              "Menghapus berita..."
             );
-          }
 
-          alert("Berita berhasil dihapus!");
-          await loadData();
-        } catch (error) {
-          console.error("Error saat menghapus:", error);
-          alert("Gagal menghapus berita: " + error.message);
-        }
+            try {
+              const response = await fetch(`${API_URL}/${id}`, {
+                method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+
+              if (response.status === 401) {
+                deletingNotif.remove();
+                NotificationSystem.error(
+                  "Sesi login Anda telah berakhir. Silakan login kembali."
+                );
+                setTimeout(() => {
+                  window.location.href = "Login_admin.html";
+                }, 2000);
+                return;
+              }
+
+              if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(
+                  `Gagal menghapus berita (Error ${response.status})`
+                );
+              }
+
+              deletingNotif.remove();
+              NotificationSystem.success("Berita berhasil dihapus!");
+              await loadData();
+            } catch (error) {
+              console.error("Error saat menghapus:", error);
+              deletingNotif.remove();
+              NotificationSystem.error(
+                "Gagal menghapus berita: " + error.message
+              );
+            }
+          }
+        );
       }
 
       // ============= RENDER TABLE =============
@@ -898,6 +1145,7 @@
         document.getElementById("btnSubmit").textContent = "Update";
         document.getElementById("btnCancel").classList.remove("hidden");
 
+        NotificationSystem.info("Mode edit: Anda sedang mengedit berita");
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
@@ -933,10 +1181,15 @@
       if (logoutButton) {
         logoutButton.addEventListener("click", function (event) {
           event.preventDefault();
-          const confirmLogout = confirm("Apakah Anda yakin ingin keluar?");
-          if (confirmLogout) {
-            window.location.href = "Login_admin.html";
-          }
+          NotificationSystem.confirm(
+            "Apakah Anda yakin ingin keluar dari sistem?",
+            () => {
+              NotificationSystem.success("Berhasil logout!");
+              setTimeout(() => {
+                window.location.href = "Login_admin.html";
+              }, 1000);
+            }
+          );
         });
       }
     </script>

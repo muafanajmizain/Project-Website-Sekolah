@@ -553,6 +553,225 @@
     </div>
 
     <script>
+      // ============= MODERN NOTIFICATION SYSTEM =============
+      const NotificationSystem = {
+        container: null,
+
+        init() {
+          if (!this.container) {
+            this.container = document.createElement("div");
+            this.container.id = "notification-container";
+            this.container.className =
+              "fixed top-4 right-4 z-50 space-y-3 max-w-md";
+            document.body.appendChild(this.container);
+            this.injectStyles();
+          }
+        },
+
+        injectStyles() {
+          if (!document.getElementById("notification-styles")) {
+            const style = document.createElement("style");
+            style.id = "notification-styles";
+            style.textContent = `
+        @keyframes slideIn {
+          from {
+            transform: translateX(400px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        @keyframes slideOut {
+          from {
+            transform: translateX(0);
+            opacity: 1;
+          }
+          to {
+            transform: translateX(400px);
+            opacity: 0;
+          }
+        }
+        .notification-item {
+          animation: slideIn 0.3s ease-out;
+        }
+        .notification-item.removing {
+          animation: slideOut 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+      `;
+            document.head.appendChild(style);
+          }
+        },
+
+        show(message, type = "info", duration = 4000) {
+          this.init();
+
+          const notification = document.createElement("div");
+          notification.className = `notification-item bg-white shadow-lg rounded-lg p-4 flex items-start space-x-3 border-l-4 ${this.getBorderColor(
+            type
+          )}`;
+
+          const icon = this.getIcon(type);
+          const iconColor = this.getIconColor(type);
+
+          notification.innerHTML = `
+      <div class="flex-shrink-0">
+        <svg class="w-6 h-6 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          ${icon}
+        </svg>
+      </div>
+      <div class="flex-1 pt-0.5">
+        <p class="text-sm font-medium text-gray-900">${message}</p>
+      </div>
+      <button class="flex-shrink-0 ml-4 text-gray-400 hover:text-gray-600 transition" onclick="this.closest('.notification-item').remove()">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    `;
+
+          this.container.appendChild(notification);
+
+          if (duration > 0) {
+            setTimeout(() => {
+              notification.classList.add("removing");
+              setTimeout(() => notification.remove(), 300);
+            }, duration);
+          }
+
+          return notification;
+        },
+
+        success(message, duration = 4000) {
+          return this.show(message, "success", duration);
+        },
+
+        error(message, duration = 5000) {
+          return this.show(message, "error", duration);
+        },
+
+        warning(message, duration = 4000) {
+          return this.show(message, "warning", duration);
+        },
+
+        info(message, duration = 4000) {
+          return this.show(message, "info", duration);
+        },
+
+        loading(message) {
+          return this.show(message, "loading", 0);
+        },
+
+        confirm(message, onConfirm, onCancel) {
+          this.init();
+
+          const overlay = document.createElement("div");
+          overlay.className =
+            "fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4";
+          overlay.style.animation = "fadeIn 0.2s ease-out";
+
+          const modal = document.createElement("div");
+          modal.className = "bg-white rounded-lg shadow-xl max-w-md w-full p-6";
+          modal.style.animation = "slideIn 0.3s ease-out";
+
+          modal.innerHTML = `
+      <div class="flex items-start space-x-3">
+        <div class="flex-shrink-0">
+          <svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Konfirmasi</h3>
+          <p class="text-sm text-gray-600">${message}</p>
+        </div>
+      </div>
+      <div class="flex space-x-3 mt-6">
+        <button id="cancelBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-medium">
+          Batal
+        </button>
+        <button id="confirmBtn" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">
+          Ya, Lanjutkan
+        </button>
+      </div>
+    `;
+
+          overlay.appendChild(modal);
+          document.body.appendChild(overlay);
+
+          const confirmBtn = modal.querySelector("#confirmBtn");
+          const cancelBtn = modal.querySelector("#cancelBtn");
+
+          const close = () => {
+            overlay.style.animation = "fadeOut 0.2s ease-out";
+            setTimeout(() => overlay.remove(), 200);
+          };
+
+          confirmBtn.onclick = () => {
+            close();
+            if (onConfirm) onConfirm();
+          };
+
+          cancelBtn.onclick = () => {
+            close();
+            if (onCancel) onCancel();
+          };
+
+          overlay.onclick = (e) => {
+            if (e.target === overlay) {
+              close();
+              if (onCancel) onCancel();
+            }
+          };
+        },
+
+        getBorderColor(type) {
+          const colors = {
+            success: "border-green-500",
+            error: "border-red-500",
+            warning: "border-yellow-500",
+            info: "border-blue-500",
+            loading: "border-blue-500",
+          };
+          return colors[type] || colors.info;
+        },
+
+        getIconColor(type) {
+          const colors = {
+            success: "text-green-500",
+            error: "text-red-500",
+            warning: "text-yellow-500",
+            info: "text-blue-500",
+            loading: "text-blue-500",
+          };
+          return colors[type] || colors.info;
+        },
+
+        getIcon(type) {
+          const icons = {
+            success:
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+            error:
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+            warning:
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>',
+            info: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+            loading:
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>',
+          };
+          return icons[type] || icons.info;
+        },
+      };
+
       // ========================================
       // API CONFIGURATION
       // ========================================
@@ -624,6 +843,10 @@
           if (tableLoading) tableLoading.classList.remove("hidden");
           if (tableContainer) tableContainer.classList.add("hidden");
 
+          const loadingNotif = NotificationSystem.loading(
+            "Memuat data prestasi..."
+          );
+
           // Fetch data dari API dengan auth header
           const token = getAuthToken();
           const headers = {};
@@ -635,9 +858,9 @@
 
           if (!response.ok) {
             if (response.status === 401) {
-              showNotification(
-                "Session expired. Silakan login kembali!",
-                "error"
+              loadingNotif.remove();
+              NotificationSystem.error(
+                "Sesi login Anda telah berakhir. Silakan login kembali!"
               );
               setTimeout(() => {
                 window.location.href = "Login_admin.html";
@@ -649,23 +872,27 @@
 
           const data = await response.json();
 
-          // ✅ PERBAIKAN: Konsisten dengan field dari API
+          // Konsisten dengan field dari API
           prestasiData = data.map((item) => ({
             id: item.id,
             foto_url: item.foto_url,
             juara: item.juara || "1",
-            nama: item.nama || "Tidak diketahui", // ✅ Gunakan "nama" bukan "nama_siswa"
+            nama: item.nama || "Tidak diketahui",
             kelas: item.kelas || "-",
-            judul: item.judul, // ✅ Gunakan "judul" bukan "judul_lomba"
+            judul: item.judul,
             deskripsi: item.deskripsi,
             author_id: item.author_id,
           }));
 
+          loadingNotif.remove();
+          NotificationSystem.success(
+            `Berhasil memuat ${prestasiData.length} data prestasi`
+          );
           console.log("✅ Data loaded:", prestasiData);
           renderTable();
         } catch (error) {
           console.error("Error loading prestasi:", error);
-          showNotification(`Gagal memuat data: ${error.message}`, "error");
+          NotificationSystem.error(`Gagal memuat data: ${error.message}`);
           if (emptyState) emptyState.classList.remove("hidden");
         } finally {
           if (tableLoading) tableLoading.classList.add("hidden");
@@ -678,7 +905,9 @@
       // ========================================
       async function uploadImageToServer(file) {
         try {
-          showNotification("Mengupload gambar...", "success");
+          const uploadingNotif = NotificationSystem.loading(
+            "Mengupload gambar..."
+          );
 
           const formData = new FormData();
           formData.append("foto", file);
@@ -701,9 +930,9 @@
 
           if (!response.ok) {
             if (response.status === 401) {
-              showNotification(
-                "Session expired. Silakan login kembali!",
-                "error"
+              uploadingNotif.remove();
+              NotificationSystem.error(
+                "Sesi login Anda telah berakhir. Silakan login kembali!"
               );
               setTimeout(() => {
                 window.location.href = "Login_admin.html";
@@ -737,14 +966,12 @@
           uploadedImageUrl = imageUrl;
           document.getElementById("fotoUrl").value = imageUrl;
 
-          showNotification("Gambar berhasil diupload!", "success");
+          uploadingNotif.remove();
+          NotificationSystem.success("Gambar berhasil diupload!");
           console.log("Image URL saved:", imageUrl);
         } catch (error) {
           console.error("Error uploading image:", error);
-          showNotification(
-            `Gagal mengupload gambar: ${error.message}`,
-            "error"
-          );
+          NotificationSystem.error(`Gagal mengupload gambar: ${error.message}`);
 
           document.getElementById("fileInput").value = "";
           document.getElementById("imagePreview").classList.add("hidden");
@@ -764,9 +991,8 @@
 
           const validTypes = ["image/jpeg", "image/jpg", "image/png"];
           if (!validTypes.includes(file.type)) {
-            showNotification(
-              "Format file tidak valid! Gunakan JPG, JPEG, atau PNG",
-              "error"
+            NotificationSystem.error(
+              "Format file tidak valid! Gunakan JPG, JPEG, atau PNG"
             );
             e.target.value = "";
             return;
@@ -774,7 +1000,7 @@
 
           const maxSize = 2 * 1024 * 1024;
           if (file.size > maxSize) {
-            showNotification("Ukuran file terlalu besar! Maximum 2MB", "error");
+            NotificationSystem.error("Ukuran file terlalu besar! Maximum 2MB");
             e.target.value = "";
             return;
           }
@@ -798,6 +1024,7 @@
         document.getElementById("fileInput").value = "";
         document.getElementById("previewImg").src = "";
         uploadedImageUrl = null;
+        NotificationSystem.info("Gambar dihapus");
       }
 
       // ========================================
@@ -816,21 +1043,23 @@
           const foto_url = document.getElementById("fotoUrl").value;
 
           if (!foto_url) {
-            showNotification("Silakan upload gambar terlebih dahulu!", "error");
+            NotificationSystem.warning(
+              "Silakan upload gambar terlebih dahulu!"
+            );
             return;
           }
 
           if (!namaSiswa || !judulLomba || !deskripsi) {
-            showNotification("Semua field wajib diisi!", "error");
+            NotificationSystem.warning("Semua field wajib diisi!");
             return;
           }
 
-          // ✅ PERBAIKAN: Konsisten dengan field API
+          // Konsisten dengan field API
           const data = {
             juara: juara,
-            nama: namaSiswa, // ✅ Kirim sebagai "nama"
+            nama: namaSiswa,
             kelas: kelas,
-            judul: judulLomba, // ✅ Kirim sebagai "judul"
+            judul: judulLomba,
             deskripsi: deskripsi,
             foto_url: foto_url,
             author_id: 2,
@@ -850,6 +1079,9 @@
       // ========================================
       async function createPrestasi(data) {
         setFormLoading(true);
+        const savingNotif = NotificationSystem.loading(
+          "Menyimpan data prestasi..."
+        );
 
         try {
           console.log("Sending data:", data);
@@ -864,9 +1096,9 @@
 
           if (!response.ok) {
             if (response.status === 401) {
-              showNotification(
-                "Session expired. Silakan login kembali!",
-                "error"
+              savingNotif.remove();
+              NotificationSystem.error(
+                "Sesi login Anda telah berakhir. Silakan login kembali!"
               );
               setTimeout(() => {
                 window.location.href = "Login_admin.html";
@@ -880,12 +1112,14 @@
           const result = await response.json();
           console.log("Response data:", result);
 
-          showNotification("Data prestasi berhasil ditambahkan!", "success");
+          savingNotif.remove();
+          NotificationSystem.success("Data prestasi berhasil ditambahkan!");
           await loadPrestasi();
           resetForm();
         } catch (error) {
           console.error("Error creating prestasi:", error);
-          showNotification(`Gagal menambahkan data: ${error.message}`, "error");
+          savingNotif.remove();
+          NotificationSystem.error(`Gagal menambahkan data: ${error.message}`);
         } finally {
           setFormLoading(false);
         }
@@ -896,6 +1130,9 @@
       // ========================================
       async function updatePrestasi(id, data) {
         setFormLoading(true);
+        const updatingNotif = NotificationSystem.loading(
+          "Mengupdate data prestasi..."
+        );
 
         try {
           console.log("Updating prestasi ID:", id);
@@ -911,9 +1148,9 @@
 
           if (!response.ok) {
             if (response.status === 401) {
-              showNotification(
-                "Session expired. Silakan login kembali!",
-                "error"
+              updatingNotif.remove();
+              NotificationSystem.error(
+                "Sesi login Anda telah berakhir. Silakan login kembali!"
               );
               setTimeout(() => {
                 window.location.href = "Login_admin.html";
@@ -927,12 +1164,14 @@
           const result = await response.json();
           console.log("Update result:", result);
 
-          showNotification("Data prestasi berhasil diupdate!", "success");
+          updatingNotif.remove();
+          NotificationSystem.success("Data prestasi berhasil diupdate!");
           await loadPrestasi();
           resetForm();
         } catch (error) {
           console.error("Error updating:", error);
-          showNotification(`Gagal update data: ${error.message}`, "error");
+          updatingNotif.remove();
+          NotificationSystem.error(`Gagal update data: ${error.message}`);
         } finally {
           setFormLoading(false);
         }
@@ -942,43 +1181,53 @@
       // DELETE PRESTASI (DELETE)
       // ========================================
       async function deletePrestasi(id) {
-        if (!confirm("Yakin ingin menghapus data prestasi ini?")) return;
+        NotificationSystem.confirm(
+          "Yakin ingin menghapus data prestasi ini? Tindakan ini tidak dapat dibatalkan.",
+          async () => {
+            const deletingNotif =
+              NotificationSystem.loading("Menghapus data...");
 
-        try {
-          showNotification("Menghapus data...", "success");
+            try {
+              const token = getAuthToken();
+              const headers = {};
+              if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
+              }
 
-          const token = getAuthToken();
-          const headers = {};
-          if (token) {
-            headers["Authorization"] = `Bearer ${token}`;
-          }
+              const response = await fetch(`${API_PRESTASI_URL}/${id}`, {
+                method: "DELETE",
+                headers: headers,
+              });
 
-          const response = await fetch(`${API_PRESTASI_URL}/${id}`, {
-            method: "DELETE",
-            headers: headers,
-          });
+              if (!response.ok) {
+                if (response.status === 401) {
+                  deletingNotif.remove();
+                  NotificationSystem.error(
+                    "Sesi login Anda telah berakhir. Silakan login kembali!"
+                  );
+                  setTimeout(() => {
+                    window.location.href = "Login_admin.html";
+                  }, 2000);
+                  return;
+                }
+                const errorData = await response.json();
+                throw new Error(
+                  errorData.message || "Gagal menghapus prestasi"
+                );
+              }
 
-          if (!response.ok) {
-            if (response.status === 401) {
-              showNotification(
-                "Session expired. Silakan login kembali!",
-                "error"
+              deletingNotif.remove();
+              NotificationSystem.success("Data prestasi berhasil dihapus!");
+              await loadPrestasi();
+            } catch (error) {
+              console.error("Error deleting:", error);
+              deletingNotif.remove();
+              NotificationSystem.error(
+                `Gagal menghapus data: ${error.message}`
               );
-              setTimeout(() => {
-                window.location.href = "Login_admin.html";
-              }, 2000);
-              return;
             }
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Gagal menghapus prestasi");
           }
-
-          showNotification("Data prestasi berhasil dihapus!", "success");
-          await loadPrestasi();
-        } catch (error) {
-          console.error("Error deleting:", error);
-          showNotification(`Gagal menghapus data: ${error.message}`, "error");
-        }
+        );
       }
 
       // ========================================
@@ -987,7 +1236,7 @@
       function editPrestasi(id) {
         const data = prestasiData.find((item) => item.id == id);
         if (!data) {
-          showNotification("Data tidak ditemukan!", "error");
+          NotificationSystem.error("Data tidak ditemukan!");
           return;
         }
 
@@ -996,11 +1245,10 @@
         editMode = true;
         currentEditId = id;
 
-        // ✅ PERBAIKAN: Gunakan field yang konsisten
         document.getElementById("juara").value = data.juara;
-        document.getElementById("namaSiswa").value = data.nama; // ✅ Dari "nama"
+        document.getElementById("namaSiswa").value = data.nama;
         document.getElementById("kelas").value = data.kelas;
-        document.getElementById("judulLomba").value = data.judul; // ✅ Dari "judul"
+        document.getElementById("judulLomba").value = data.judul;
         document.getElementById("deskripsi").value = data.deskripsi;
         document.getElementById("fotoUrl").value = data.foto_url;
 
@@ -1014,17 +1262,20 @@
 
         window.scrollTo({ top: 0, behavior: "smooth" });
 
-        showNotification("Mode Edit: Ubah data dan klik Update", "success");
+        NotificationSystem.info("Mode Edit: Ubah data dan klik Update");
       }
 
       // ========================================
       // CANCEL EDIT
       // ========================================
       function cancelEdit() {
-        if (confirm("Yakin ingin membatalkan? Perubahan tidak akan disimpan")) {
-          resetForm();
-          showNotification("Edit dibatalkan", "success");
-        }
+        NotificationSystem.confirm(
+          "Yakin ingin membatalkan? Perubahan tidak akan disimpan.",
+          () => {
+            resetForm();
+            NotificationSystem.info("Edit dibatalkan");
+          }
+        );
       }
 
       // ========================================
@@ -1058,7 +1309,6 @@
 
         emptyState?.classList.add("hidden");
 
-        // ✅ PERBAIKAN: Gunakan field yang konsisten
         tbody.innerHTML = prestasiData
           .map(
             (item, index) => `
@@ -1155,34 +1405,6 @@
         }
       }
 
-      function showNotification(message, type = "success") {
-        const notification = document.createElement("div");
-        notification.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg text-white z-50 transform transition-all duration-300 ${
-          type === "success" ? "bg-green-500" : "bg-red-500"
-        }`;
-
-        const icon = type === "success" ? "✅" : "❌";
-        notification.innerHTML = `
-<div class="flex items-center space-x-3">
-    <span class="text-2xl">${icon}</span>
-    <span class="font-medium">${message}</span>
-</div>
-`;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-          notification.style.transform = "translateX(0)";
-        }, 10);
-
-        setTimeout(() => {
-          notification.style.transform = "translateX(400px)";
-          setTimeout(() => {
-            notification.remove();
-          }, 300);
-        }, 3000);
-      }
-
       // ========================================
       // INITIALIZE APP
       // ========================================
@@ -1202,12 +1424,17 @@
       if (logoutButton) {
         logoutButton.addEventListener("click", function (event) {
           event.preventDefault();
-          const confirmLogout = confirm("Apakah Anda yakin ingin keluar?");
-          if (confirmLogout) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("authToken");
-            window.location.href = "Login_admin.html";
-          }
+          NotificationSystem.confirm(
+            "Apakah Anda yakin ingin keluar dari sistem?",
+            () => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("authToken");
+              NotificationSystem.success("Berhasil logout!");
+              setTimeout(() => {
+                window.location.href = "Login_admin.html";
+              }, 1000);
+            }
+          );
         });
       }
     </script>
