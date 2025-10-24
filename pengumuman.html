@@ -447,8 +447,8 @@
 
           menuItems.forEach((menu) => {
             const item = document.createElement("a");
-            item.href = menu.href; // 🔹 gunakan href dari objek
-            item.textContent = menu.text; // 🔹 gunakan text dari objek
+            item.href = menu.href;
+            item.textContent = menu.text;
             item.className =
               "block px-4 py-3 text-gray-800 hover:bg-gray-50 border-b border-gray-100 transition";
             mobileMenu.appendChild(item);
@@ -502,9 +502,19 @@
     </script>
 
     <!-- ======================================================
-📢 FETCH DATA PENGUMUMAN (Tetap Sama)
+📢 FETCH DATA PENGUMUMAN (Dengan Truncate)
 ====================================================== -->
     <script>
+      // ======================================================
+      // FUNGSI HELPER - TRUNCATE TEXT
+      // ======================================================
+      function truncateWords(text, maxWords) {
+        if (!text) return "-";
+        const words = text.trim().split(/\s+/);
+        if (words.length <= maxWords) return text;
+        return words.slice(0, maxWords).join(" ") + "...";
+      }
+
       document.addEventListener("DOMContentLoaded", function () {
         const tableBody = document.querySelector("#pengumuman-list");
         if (!tableBody) return;
@@ -532,7 +542,10 @@
               <td class="px-4 py-3">${
                 item.tanggal ? item.tanggal.split("T")[0] : "-"
               }</td>
-              <td class="px-4 py-3 text-left">${item.judul || "-"}</td>
+              <td class="px-4 py-3 text-left">${truncateWords(
+                item.judul,
+                20
+              )}</td>
               <td class="px-4 py-3">
                 <a href="detail_pengumuman.html?id=${item.id}"
                   class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition inline-block">
