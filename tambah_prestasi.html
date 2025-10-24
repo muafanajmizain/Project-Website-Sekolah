@@ -327,8 +327,8 @@
                   <label
                     for="juara"
                     class="block text-gray-700 font-semibold mb-2"
-                    >Juara <span class="text-red-500"></span></label
-                  >
+                    >Juara <span class="text-red-500"></span
+                  ></label>
                   <select
                     id="juara"
                     required
@@ -347,8 +347,8 @@
                   <label
                     for="namaSiswa"
                     class="block text-gray-700 font-semibold mb-2"
-                    >Nama Siswa <span class="text-red-500"></span></label
-                  >
+                    >Nama Siswa <span class="text-red-500"></span
+                  ></label>
                   <input
                     type="text"
                     id="namaSiswa"
@@ -363,8 +363,8 @@
                   <label
                     for="kelas"
                     class="block text-gray-700 font-semibold mb-2"
-                    >Kelas <span class="text-red-500"></span></label
-                  >
+                    >Kelas <span class="text-red-500"></span
+                  ></label>
                   <select
                     id="kelas"
                     required
@@ -400,8 +400,8 @@
                   <label
                     for="judulLomba"
                     class="block text-gray-700 font-semibold mb-2"
-                    >Judul Lomba <span class="text-red-500"></span></label
-                  >
+                    >Judul Lomba <span class="text-red-500"></span
+                  ></label>
                   <input
                     type="text"
                     id="judulLomba"
@@ -417,8 +417,8 @@
                 <label
                   for="deskripsi"
                   class="block text-gray-700 font-semibold mb-2"
-                  >Deskripsi Prestasi<span class="text-red-500"></span></label
-                >
+                  >Deskripsi Prestasi<span class="text-red-500"></span
+                ></label>
                 <textarea
                   id="deskripsi"
                   rows="5"
@@ -504,7 +504,7 @@
                     <th
                       class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
                     >
-                      Judul 
+                      Judul
                     </th>
                     <th
                       class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
@@ -569,6 +569,25 @@
       let currentEditId = null;
       let uploadedImageUrl = null;
 
+      // ========================================
+      // 🎯 NAVIGATION HANDLER (Active Menu)
+      // ========================================
+      function setActiveMenu() {
+        const currentPage =
+          window.location.pathname.split("/").pop() || "prestasi.html";
+        const navLinks = document.querySelectorAll(
+          ".nav-link, nav a, .sidebar a"
+        );
+
+        navLinks.forEach((link) => {
+          link.classList.remove("active");
+          const linkHref = link.getAttribute("href");
+          if (linkHref === currentPage) {
+            link.classList.add("active");
+          }
+        });
+      }
+
       // Get auth token from localStorage
       function getAuthToken() {
         return (
@@ -630,18 +649,19 @@
 
           const data = await response.json();
 
-          // PERBAIKAN: Mapping data dengan field yang benar
+          // ✅ PERBAIKAN: Konsisten dengan field dari API
           prestasiData = data.map((item) => ({
             id: item.id,
             foto_url: item.foto_url,
             juara: item.juara || "1",
-            nama_siswa: item.nama || "Tidak diketahui",
+            nama: item.nama || "Tidak diketahui", // ✅ Gunakan "nama" bukan "nama_siswa"
             kelas: item.kelas || "-",
-            judul_lomba: item.judul,
+            judul: item.judul, // ✅ Gunakan "judul" bukan "judul_lomba"
             deskripsi: item.deskripsi,
             author_id: item.author_id,
           }));
 
+          console.log("✅ Data loaded:", prestasiData);
           renderTable();
         } catch (error) {
           console.error("Error loading prestasi:", error);
@@ -737,7 +757,7 @@
       // ========================================
       document
         .getElementById("fileInput")
-        .addEventListener("change", async (e) => {
+        ?.addEventListener("change", async (e) => {
           const file = e.target.files[0];
 
           if (!file) return;
@@ -785,7 +805,7 @@
       // ========================================
       document
         .getElementById("prestasiForm")
-        .addEventListener("submit", async (e) => {
+        ?.addEventListener("submit", async (e) => {
           e.preventDefault();
 
           const juara = document.getElementById("juara").value;
@@ -805,11 +825,12 @@
             return;
           }
 
+          // ✅ PERBAIKAN: Konsisten dengan field API
           const data = {
             juara: juara,
-            nama: namaSiswa,
+            nama: namaSiswa, // ✅ Kirim sebagai "nama"
             kelas: kelas,
-            judul: judulLomba,
+            judul: judulLomba, // ✅ Kirim sebagai "judul"
             deskripsi: deskripsi,
             foto_url: foto_url,
             author_id: 2,
@@ -859,27 +880,9 @@
           const result = await response.json();
           console.log("Response data:", result);
 
-          const isSuccess =
-            (result.message &&
-              result.message.toLowerCase().includes("berhasil")) ||
-            (result.message &&
-              result.message.toLowerCase().includes("success")) ||
-            (result.prestasi && result.prestasi.id) ||
-            (result.data && result.data.id) ||
-            result.id ||
-            response.status === 200 ||
-            response.status === 201;
-
-          if (isSuccess) {
-            showNotification("Data prestasi berhasil ditambahkan!", "success");
-            await loadPrestasi();
-            resetForm();
-          } else {
-            console.warn("Unexpected response format:", result);
-            showNotification("Data berhasil disimpan!", "success");
-            await loadPrestasi();
-            resetForm();
-          }
+          showNotification("Data prestasi berhasil ditambahkan!", "success");
+          await loadPrestasi();
+          resetForm();
         } catch (error) {
           console.error("Error creating prestasi:", error);
           showNotification(`Gagal menambahkan data: ${error.message}`, "error");
@@ -895,11 +898,16 @@
         setFormLoading(true);
 
         try {
+          console.log("Updating prestasi ID:", id);
+          console.log("Update data:", data);
+
           const response = await fetch(`${API_PRESTASI_URL}/${id}`, {
             method: "PUT",
             headers: getAuthHeaders(),
             body: JSON.stringify(data),
           });
+
+          console.log("Update response status:", response.status);
 
           if (!response.ok) {
             if (response.status === 401) {
@@ -917,14 +925,11 @@
           }
 
           const result = await response.json();
+          console.log("Update result:", result);
 
-          if (result.message === "Prestasi berhasil diperbarui") {
-            showNotification("Data prestasi berhasil diupdate!", "success");
-            await loadPrestasi();
-            resetForm();
-          } else {
-            throw new Error("Gagal update prestasi");
-          }
+          showNotification("Data prestasi berhasil diupdate!", "success");
+          await loadPrestasi();
+          resetForm();
         } catch (error) {
           console.error("Error updating:", error);
           showNotification(`Gagal update data: ${error.message}`, "error");
@@ -986,13 +991,16 @@
           return;
         }
 
+        console.log("Editing data:", data);
+
         editMode = true;
         currentEditId = id;
 
+        // ✅ PERBAIKAN: Gunakan field yang konsisten
         document.getElementById("juara").value = data.juara;
-        document.getElementById("namaSiswa").value = data.nama_siswa;
+        document.getElementById("namaSiswa").value = data.nama; // ✅ Dari "nama"
         document.getElementById("kelas").value = data.kelas;
-        document.getElementById("judulLomba").value = data.judul_lomba;
+        document.getElementById("judulLomba").value = data.judul; // ✅ Dari "judul"
         document.getElementById("deskripsi").value = data.deskripsi;
         document.getElementById("fotoUrl").value = data.foto_url;
 
@@ -1044,12 +1052,13 @@
 
         if (prestasiData.length === 0) {
           tbody.innerHTML = "";
-          emptyState.classList.remove("hidden");
+          emptyState?.classList.remove("hidden");
           return;
         }
 
-        emptyState.classList.add("hidden");
+        emptyState?.classList.add("hidden");
 
+        // ✅ PERBAIKAN: Gunakan field yang konsisten
         tbody.innerHTML = prestasiData
           .map(
             (item, index) => `
@@ -1058,7 +1067,7 @@
     }s">
         <td class="px-6 py-4">
             <img src="${item.foto_url}" 
-                 alt="${escapeHtml(item.nama_siswa)}" 
+                 alt="${escapeHtml(item.nama)}" 
                  class="w-20 h-20 object-cover rounded-lg shadow-sm"
                  onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E'">
         </td>
@@ -1066,9 +1075,7 @@
             ${escapeHtml(item.juara)}
         </td>
         <td class="px-6 py-4">
-            <p class="font-semibold text-gray-800">${escapeHtml(
-              item.nama_siswa
-            )}</p>
+            <p class="font-semibold text-gray-800">${escapeHtml(item.nama)}</p>
         </td>
         <td class="px-6 py-4 text-gray-600">
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800">
@@ -1076,10 +1083,10 @@
             </span>
         </td>
         <td class="px-6 py-4 text-gray-800">
-            <p class="font-medium">${escapeHtml(item.judul_lomba)}</p>
+            <p class="font-medium">${escapeHtml(item.judul)}</p>
         </td>
         <td class="px-6 py-4 text-sm text-gray-500">
-            ${truncateText(escapeHtml(item.deskripsi), 10)}
+            ${truncateText(escapeHtml(item.deskripsi), 50)}
         </td>
         <td class="px-6 py-4 text-sm">
             <div class="flex items-center space-x-3">
@@ -1134,15 +1141,15 @@
         if (loading) {
           submitBtn.disabled = true;
           submitBtn.classList.add("opacity-50", "cursor-not-allowed");
-          if (formLoading) formLoading.classList.remove("hidden");
-          if (!cancelBtn.classList.contains("hidden")) {
+          formLoading?.classList.remove("hidden");
+          if (cancelBtn && !cancelBtn.classList.contains("hidden")) {
             cancelBtn.disabled = true;
           }
         } else {
           submitBtn.disabled = false;
           submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
-          if (formLoading) formLoading.classList.add("hidden");
-          if (!cancelBtn.classList.contains("hidden")) {
+          formLoading?.classList.add("hidden");
+          if (cancelBtn && !cancelBtn.classList.contains("hidden")) {
             cancelBtn.disabled = false;
           }
         }
@@ -1184,6 +1191,7 @@
         console.log("🔧 API Prestasi URL:", API_PRESTASI_URL);
         console.log("🔧 API Upload Image URL:", API_UPLOAD_IMAGE_URL);
 
+        setActiveMenu();
         loadPrestasi();
       });
 
@@ -1196,6 +1204,8 @@
           event.preventDefault();
           const confirmLogout = confirm("Apakah Anda yakin ingin keluar?");
           if (confirmLogout) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("authToken");
             window.location.href = "Login_admin.html";
           }
         });

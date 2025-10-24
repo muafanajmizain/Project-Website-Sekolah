@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SMA Negeri 1 Purwokerto - Official Website</title>
+    <title>SMA Negeri 1 Purwokerto - Detail Prestasi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,7 +28,6 @@
         display: none;
       }
 
-      /* Scroll animations */
       .scroll-animate {
         opacity: 0;
         transform: translateY(50px);
@@ -39,7 +38,6 @@
         transform: translateY(0);
       }
 
-      /* Dropdown */
       .dropdown-wrapper {
         position: relative;
       }
@@ -59,7 +57,6 @@
         transform: translateY(0);
       }
 
-      /* ✅ Mobile menu styling tambahan */
       @media (max-width: 768px) {
         #mobile-menu {
           display: none;
@@ -88,7 +85,7 @@
     </style>
   </head>
   <body class="bg-gray-50">
-    <!-- ✅ Header / Navbar -->
+    <!-- Header / Navbar -->
     <header class="navbar-blur shadow-md fixed w-full top-0 z-50">
       <nav
         class="container mx-auto px-4 py-4 flex items-center justify-between"
@@ -98,7 +95,7 @@
             class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center overflow-hidden"
           >
             <img
-              src="images/logo2"
+              src="images/logo.png"
               alt="Logo SMA"
               class="w-full h-full object-cover"
             />
@@ -108,7 +105,6 @@
           >
         </div>
 
-        <!-- ✅ Tombol Hamburger (muncul hanya di mobile) -->
         <button
           id="menu-toggle"
           class="md:hidden text-gray-700 focus:outline-none"
@@ -128,7 +124,6 @@
           </svg>
         </button>
 
-        <!-- ✅ Menu Desktop -->
         <div class="hidden md:flex items-center space-x-8">
           <a
             href="index.html"
@@ -136,7 +131,6 @@
             >Beranda</a
           >
 
-          <!-- Dropdown Tentang -->
           <div class="dropdown-wrapper">
             <button
               class="text-gray-700 hover:text-blue-900 flex items-center font-medium transition"
@@ -182,7 +176,6 @@
             </div>
           </div>
 
-          <!-- Dropdown Akademik -->
           <div class="dropdown-wrapper">
             <button
               class="text-gray-700 hover:text-blue-900 flex items-center font-medium transition"
@@ -236,7 +229,6 @@
         </div>
       </nav>
 
-      <!-- ✅ Menu Mobile (tampil saat toggle ditekan) -->
       <div id="mobile-menu" class="md:hidden">
         <a href="index.html">Beranda</a>
         <a href="visi_misi.html">Visi Misi</a>
@@ -261,37 +253,83 @@
         <h1
           class="text-3xl md:text-4xl font-bold text-white mb-2 tracking-wide"
         >
-          Detail Berita
+          Detail Prestasi
         </h1>
-        <p class="text-gray-300 text-sm">Berita Siswa &gt;&gt; Detail Berita</p>
+        <p class="text-gray-300 text-sm">
+          Prestasi Siswa &gt;&gt; Detail Prestasi
+        </p>
       </div>
     </section>
 
-  <!-- Konten Detail Berita -->
-    <main class="container mx-auto px-4 py-12 max-w-3xl">
-        <!-- Konten akan diisi oleh JavaScript -->
-        <div id="detail-content">
-            <p class="text-center text-gray-500">Memuat berita...</p>
-        </div>
+    <!-- Konten Detail Prestasi (Tampilan Modern Tanpa Card) -->
+    <section class="py-12 px-6 max-w-5xl mx-auto text-center">
+      <!-- Judul Lomba -->
+      <h1 id="detailJudul" class="text-3xl font-extrabold text-blue-900 mb-3">
+        Loading...
+      </h1>
 
-        <!-- Tombol Kembali -->
-        <div class="mt-8 text-center">
-            <a href="berita.html" class="inline-block bg-blue-900 hover:bg-blue-700 text-white px-6 py-2 rounded-full transition">
-                ⬅ Kembali ke Halaman Berita
-            </a>
-        </div>
-    </main>
+      <!-- Nama Siswa -->
+      <p id="detailNama" class="text-gray-700 text-base mb-1">Nama siswa -</p>
+
+      <!-- Kelas -->
+      <p id="detailKelas" class="text-gray-600 text-sm mb-1">Kelas -</p>
+
+      <!-- Juara -->
+      <p id="detailJuara" class="text-blue-900 font-bold text-lg mb-6">
+        Juara -
+      </p>
+
+      <!-- Gambar -->
+      <div class="flex justify-center mb-8">
+        <img
+          id="detailFoto"
+          src="https://via.placeholder.com/1000x500?text=Loading..."
+          alt="Foto Prestasi"
+          class="w-full max-w-4xl h-[28rem] object-cover rounded-2xl shadow-md"
+        />
+      </div>
+
+      <!-- Deskripsi -->
+      <div class="text-left max-w-4xl mx-auto">
+        <h2 class="text-xl font-bold text-gray-800 mb-3">Deskripsi Prestasi</h2>
+        <p
+          id="detailDeskripsi"
+          class="text-gray-700 leading-relaxed whitespace-pre-line"
+        >
+          Loading...
+        </p>
+      </div>
+
+      <!-- Tombol Kembali -->
+      <div class="mt-10 text-center">
+        <button
+          onclick="window.location.href='prestasi_siswa.html'"
+          class="bg-blue-900 hover:bg-blue-800 text-white px-8 py-3 rounded-full font-semibold transition flex items-center justify-center mx-auto shadow-md hover:shadow-lg"
+        >
+          <svg
+            class="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          Kembali ke Halaman Prestasi
+        </button>
+      </div>
+    </section>
 
     <!-- Footer -->
     <footer id="kontak" class="bg-slate-900 text-white py-12">
       <div class="container mx-auto px-6">
-        <!-- Ubah di sini -->
         <div class="grid md:grid-cols-3 gap-8 mb-8 items-start">
-          <!-- TAMBAHAN -->
           <div class="flex flex-col justify-start">
-            <!-- TAMBAHAN -->
             <div class="flex items-center space-x-3 mb-4">
-              <!-- Logo sekolah -->
               <img
                 src="images/logo2.png"
                 alt="Logo SMK Negeri 1 Purwokerto"
@@ -300,7 +338,6 @@
               <span class="text-xl font-bold leading-tight"
                 >SMK Negeri 1 Purwokerto</span
               >
-              <!-- TAMBAHAN -->
             </div>
             <p class="text-gray-400">
               Mencetak generasi unggul dan berakhlak mulia melalui pendidikan
@@ -409,41 +446,101 @@
     </footer>
 
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get("id");
-            const detailContent = document.getElementById("detail-content");
+      document.addEventListener("DOMContentLoaded", async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const prestasiId = urlParams.get("id");
 
-            if (!id) {
-                detailContent.innerHTML = `<p class="text-center text-red-500">ID berita tidak ditemukan.</p>`;
-                return;
+        if (!prestasiId) {
+          alert("ID Prestasi tidak ditemukan!");
+          window.location.href = "prestasi_siswa.html";
+          return;
+        }
+
+        const apiUrl = `https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/prestasi/${prestasiId}`;
+
+        try {
+          const response = await fetch(apiUrl, { mode: "cors" });
+          if (!response.ok) throw new Error("Data tidak ditemukan di server");
+
+          const data = await response.json();
+          console.log("Detail Prestasi:", data);
+
+          // Ambil data dari API sesuai struktur aslinya
+          const nama = data.nama || "Nama tidak tersedia";
+          const kelas = data.kelas || "Tidak diketahui";
+          const juara = data.juara || "-";
+          const judulLomba = data.judul || "Judul lomba tidak tersedia";
+          const deskripsi = data.deskripsi || "Belum ada deskripsi prestasi.";
+          const foto =
+            data.foto_url ||
+            "https://via.placeholder.com/1000x500?text=Tidak+Ada+Gambar";
+
+          // === TAMPILKAN DATA DI HALAMAN ===
+          document.getElementById("detailJudul").textContent = judulLomba;
+          document.getElementById("detailKelas").textContent = kelas;
+          document.getElementById("detailJuara").textContent = juara;
+          document.getElementById("detailNama").textContent = nama;
+          document.getElementById("detailDeskripsi").textContent = deskripsi;
+
+          const img = document.getElementById("detailFoto");
+          img.src = foto;
+          img.alt = judulLomba;
+        } catch (error) {
+          console.error("Error fetching detail prestasi:", error);
+          alert("Gagal memuat detail prestasi! Pastikan data tersedia di API.");
+          window.location.href = "prestasi_siswa.html";
+        }
+
+        // ========================
+        // SCRIPT HAMBURGER NAVBAR
+        // ========================
+        const menuButton = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        if (menuButton && mobileMenu) {
+          mobileMenu.style.transition = "all 0.3s ease-in-out";
+          mobileMenu.style.overflow = "hidden";
+          mobileMenu.style.maxHeight = "0";
+          mobileMenu.style.opacity = "0";
+          mobileMenu.style.transform = "translateY(-10px)";
+          mobileMenu.style.display = "none";
+
+          menuButton.addEventListener("click", () => {
+            const isActive = mobileMenu.classList.toggle("active");
+            menuButton.classList.toggle("open");
+
+            if (isActive) {
+              mobileMenu.style.display = "block";
+              setTimeout(() => {
+                mobileMenu.style.maxHeight = mobileMenu.scrollHeight + "px";
+                mobileMenu.style.opacity = "1";
+                mobileMenu.style.transform = "translateY(0)";
+              }, 10);
+            } else {
+              mobileMenu.style.maxHeight = "0";
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.display = "none";
+              }, 300);
             }
+          });
 
-            // ✅ Ambil data berita spesifik dari API
-            const apiUrl = `https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/berita/${id}`;
-
-            fetch(apiUrl)
-                .then((response) => {
-                    if (!response.ok) throw new Error("Berita tidak ditemukan");
-                    return response.json();
-                })
-                .then((item) => {
-                    // Format tanggal ke DD-MM-YYYY
-                    const dateObj = new Date(item.tanggal);
-                    const formattedDate = `${String(dateObj.getDate()).padStart(2, "0")}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${dateObj.getFullYear()}`;
-
-                    detailContent.innerHTML = `
-                      <h1 class="text-3xl font-bold text-blue-900 mb-4">${item.judul}</h1>
-                      <p class="text-gray-500 text-sm mb-6">Dipublikasikan pada: ${formattedDate}</p>
-                      <img src="${item.foto_url}" alt="${item.judul}" class="rounded-lg mb-6 w-full h-auto" />
-                      <div class="text-gray-700 leading-relaxed whitespace-pre-line">${item.deskripsi}</div>
-                    `;
-                })
-                .catch((error) => {
-                    console.error("Error memuat detail berita:", error);
-                    detailContent.innerHTML = `<p class="text-center text-red-500">Gagal memuat berita: ${error.message}</p>`;
-                });
-        });
+          const menuLinks = mobileMenu.querySelectorAll("a");
+          menuLinks.forEach((link) => {
+            link.addEventListener("click", () => {
+              mobileMenu.classList.remove("active");
+              menuButton.classList.remove("open");
+              mobileMenu.style.maxHeight = "0";
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.display = "none";
+              }, 200);
+            });
+          });
+        }
+      });
     </script>
   </body>
 </html>

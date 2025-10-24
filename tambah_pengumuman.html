@@ -413,6 +413,33 @@
       let pengumumanData = [];
       let isEditMode = false;
 
+      // ========================================
+      // 🎯 NAVIGATION HANDLER (Active Menu)
+      // ========================================
+      function setActiveMenu() {
+        // Ambil nama file halaman saat ini
+        const currentPage =
+          window.location.pathname.split("/").pop() || "pengumuman.html";
+
+        // Ambil semua link navigasi/sidebar
+        const navLinks = document.querySelectorAll(
+          ".nav-link, nav a, .sidebar a"
+        );
+
+        navLinks.forEach((link) => {
+          // Hapus class active dari semua link
+          link.classList.remove("active");
+
+          // Ambil href dari link
+          const linkHref = link.getAttribute("href");
+
+          // Jika href sama dengan halaman saat ini, tambahkan class active
+          if (linkHref === currentPage) {
+            link.classList.add("active");
+          }
+        });
+      }
+
       // ========== FUNGSI UTILITY ==========
 
       function showSuccess(message) {
@@ -458,6 +485,17 @@
         document.getElementById("submitBtn").textContent = "Simpan";
         isEditMode = false;
       }
+
+      // ========================================
+      // INITIALIZE ON PAGE LOAD
+      // ========================================
+      document.addEventListener("DOMContentLoaded", function () {
+        // Set menu aktif saat halaman dimuat
+        setActiveMenu();
+
+        // Load data pengumuman (jika ada fungsi loadData)
+        // loadData();
+      });
 
       // ========== FUNGSI CRUD ==========
 
