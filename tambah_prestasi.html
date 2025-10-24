@@ -257,7 +257,7 @@
           <!-- Form Input -->
           <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <h3 class="text-xl font-semibold text-gray-800 mb-6">
-              Form Data Prestasi
+              Tambah Prestasi Baru
             </h3>
 
             <form id="prestasiForm" class="space-y-6">
@@ -265,7 +265,7 @@
 
               <!-- Upload Gambar -->
               <div>
-                <label class="block text-gray-700 font-semibold mb-2"
+                <label class="block text-gray-700 font-semibold mb-3"
                   >Upload Gambar</label
                 >
                 <input
@@ -274,14 +274,19 @@
                   accept=".jpg,.jpeg,.png"
                   class="hidden"
                 />
-                <button
-                  type="button"
-                  onclick="document.getElementById('fileInput').click()"
-                  class="btn-upload bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-6 py-3 rounded-lg border-2 border-dashed border-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  id="uploadBtn"
-                >
-                  📤 Upload Gambar
-                </button>
+                <div class="flex items-center gap-4">
+                  <button
+                    type="button"
+                    onclick="document.getElementById('fileInput').click()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    id="uploadBtn"
+                  >
+                    Upload Gambar
+                  </button>
+                  <span class="text-gray-500 text-sm"
+                    >Belum ada file dipilih</span
+                  >
+                </div>
                 <p class="text-sm text-gray-500 mt-2">
                   Format: JPG, JPEG, PNG (Max 2MB)
                 </p>
@@ -322,7 +327,7 @@
                   <label
                     for="juara"
                     class="block text-gray-700 font-semibold mb-2"
-                    >Juara <span class="text-red-500">*</span></label
+                    >Juara <span class="text-red-500"></span></label
                   >
                   <select
                     id="juara"
@@ -342,7 +347,7 @@
                   <label
                     for="namaSiswa"
                     class="block text-gray-700 font-semibold mb-2"
-                    >Nama Siswa <span class="text-red-500">*</span></label
+                    >Nama Siswa <span class="text-red-500"></span></label
                   >
                   <input
                     type="text"
@@ -358,7 +363,7 @@
                   <label
                     for="kelas"
                     class="block text-gray-700 font-semibold mb-2"
-                    >Kelas <span class="text-red-500">*</span></label
+                    >Kelas <span class="text-red-500"></span></label
                   >
                   <select
                     id="kelas"
@@ -395,7 +400,7 @@
                   <label
                     for="judulLomba"
                     class="block text-gray-700 font-semibold mb-2"
-                    >Judul Lomba <span class="text-red-500">*</span></label
+                    >Judul Lomba <span class="text-red-500"></span></label
                   >
                   <input
                     type="text"
@@ -412,7 +417,7 @@
                 <label
                   for="deskripsi"
                   class="block text-gray-700 font-semibold mb-2"
-                  >Deskripsi <span class="text-red-500">*</span></label
+                  >Deskripsi Prestasi<span class="text-red-500"></span></label
                 >
                 <textarea
                   id="deskripsi"
@@ -499,7 +504,7 @@
                     <th
                       class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
                     >
-                      Judul Lomba
+                      Judul 
                     </th>
                     <th
                       class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
@@ -629,9 +634,9 @@
           prestasiData = data.map((item) => ({
             id: item.id,
             foto_url: item.foto_url,
-            juara: item.juara || "1", // Ambil dari API
-            nama_siswa: item.nama || "Tidak diketahui", // GUNAKAN item.nama, BUKAN item.username
-            kelas: item.kelas || "-", // Ambil dari API
+            juara: item.juara || "1",
+            nama_siswa: item.nama || "Tidak diketahui",
+            kelas: item.kelas || "-",
             judul_lomba: item.judul,
             deskripsi: item.deskripsi,
             author_id: item.author_id,
@@ -1045,17 +1050,6 @@
 
         emptyState.classList.add("hidden");
 
-        const juaraColors = {
-          "Juara 1": "bg-yellow-100 text-yellow-800 border border-yellow-300",
-          "Juara 2": "bg-gray-100 text-gray-800 border border-gray-300",
-          "Juara 3": "bg-orange-100 text-orange-800 border border-orange-300",
-          "Juara Harapan": "bg-blue-100 text-blue-800 border border-blue-300",
-          1: "bg-yellow-100 text-yellow-800 border border-yellow-300",
-          2: "bg-gray-100 text-gray-800 border border-gray-300",
-          3: "bg-orange-100 text-orange-800 border border-orange-300",
-          Harapan: "bg-blue-100 text-blue-800 border border-blue-300",
-        };
-
         tbody.innerHTML = prestasiData
           .map(
             (item, index) => `
@@ -1068,12 +1062,8 @@
                  class="w-20 h-20 object-cover rounded-lg shadow-sm"
                  onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E'">
         </td>
-        <td class="px-6 py-4">
-            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-              juaraColors[item.juara] || "bg-gray-100 text-gray-800"
-            }">
-                ${escapeHtml(item.juara)}
-            </span>
+        <td class="px-6 py-4 text-sm text-gray-900">
+            ${escapeHtml(item.juara)}
         </td>
         <td class="px-6 py-4">
             <p class="font-semibold text-gray-800">${escapeHtml(
@@ -1088,22 +1078,24 @@
         <td class="px-6 py-4 text-gray-800">
             <p class="font-medium">${escapeHtml(item.judul_lomba)}</p>
         </td>
-        <td class="px-6 py-4 text-gray-600">
-            <p class="line-clamp-2" title="${escapeHtml(
-              item.deskripsi
-            )}">${escapeHtml(item.deskripsi)}</p>
+        <td class="px-6 py-4 text-sm text-gray-500">
+            ${truncateText(escapeHtml(item.deskripsi), 10)}
         </td>
-        <td class="px-6 py-4 text-center">
-            <div class="flex items-center justify-center space-x-2">
+        <td class="px-6 py-4 text-sm">
+            <div class="flex items-center space-x-3">
                 <button onclick="editPrestasi(${item.id})" 
-                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition transform hover:scale-105"
-                        title="Edit data">
-                    ✏️ Edit
+                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" 
+                        title="Edit">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
                 </button>
                 <button onclick="deletePrestasi(${item.id})" 
-                        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition transform hover:scale-105"
-                        title="Hapus data">
-                    🗑️ Hapus
+                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" 
+                        title="Hapus">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
                 </button>
             </div>
         </td>
@@ -1126,6 +1118,12 @@
           "'": "&#039;",
         };
         return String(text).replace(/[&<>"']/g, (m) => map[m]);
+      }
+
+      function truncateText(text, maxLength) {
+        if (!text) return "";
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + "...";
       }
 
       function setFormLoading(loading) {

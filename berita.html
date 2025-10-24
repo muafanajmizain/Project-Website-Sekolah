@@ -98,7 +98,7 @@
             class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center overflow-hidden"
           >
             <img
-              src="images/logo.png"
+              src="images/logo2"
               alt="Logo SMA"
               class="w-full h-full object-cover"
             />
@@ -270,10 +270,14 @@
     <!-- KONTEN UTAMA -->
     <!-- SECTION BERITA -->
     <section class="container mx-auto px-4 py-10">
-      <div
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-        id="beritaContainer"
-      ></div>
+        <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            id="beritaContainer"
+        ></div>
+        <!-- Pesan error jika data gagal dimuat -->
+        <div id="error-message" class="text-red-500 text-center mt-8 hidden">
+            Maaf, terjadi kesalahan saat memuat data berita. Silakan coba lagi nanti.
+        </div>
     </section>
 
     <!-- Footer -->
@@ -416,14 +420,14 @@
       // 📱 Jalankan setelah halaman selesai dimuat
       // ====================================================
       document.addEventListener("DOMContentLoaded", function () {
-        // 🔹 Efek animasi scroll
-        const animateElements = document.querySelectorAll(
-          "section > .container, .grid > div"
-        );
-        animateElements.forEach((el) => {
-          el.classList.add("scroll-animate");
-          if (typeof observer !== "undefined") observer.observe(el);
-        });
+            // 🔹 Efek animasi scroll
+            const animateElements = document.querySelectorAll(
+                "section > .container, .grid > div"
+            );
+            animateElements.forEach((el) => {
+                el.classList.add("scroll-animate");
+                if (typeof observer !== "undefined") observer.observe(el);
+            });
 
         // ====================================================
         // 📰 Fetch Data Berita dari API
@@ -432,107 +436,113 @@
           "https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/berita";
 
         fetch(apiUrl)
-          .then((response) => response.json())
-          .then((data) => {
-            const container = document.getElementById("beritaContainer");
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    const container = document.getElementById("beritaContainer");
+                    const errorMessage = document.getElementById("error-message");
 
-            if (!container) {
-              console.error("Elemen #beritaContainer tidak ditemukan!");
-              return;
-            }
+                    if (!container) {
+                        console.error("Elemen #beritaContainer tidak ditemukan!");
+                        errorMessage.classList.remove("hidden");
+                        return;
+                    }
 
-            container.innerHTML = "";
+                    // Bersihkan kontainer sebelum menampilkan data baru
+                    container.innerHTML = "";
 
-            data.forEach((item) => {
-              const card = document.createElement("div");
+                    // Jika data kosong, tampilkan pesan
+                    if (data.length === 0) {
+                        container.innerHTML = "<p class='text-center text-gray-500'>Belum ada berita yang tersedia.</p>";
+                        return;
+                    }
 
-              // Format tanggal ke DD-MM-YYYY
-              const dateObj = new Date(item.tanggal);
-              const formattedDate = `${String(dateObj.getDate()).padStart(
-                2,
-                "0"
-              )}-${String(dateObj.getMonth() + 1).padStart(
-                2,
-                "0"
-              )}-${dateObj.getFullYear()}`;
+                    // Fungsi untuk membatasi panjang teks
+                    function truncateText(text, maxLength) {
+                        if (text && text.length > maxLength) {
+                            return text.slice(0, maxLength) + "...";
+                        }
+                        return text || ""; // Mengembalikan string kosong jika teks undefined/null
+                    }
 
-              card.className =
-                "bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition transform hover:-translate-y-1";
+                    data.forEach((item) => {
+                        const card = document.createElement("div");
 
-              card.innerHTML = `
-            <div class="relative group">
+                        // Format tanggal ke DD-MM-YYYY
+                        const dateObj = new Date(item.tanggal);
+                        const formattedDate = `${String(dateObj.getDate()).padStart(
+                            2,
+                            "0"
+                        )}-${String(dateObj.getMonth() + 1).padStart(
+                            2,
+                            "0"
+                        )}-${dateObj.getFullYear()}`;
+
+                        // ✅ Perbaikan: Gunakan fungsi truncateText untuk membatasi judul dan deskripsi
+                        const truncatedJudul = truncateText(item.judul, 60);
+                        const truncatedDeskripsi = truncateText(item.deskripsi, 150);
+
+                        card.className =
+                            "bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition transform hover:-translate-y-1";
+
+                        // ✅ Perubahan Utama: Judul berita sekarang adalah link ke detail_berita.html dengan parameter ID
+                        // ✅ Perubahan Utama: Hapus tombol "Lihat Detail" yang muncul di atas gambar
+                        card.innerHTML = `
+                         <div class="relative group">
               <img src="${item.foto_url}" alt="${item.judul}" class="w-full h-48 object-cover" />
-              <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                <button onclick="openModal('${item.foto_url}', '${formattedDate}', \`${item.judul}\`, \`${item.deskripsi}\`)" 
-                  class="bg-white text-blue-900 px-6 py-2 rounded-full font-semibold hover:bg-blue-100 transition">
-                  Lihat Detail
-                </button>
-              </div>
+              <!-- Overlay tidak lagi ditampilkan -->
             </div>
             <div class="p-4 text-center">
-              <h3 class="text-blue-900 font-bold text-lg mb-1">${item.judul}</h3>
+              <!-- Judul berita menjadi link ke halaman detail -->
+              <a href="detail_berita.html?id=${item.id}" class="text-blue-900 font-bold text-lg mb-1 hover:underline">${truncatedJudul}</a>
               <p class="text-sm text-gray-500 mb-2">${formattedDate}</p>
-              <p class="text-gray-700 text-sm leading-snug line-clamp-3">${item.deskripsi}</p>
+              <p class="text-gray-700 text-sm leading-snug">${truncatedDeskripsi}</p>
             </div>
-          `;
+           `;
+                      container.appendChild(card);
+                    });
+                })
+                .catch((error) => {
+                    console.error("Gagal memuat data berita:", error);
+                    // Tampilkan pesan error ke pengguna
+                    const errorMessage = document.getElementById("error-message");
+                    errorMessage.classList.remove("hidden");
+                });
 
-              container.appendChild(card);
-            });
-          })
-          .catch((error) => console.error("Gagal memuat data berita:", error));
+                // ====================================================
+            // 🍔 HAMBURGER MENU (Navbar Mobile)
+            // ====================================================
+            const menuButton = document.getElementById("menu-toggle");
+            const mobileMenu = document.getElementById("mobile-menu");
 
-        // ====================================================
-        // 🍔 HAMBURGER MENU (Navbar Mobile)
-        // ====================================================
-        const menuButton = document.getElementById("menu-toggle");
-        const mobileMenu = document.getElementById("mobile-menu");
+            if (menuButton && mobileMenu) {
+                menuButton.addEventListener("click", () => {
+                    mobileMenu.classList.toggle("active");
 
-        if (menuButton && mobileMenu) {
-          menuButton.addEventListener("click", () => {
-            mobileMenu.classList.toggle("active");
+                    // Animasi smooth saat menu muncul
+                    if (mobileMenu.classList.contains("active")) {
+                        mobileMenu.style.opacity = "0";
+                        mobileMenu.style.transform = "translateY(-10px)";
+                        setTimeout(() => {
+                            mobileMenu.style.opacity = "1";
+                            mobileMenu.style.transform = "translateY(0)";
+                        }, 50);
+                    }
+                });
 
-            // Animasi smooth saat menu muncul
-            if (mobileMenu.classList.contains("active")) {
-              mobileMenu.style.opacity = "0";
-              mobileMenu.style.transform = "translateY(-10px)";
-              setTimeout(() => {
-                mobileMenu.style.opacity = "1";
-                mobileMenu.style.transform = "translateY(0)";
-              }, 50);
+                // Tutup otomatis saat salah satu link diklik
+                const menuLinks = mobileMenu.querySelectorAll("a");
+                menuLinks.forEach((link) => {
+                    link.addEventListener("click", () => {
+                        mobileMenu.classList.remove("active");
+                    });
+                });
             }
-          });
-
-          // Tutup otomatis saat salah satu link diklik
-          const menuLinks = mobileMenu.querySelectorAll("a");
-          menuLinks.forEach((link) => {
-            link.addEventListener("click", () => {
-              mobileMenu.classList.remove("active");
-            });
-          });
-        }
-      });
-
-      // ====================================================
-      // 🪟 Fungsi Popup Modal Berita
-      // ====================================================
-      function openModal(foto, tanggal, judul, deskripsi) {
-        const modal = document.createElement("div");
-        modal.className =
-          "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4";
-
-        modal.innerHTML = `
-      <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-5 relative animate-fade-in">
-        <button onclick="this.parentElement.parentElement.remove()" 
-          class="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-lg">&times;</button>
-        <img src="${foto}" alt="Gambar" class="w-full h-56 object-cover rounded-lg mb-4">
-        <h3 class="text-lg font-semibold text-blue-900 mb-2">${judul}</h3>
-        <p class="text-gray-600 text-sm mb-2"><b>Tanggal:</b> ${tanggal}</p>
-        <p class="text-gray-700 text-sm leading-snug">${deskripsi}</p>
-      </div>
-    `;
-
-        document.body.appendChild(modal);
-      }
+        });
     </script>
   </body>
 </html>

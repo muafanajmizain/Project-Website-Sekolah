@@ -3,47 +3,143 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Detail Berita - SMA Negeri 1 Purwokerto</title>
+    <title>SMA Negeri 1 Purwokerto - Official Website</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <style>
       body {
-        font-family: "Poppins", sans-serif;
+        font-family: "Inter", sans-serif;
+      }
+      .navbar-blur {
+        backdrop-filter: blur(12px);
+        background-color: rgba(255, 255, 255, 0.85);
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* Scroll animations */
+      .scroll-animate {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+      }
+      .scroll-animate.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Dropdown */
+      .dropdown-wrapper {
+        position: relative;
+      }
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.2s ease-in-out;
+        z-index: 40;
+      }
+      .dropdown-wrapper:hover .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      /* ✅ Mobile menu styling tambahan */
+      @media (max-width: 768px) {
+        #mobile-menu {
+          display: none;
+        }
+        #mobile-menu.active {
+          display: block;
+          background: white;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          border-top: 1px solid #eee;
+        }
+        #mobile-menu a {
+          display: block;
+          padding: 12px 20px;
+          border-bottom: 1px solid #f3f3f3;
+          color: #333;
+        }
+        #mobile-menu a:hover {
+          background-color: #f8f8f8;
+          color: #1e40af;
+        }
       }
     </style>
   </head>
   <body class="bg-gray-50">
-    <!-- Header / Navbar -->
-    <header class="bg-white shadow-md fixed w-full top-0 z-50">
+    <!-- ✅ Header / Navbar -->
+    <header class="navbar-blur shadow-md fixed w-full top-0 z-50">
       <nav
         class="container mx-auto px-4 py-4 flex items-center justify-between"
       >
         <div class="flex items-center space-x-3">
-          <img
-            src="images/logo.png"
-            alt="Logo Sekolah"
-            class="w-10 h-10 rounded-full"
-          />
+          <div
+            class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center overflow-hidden"
+          >
+            <img
+              src="images/logo2"
+              alt="Logo SMA"
+              class="w-full h-full object-cover"
+            />
+          </div>
           <span class="font-semibold text-gray-800 text-lg"
             >SMA Negeri 1 Purwokerto</span
           >
         </div>
+
+        <!-- ✅ Tombol Hamburger (muncul hanya di mobile) -->
+        <button
+          id="menu-toggle"
+          class="md:hidden text-gray-700 focus:outline-none"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+          </svg>
+        </button>
+
+        <!-- ✅ Menu Desktop -->
         <div class="hidden md:flex items-center space-x-8">
           <a
             href="index.html"
-            class="text-gray-700 hover:text-blue-900 font-medium"
+            class="text-gray-700 hover:text-blue-900 font-medium transition"
             >Beranda</a
           >
 
-          <!-- Dropdown: Tentang Sekolah -->
-          <div class="relative group">
+          <!-- Dropdown Tentang -->
+          <div class="dropdown-wrapper">
             <button
-              class="hover:text-blue-900 flex items-center focus:outline-none"
+              class="text-gray-700 hover:text-blue-900 flex items-center font-medium transition"
             >
               Tentang Sekolah
               <svg
@@ -61,35 +157,35 @@
               </svg>
             </button>
             <div
-              class="absolute hidden group-hover:block bg-white shadow-lg rounded-md py-2 w-48 mt-2 border border-gray-100"
+              class="dropdown-menu bg-white shadow-lg rounded-md py-2 w-48 border border-gray-100"
             >
               <a
                 href="visi_misi.html"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
                 >Visi Misi</a
               >
               <a
                 href="profil_sekolah.html"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
                 >Profil Sekolah</a
               >
               <a
-                href="profil_kepala_sekolah.html"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100"
+                href="profil_kepsek.html"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
                 >Profil Kepala Sekolah</a
               >
               <a
                 href="struktur_organisasi.html"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
                 >Struktur Organisasi</a
               >
             </div>
           </div>
 
-          <!-- Dropdown: Akademik -->
-          <div class="relative group">
+          <!-- Dropdown Akademik -->
+          <div class="dropdown-wrapper">
             <button
-              class="hover:text-blue-900 flex items-center focus:outline-none"
+              class="text-gray-700 hover:text-blue-900 flex items-center font-medium transition"
             >
               Akademik
               <svg
@@ -107,63 +203,71 @@
               </svg>
             </button>
             <div
-              class="absolute hidden group-hover:block bg-white shadow-lg rounded-md py-2 w-48 mt-2 border border-gray-100"
+              class="dropdown-menu bg-white shadow-lg rounded-md py-2 w-48 border border-gray-100"
             >
               <a
                 href="berita.html"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
                 >Berita</a
               >
               <a
                 href="prestasi_siswa.html"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100"
+                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
                 >Prestasi</a
               >
             </div>
           </div>
 
-          <a href="#" class="text-gray-700 hover:text-blue-900 font-medium"
+          <a
+            href="pengumuman.html"
+            class="text-gray-700 hover:text-blue-900 font-medium transition"
             >Pengumuman</a
           >
-          <a href="#" class="text-gray-700 hover:text-blue-900 font-medium"
+          <a
+            href="galeri.html"
+            class="text-gray-700 hover:text-blue-900 font-medium transition"
             >Galeri</a
           >
           <a
-            href="contact.html"
+            href="kontak.html"
             class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-6 py-2 rounded-full font-medium transition"
             >Contact</a
           >
         </div>
-        <!-- Hamburger untuk mobile -->
-        <button class="md:hidden text-gray-700">
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            ></path>
-          </svg>
-        </button>
       </nav>
+
+      <!-- ✅ Menu Mobile (tampil saat toggle ditekan) -->
+      <div id="mobile-menu" class="md:hidden">
+        <a href="index.html">Beranda</a>
+        <a href="visi_misi.html">Visi Misi</a>
+        <a href="profil_sekolah.html">Profil Sekolah</a>
+        <a href="profil_kepsek.html">Profil Kepala Sekolah</a>
+        <a href="struktur_organisasi.html">Struktur Organisasi</a>
+        <a href="berita.html">Berita</a>
+        <a href="prestasi_siswa.html">Prestasi</a>
+        <a href="pengumuman.html">Pengumuman</a>
+        <a href="galeri.html">Galeri</a>
+        <a
+          href="kontak.html"
+          class="bg-yellow-400 block text-center font-medium py-2"
+          >Contact</a
+        >
+      </div>
     </header>
 
     <!-- Hero Section Mini -->
-    <section class="bg-gray-100 py-16 mt-16">
-      <div class="container mx-auto px-4 text-center">
-        <h1 class="text-4xl md:text-5xl font-bold text-blue-900 mb-3">
-          BERITA SEKOLAH
+    <section class="py-12 bg-[#19193B] flex items-center justify-center mt-20">
+      <div class="text-center px-6">
+        <h1
+          class="text-3xl md:text-4xl font-bold text-white mb-2 tracking-wide"
+        >
+          Detail Berita
         </h1>
-        <p class="text-blue-600 text-sm">Akademik >> Berita Sekolah</p>
+        <p class="text-gray-300 text-sm">Berita Siswa &gt;&gt; Detail Berita</p>
       </div>
     </section>
 
-    <!-- Konten Detail Berita -->
+    <!-- Konten Detail Berita
     <main class="container mx-auto px-4 py-12 max-w-3xl">
       <h1 class="text-3xl font-bold text-blue-900 mb-4">Judul Berita 2</h1>
       <p class="text-gray-500 text-sm mb-6">
@@ -178,10 +282,10 @@
       <p class="text-gray-700 leading-relaxed mb-4">
         Upacara ini diikuti oleh seluruh siswa, guru, dan staf sekolah. Kepala
         sekolah bertindak sebagai pembina upacara...
-      </p>
+      </p> -->
 
       <!-- Tombol Kembali -->
-      <div class="mt-8">
+      <!-- <div class="mt-8">
         <a
           href="berita.html"
           class="inline-block bg-blue-900 hover:bg-blue-700 text-white px-6 py-2 rounded-full transition"
@@ -189,6 +293,21 @@
           ⬅ Kembali ke Halaman Berita
         </a>
       </div>
+    </main> -->
+
+  <!-- Konten Detail Berita -->
+    <main class="container mx-auto px-4 py-12 max-w-3xl">
+        <!-- Konten akan diisi oleh JavaScript -->
+        <div id="detail-content">
+            <p class="text-center text-gray-500">Memuat berita...</p>
+        </div>
+
+        <!-- Tombol Kembali -->
+        <div class="mt-8 text-center">
+            <a href="berita.html" class="inline-block bg-blue-900 hover:bg-blue-700 text-white px-6 py-2 rounded-full transition">
+                ⬅ Kembali ke Halaman Berita
+            </a>
+        </div>
     </main>
 
     <!-- Footer -->
@@ -316,31 +435,43 @@
         </div>
       </div>
     </footer>
+
     <script>
-      // Scroll Animation Observer
-      const observerOptions = {
-        threshold: 0.1,
-        rootMargin: "0px 0px -50px 0px",
-      };
+    document.addEventListener("DOMContentLoaded", function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get("id");
+            const detailContent = document.getElementById("detail-content");
 
-      const observer = new IntersectionObserver(function (entries) {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("show");
-          }
-        });
-      }, observerOptions);
+            if (!id) {
+                detailContent.innerHTML = `<p class="text-center text-red-500">ID berita tidak ditemukan.</p>`;
+                return;
+            }
 
-      // Observe all sections and cards
-      document.addEventListener("DOMContentLoaded", function () {
-        const animateElements = document.querySelectorAll(
-          "section > .container, .grid > div"
-        );
-        animateElements.forEach((el) => {
-          el.classList.add("scroll-animate");
-          observer.observe(el);
+            // ✅ Ambil data berita spesifik dari API
+            const apiUrl = `https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev/api/berita/${id}`;
+
+            fetch(apiUrl)
+                .then((response) => {
+                    if (!response.ok) throw new Error("Berita tidak ditemukan");
+                    return response.json();
+                })
+                .then((item) => {
+                    // Format tanggal ke DD-MM-YYYY
+                    const dateObj = new Date(item.tanggal);
+                    const formattedDate = `${String(dateObj.getDate()).padStart(2, "0")}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${dateObj.getFullYear()}`;
+
+                    detailContent.innerHTML = `
+                      <h1 class="text-3xl font-bold text-blue-900 mb-4">${item.judul}</h1>
+                      <p class="text-gray-500 text-sm mb-6">Dipublikasikan pada: ${formattedDate}</p>
+                      <img src="${item.foto_url}" alt="${item.judul}" class="rounded-lg mb-6 w-full h-auto" />
+                      <div class="text-gray-700 leading-relaxed whitespace-pre-line">${item.deskripsi}</div>
+                    `;
+                })
+                .catch((error) => {
+                    console.error("Error memuat detail berita:", error);
+                    detailContent.innerHTML = `<p class="text-center text-red-500">Gagal memuat berita: ${error.message}</p>`;
+                });
         });
-      });
     </script>
   </body>
 </html>
