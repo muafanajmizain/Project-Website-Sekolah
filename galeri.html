@@ -618,11 +618,17 @@
           </div>
         </div>
         <div class="p-5 bg-gradient-to-br from-white to-gray-50 transition-all duration-500">
-          <h3 class="text-lg font-bold text-gray-800 transition-all duration-300" title="${escapeHtml(
-            item.judul
-          )}">
-        ${truncateText(escapeHtml(item.judul), 60)}
-        </h3>
+         <h3 
+        class="text-lg font-bold text-gray-800 transition-all duration-300 line-clamp-2" 
+      data-fulltext="${escapeHtml(item.judul)}"
+        title="${escapeHtml(item.judul)}">
+        ${escapeHtml(
+          item.judul.length > 200
+            ? item.judul.substring(0, 200) + "..."
+            : item.judul
+        )} </h3>
+
+
           <div class="mt-3">
             <button 
               class="lihat-detail text-blue-600 hover:text-blue-800 text-sm font-medium"
@@ -653,12 +659,17 @@
         const title = card.querySelector("h3");
 
         if (card.classList.contains("expanded")) {
+          // Tutup detail → tampilkan versi pendek
           card.classList.remove("expanded");
-          title.classList.add("truncate");
+          const fullText = title.getAttribute("data-fulltext");
+          title.innerHTML = escapeHtml(
+            fullText.length > 60 ? fullText.substring(0, 60) + "..." : fullText
+          );
           button.textContent = "Lihat Detail";
         } else {
+          // Buka detail → tampilkan seluruh teks
           card.classList.add("expanded");
-          title.classList.remove("truncate");
+          title.innerHTML = title.getAttribute("data-fulltext");
           button.textContent = "Tutup";
         }
       }
