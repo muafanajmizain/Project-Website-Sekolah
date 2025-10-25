@@ -88,209 +88,87 @@
     </style>
   </head>
   <body class="bg-gray-50">
-    <!-- ✅ Header / Navbar -->
-    <header class="navbar-blur shadow-md fixed w-full top-0 z-50">
-      <nav
-        class="container mx-auto px-4 py-4 flex items-center justify-between"
-      >
-        <div class="flex items-center space-x-3">
-          <div
-            class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center overflow-hidden"
-          >
-            <img
-              src="images/logo2"
-              alt="Logo SMA"
-              class="w-full h-full object-cover"
-            />
-          </div>
-          <span class="font-semibold text-gray-800 text-lg"
-            >SMA Negeri 1 Purwokerto</span
-          >
-        </div>
-
-        <!-- ✅ Tombol Hamburger (muncul hanya di mobile) -->
-        <button
-          id="menu-toggle"
-          class="md:hidden text-gray-700 focus:outline-none"
-        >
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            ></path>
-          </svg>
-        </button>
-
-        <!-- ✅ Menu Desktop -->
-        <div class="hidden md:flex items-center space-x-8">
-          <a
-            href="index.html"
-            class="text-gray-700 hover:text-blue-900 font-medium transition"
-            >Beranda</a
-          >
-
-          <!-- Dropdown Tentang -->
-          <div class="dropdown-wrapper">
-            <button
-              class="text-gray-700 hover:text-blue-900 flex items-center font-medium transition"
-            >
-              Tentang Sekolah
-              <svg
-                class="w-4 h-4 ml-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-            <div
-              class="dropdown-menu bg-white shadow-lg rounded-md py-2 w-48 border border-gray-100"
-            >
-              <a
-                href="visi_misi.html"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
-                >Visi Misi</a
-              >
-              <a
-                href="profil_sekolah.html"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
-                >Profil Sekolah</a
-              >
-              <a
-                href="profil_kepsek.html"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
-                >Profil Kepala Sekolah</a
-              >
-              <a
-                href="struktur_organisasi.html"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
-                >Struktur Organisasi</a
-              >
-            </div>
-          </div>
-
-          <!-- Dropdown Akademik -->
-          <div class="dropdown-wrapper">
-            <button
-              class="text-gray-700 hover:text-blue-900 flex items-center font-medium transition"
-            >
-              Akademik
-              <svg
-                class="w-4 h-4 ml-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-            <div
-              class="dropdown-menu bg-white shadow-lg rounded-md py-2 w-48 border border-gray-100"
-            >
-              <a
-                href="berita.html"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
-                >Berita</a
-              >
-              <a
-                href="prestasi_siswa.html"
-                class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
-                >Prestasi</a
-              >
-            </div>
-          </div>
-
-          <a
-            href="pengumuman.html"
-            class="text-gray-700 hover:text-blue-900 font-medium transition"
-            >Pengumuman</a
-          >
-          <a
-            href="galeri.html"
-            class="text-gray-700 hover:text-blue-900 font-medium transition"
-            >Galeri</a
-          >
-          <a
-            href="kontak.html"
-            class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-6 py-2 rounded-full font-medium transition"
-            >Contact</a
-          >
-        </div>
-      </nav>
-
-      <!-- ✅ Menu Mobile (tampil saat toggle ditekan) -->
-      <div id="mobile-menu" class="md:hidden">
-        <a href="index.html">Beranda</a>
-        <a href="visi_misi.html">Visi Misi</a>
-        <a href="profil_sekolah.html">Profil Sekolah</a>
-        <a href="profil_kepsek.html">Profil Kepala Sekolah</a>
-        <a href="struktur_organisasi.html">Struktur Organisasi</a>
-        <a href="berita.html">Berita</a>
-        <a href="prestasi_siswa.html">Prestasi</a>
-        <a href="pengumuman.html">Pengumuman</a>
-        <a href="galeri.html">Galeri</a>
-        <a
-          href="kontak.html"
-          class="bg-yellow-400 block text-center font-medium py-2"
-          >Contact</a
-        >
-      </div>
-    </header>
-
     <!-- Hero Section Mini -->
-    <section class="py-12 bg-[#19193B] flex items-center justify-center mt-20">
+    <section class="py-12 bg-[#19193B] flex items-center justify-center">
       <div class="text-center px-6">
         <h1
           class="text-3xl md:text-4xl font-bold text-white mb-2 tracking-wide"
         >
           Detail Pengumuman
         </h1>
-        <p class="text-gray-300 text-sm">Pengumuman Sekolah &gt;&gt; Detail Pengumuman</p>
+        <p class="text-gray-300 text-sm">
+          Pengumuman Sekolah &gt;&gt; Detail Pengumuman
+        </p>
       </div>
     </section>
 
     <!-- Konten Utama -->
     <main class="flex-grow container mx-auto px-6 py-32 fade-in">
+      <!-- Kontainer Pengumuman -->
       <div
         id="pengumuman-container"
         class="max-w-5xl mx-auto bg-white shadow-lg rounded-xl p-8 border border-gray-200"
       >
+        <!-- Judul Pengumuman -->
         <h2
           id="judul"
           class="text-3xl font-bold text-blue-900 mb-4 text-center"
         ></h2>
+
+        <!-- Tanggal -->
         <p id="tanggal" class="text-gray-600 text-left mb-8"></p>
+
+        <!-- Isi Pengumuman -->
         <div id="isi" class="text-gray-700 leading-relaxed mb-8"></div>
+
+        <!-- Tombol Kembali -->
+        <div class="mt-10 text-center">
+          <a
+            href="pengumuman.html"
+            class="inline-flex items-center bg-blue-900 hover:bg-blue-800 text-white font-semibold px-8 py-2 rounded-full shadow-md hover:shadow-lg transition"
+          >
+            <svg
+              class="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Kembali ke Halaman Pengumuman
+          </a>
+        </div>
       </div>
 
+      <!-- Jika Data Tidak Ditemukan -->
       <div
         id="not-found"
         class="hidden text-center text-gray-700 mt-16 text-lg fade-in"
       >
         <p>Data pengumuman tidak ditemukan.</p>
         <a
-          href="pengumuman.html"
-          class="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition"
+          href="Siswa/pengumuman.html"
+          class="mt-4 inline-flex items-center bg-blue-900 hover:bg-blue-800 text-white font-semibold px-8 py-3 rounded-full shadow-md hover:shadow-lg transition"
         >
-          Kembali ke Daftar Pengumuman
+          <svg
+            class="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          Kembali ke Halaman Pengumuman
         </a>
       </div>
     </main>

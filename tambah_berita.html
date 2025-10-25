@@ -66,6 +66,17 @@
           opacity: 1;
           transform: translateY(0);
         }
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      .animate-fadeIn {
+        animation: fadeIn 0.25s ease-out;
       }
     </style>
   </head>
@@ -199,6 +210,37 @@
             </svg>
             <span>Logout</span>
           </a>
+        </div>
+
+        <!-- Modal Konfirmasi Logout -->
+        <div
+          id="logoutModal"
+          class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50"
+        >
+          <div
+            class="bg-white rounded-2xl shadow-2xl p-8 w-[90%] max-w-sm text-center animate-fadeIn"
+          >
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">
+              Yakin ingin keluar?
+            </h2>
+            <p class="text-gray-500 mb-6">
+              Anda akan keluar dari sistem admin.
+            </p>
+            <div class="flex justify-center space-x-4">
+              <button
+                id="cancelLogout"
+                class="px-5 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+              >
+                Tidak
+              </button>
+              <button
+                id="confirmLogout"
+                class="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+              >
+                Ya, Keluar
+              </button>
+            </div>
+          </div>
         </div>
       </aside>
 
@@ -1176,20 +1218,38 @@
           : text;
       }
 
-      // ============= LOGOUT HANDLER =============
+      // ==================== LOGOUT HANDLER ====================
       const logoutButton = document.getElementById("logoutButton");
+      const logoutModal = document.getElementById("logoutModal");
+      const confirmLogout = document.getElementById("confirmLogout");
+      const cancelLogout = document.getElementById("cancelLogout");
+
       if (logoutButton) {
-        logoutButton.addEventListener("click", function (event) {
-          event.preventDefault();
-          NotificationSystem.confirm(
-            "Apakah Anda yakin ingin keluar dari sistem?",
-            () => {
-              NotificationSystem.success("Berhasil logout!");
-              setTimeout(() => {
-                window.location.href = "Login_admin.html";
-              }, 1000);
-            }
-          );
+        logoutButton.addEventListener("click", (e) => {
+          e.preventDefault();
+          // Tampilkan modal
+          logoutModal.classList.remove("hidden");
+        });
+      }
+
+      // Tombol batal
+      if (cancelLogout) {
+        cancelLogout.addEventListener("click", () => {
+          logoutModal.classList.add("hidden");
+        });
+      }
+
+      // Tombol konfirmasi logout
+      if (confirmLogout) {
+        confirmLogout.addEventListener("click", () => {
+          // Animasi kecil saat logout
+          confirmLogout.innerText = "Keluar...";
+          confirmLogout.disabled = true;
+          confirmLogout.classList.add("opacity-70", "cursor-not-allowed");
+
+          setTimeout(() => {
+            window.location.href = "Login_admin.html";
+          }, 1000);
         });
       }
     </script>

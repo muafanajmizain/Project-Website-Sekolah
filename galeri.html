@@ -525,78 +525,78 @@
     </footer>
 
     <script>
-  // ==========================================
-  // KONFIGURASI API
-  // ==========================================
-  const API_BASE_URL =
-    "https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev";
-  const API_GALERI_URL = `${API_BASE_URL}/api/galeri`;
+      // ==========================================
+      // KONFIGURASI API
+      // ==========================================
+      const API_BASE_URL =
+        "https://chool-ekarahma2846311-08tanrqk.apn.leapcell.dev";
+      const API_GALERI_URL = `${API_BASE_URL}/api/galeri`;
 
-  // ==========================================
-  // INISIALISASI APLIKASI
-  // ==========================================
-  document.addEventListener("DOMContentLoaded", function () {
-    console.log("🚀 Aplikasi User Galeri dimulai");
-    loadGallery();
-    initScrollAnimation();
-    initLightboxHandlers();
-    initHamburgerMenu();
-  });
-
-  // ==========================================
-  // FUNGSI LOAD GALERI
-  // ==========================================
-  async function loadGallery() {
-    const loadingState = document.getElementById("loadingState");
-    const emptyState = document.getElementById("emptyState");
-    const galleryGrid = document.getElementById("galleryGrid");
-
-    try {
-      loadingState.classList.remove("hidden");
-      emptyState.classList.add("hidden");
-      galleryGrid.innerHTML = "";
-
-      console.log("📥 Memuat galeri dari:", API_GALERI_URL);
-
-      const response = await fetch(API_GALERI_URL, {
-        method: "GET",
-        headers: { Accept: "application/json" },
+      // ==========================================
+      // INISIALISASI APLIKASI
+      // ==========================================
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🚀 Aplikasi User Galeri dimulai");
+        loadGallery();
+        initScrollAnimation();
+        initLightboxHandlers();
+        initHamburgerMenu();
       });
 
-      if (!response.ok) throw new Error("Gagal memuat galeri");
+      // ==========================================
+      // FUNGSI LOAD GALERI
+      // ==========================================
+      async function loadGallery() {
+        const loadingState = document.getElementById("loadingState");
+        const emptyState = document.getElementById("emptyState");
+        const galleryGrid = document.getElementById("galleryGrid");
 
-      const result = await response.json();
-      const data = Array.isArray(result) ? result : result.data || [];
-      console.log("Total item galeri:", data.length);
+        try {
+          loadingState.classList.remove("hidden");
+          emptyState.classList.add("hidden");
+          galleryGrid.innerHTML = "";
 
-      loadingState.classList.add("hidden");
+          console.log("📥 Memuat galeri dari:", API_GALERI_URL);
 
-      if (data.length === 0) {
-        emptyState.classList.remove("hidden");
-        return;
+          const response = await fetch(API_GALERI_URL, {
+            method: "GET",
+            headers: { Accept: "application/json" },
+          });
+
+          if (!response.ok) throw new Error("Gagal memuat galeri");
+
+          const result = await response.json();
+          const data = Array.isArray(result) ? result : result.data || [];
+          console.log("Total item galeri:", data.length);
+
+          loadingState.classList.add("hidden");
+
+          if (data.length === 0) {
+            emptyState.classList.remove("hidden");
+            return;
+          }
+
+          renderGallery(data);
+        } catch (error) {
+          console.error("❌ Error loading gallery:", error);
+          loadingState.classList.add("hidden");
+          emptyState.classList.remove("hidden");
+          const emptyStateText = emptyState.querySelector("p");
+          if (emptyStateText)
+            emptyStateText.textContent =
+              "Gagal memuat galeri. Coba muat ulang halaman.";
+        }
       }
 
-      renderGallery(data);
-    } catch (error) {
-      console.error("❌ Error loading gallery:", error);
-      loadingState.classList.add("hidden");
-      emptyState.classList.remove("hidden");
-      const emptyStateText = emptyState.querySelector("p");
-      if (emptyStateText)
-        emptyStateText.textContent =
-          "Gagal memuat galeri. Coba muat ulang halaman.";
-    }
-  }
+      // ==========================================
+      // FUNGSI RENDER GALERI DENGAN TOMBOL LIHAT DETAIL
+      // ==========================================
+      function renderGallery(data) {
+        const galleryGrid = document.getElementById("galleryGrid");
 
-  // ==========================================
-  // FUNGSI RENDER GALERI DENGAN TOMBOL LIHAT DETAIL
-  // ==========================================
-  function renderGallery(data) {
-    const galleryGrid = document.getElementById("galleryGrid");
-
-    galleryGrid.innerHTML = data
-      .map(
-        (item, index) => `
+        galleryGrid.innerHTML = data
+          .map(
+            (item, index) => `
       <div class="gallery-card bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-500" data-index="${index}">
         <div class="relative overflow-hidden h-80 cursor-pointer group" 
              onclick="openLightbox('${getImageUrl(item.foto_url)}')">
@@ -618,9 +618,11 @@
           </div>
         </div>
         <div class="p-5 bg-gradient-to-br from-white to-gray-50 transition-all duration-500">
-          <h3 class="text-lg font-bold text-gray-800 truncate transition-all duration-300" title="${escapeHtml(item.judul)}">
-            ${escapeHtml(item.judul)}
-          </h3>
+          <h3 class="text-lg font-bold text-gray-800 transition-all duration-300" title="${escapeHtml(
+            item.judul
+          )}">
+        ${truncateText(escapeHtml(item.judul), 60)}
+        </h3>
           <div class="mt-3">
             <button 
               class="lihat-detail text-blue-600 hover:text-blue-800 text-sm font-medium"
@@ -630,145 +632,153 @@
           </div>
         </div>
       </div>`
-      )
-      .join("");
+          )
+          .join("");
 
-    // Animasi muncul bertahap
-    setTimeout(() => {
-      document.querySelectorAll(".gallery-card").forEach((el, idx) => {
+        // Animasi muncul bertahap
         setTimeout(() => {
-          el.classList.add("show");
-        }, idx * 100);
-      });
-    }, 100);
-  }
-
-  // ==========================================
-  // FUNGSI TOGGLE DETAIL CARD
-  // ==========================================
-  function toggleDetail(button) {
-    const card = button.closest(".gallery-card");
-    const title = card.querySelector("h3");
-
-    if (card.classList.contains("expanded")) {
-      card.classList.remove("expanded");
-      title.classList.add("truncate");
-      button.textContent = "Lihat Detail";
-    } else {
-      card.classList.add("expanded");
-      title.classList.remove("truncate");
-      button.textContent = "Tutup";
-    }
-  }
-
-  // ==========================================
-  // FUNGSI GET IMAGE URL
-  // ==========================================
-  function getImageUrl(foto_url) {
-    if (!foto_url)
-      return "https://via.placeholder.com/400x300?text=No+Image";
-    if (foto_url.startsWith("http")) return foto_url;
-    return `${API_BASE_URL}${foto_url}`;
-  }
-
-  // ==========================================
-  // LIGHTBOX
-  // ==========================================
-  function openLightbox(imageUrl) {
-    const lightbox = document.getElementById("lightbox");
-    const lightboxImage = document.getElementById("lightboxImage");
-
-    lightboxImage.src = imageUrl;
-    lightbox.classList.add("active");
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeLightbox() {
-    const lightbox = document.getElementById("lightbox");
-    lightbox.classList.remove("active");
-    document.body.style.overflow = "auto";
-  }
-
-  function initLightboxHandlers() {
-    const lightbox = document.getElementById("lightbox");
-    lightbox.addEventListener("click", (e) => {
-      if (e.target === lightbox || e.target.classList.contains("lightbox-close")) {
-        closeLightbox();
+          document.querySelectorAll(".gallery-card").forEach((el, idx) => {
+            setTimeout(() => {
+              el.classList.add("show");
+            }, idx * 100);
+          });
+        }, 100);
       }
-    });
-  }
 
-  // ==========================================
-  // SCROLL ANIMATION
-  // ==========================================
-  function initScrollAnimation() {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add("show");
-        });
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
-    );
+      // ==========================================
+      // FUNGSI TOGGLE DETAIL CARD
+      // ==========================================
+      function toggleDetail(button) {
+        const card = button.closest(".gallery-card");
+        const title = card.querySelector("h3");
 
-    const observeCards = () => {
-      document.querySelectorAll(".gallery-card").forEach((el) => {
-        observer.observe(el);
-      });
-    };
-
-    observeCards();
-    window.addEventListener("galleryLoaded", observeCards);
-  }
-
-  // ==========================================
-  // HAMBURGER MENU
-  // ==========================================
-  function initHamburgerMenu() {
-    const menuButton = document.getElementById("menu-toggle");
-    const mobileMenu = document.getElementById("mobile-menu");
-
-    if (menuButton && mobileMenu) {
-      mobileMenu.style.maxHeight = "0";
-      mobileMenu.style.opacity = "0";
-      mobileMenu.style.overflow = "hidden";
-      mobileMenu.style.transition = "all 0.3s ease-in-out";
-      mobileMenu.style.transform = "translateY(-10px)";
-      mobileMenu.style.display = "none";
-
-      menuButton.addEventListener("click", () => {
-        mobileMenu.classList.toggle("active");
-
-        if (mobileMenu.classList.contains("active")) {
-          mobileMenu.style.display = "block";
-          setTimeout(() => {
-            mobileMenu.style.maxHeight = mobileMenu.scrollHeight + "px";
-            mobileMenu.style.opacity = "1";
-            mobileMenu.style.transform = "translateY(0)";
-          }, 10);
+        if (card.classList.contains("expanded")) {
+          card.classList.remove("expanded");
+          title.classList.add("truncate");
+          button.textContent = "Lihat Detail";
         } else {
+          card.classList.add("expanded");
+          title.classList.remove("truncate");
+          button.textContent = "Tutup";
+        }
+      }
+
+      // ==========================================
+      // FUNGSI GET IMAGE URL
+      // ==========================================
+      function getImageUrl(foto_url) {
+        if (!foto_url)
+          return "https://via.placeholder.com/400x300?text=No+Image";
+        if (foto_url.startsWith("http")) return foto_url;
+        return `${API_BASE_URL}${foto_url}`;
+      }
+
+      // ==========================================
+      // LIGHTBOX
+      // ==========================================
+      function openLightbox(imageUrl) {
+        const lightbox = document.getElementById("lightbox");
+        const lightboxImage = document.getElementById("lightboxImage");
+
+        lightboxImage.src = imageUrl;
+        lightbox.classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeLightbox() {
+        const lightbox = document.getElementById("lightbox");
+        lightbox.classList.remove("active");
+        document.body.style.overflow = "auto";
+      }
+
+      function initLightboxHandlers() {
+        const lightbox = document.getElementById("lightbox");
+        lightbox.addEventListener("click", (e) => {
+          if (
+            e.target === lightbox ||
+            e.target.classList.contains("lightbox-close")
+          ) {
+            closeLightbox();
+          }
+        });
+      }
+
+      // ==========================================
+      // SCROLL ANIMATION
+      // ==========================================
+      function initScrollAnimation() {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) entry.target.classList.add("show");
+            });
+          },
+          { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+        );
+
+        const observeCards = () => {
+          document.querySelectorAll(".gallery-card").forEach((el) => {
+            observer.observe(el);
+          });
+        };
+
+        observeCards();
+        window.addEventListener("galleryLoaded", observeCards);
+      }
+
+      // ==========================================
+      // HAMBURGER MENU
+      // ==========================================
+      function initHamburgerMenu() {
+        const menuButton = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        if (menuButton && mobileMenu) {
           mobileMenu.style.maxHeight = "0";
           mobileMenu.style.opacity = "0";
+          mobileMenu.style.overflow = "hidden";
+          mobileMenu.style.transition = "all 0.3s ease-in-out";
           mobileMenu.style.transform = "translateY(-10px)";
-          setTimeout(() => {
-            mobileMenu.style.display = "none";
-          }, 300);
+          mobileMenu.style.display = "none";
+
+          menuButton.addEventListener("click", () => {
+            mobileMenu.classList.toggle("active");
+
+            if (mobileMenu.classList.contains("active")) {
+              mobileMenu.style.display = "block";
+              setTimeout(() => {
+                mobileMenu.style.maxHeight = mobileMenu.scrollHeight + "px";
+                mobileMenu.style.opacity = "1";
+                mobileMenu.style.transform = "translateY(0)";
+              }, 10);
+            } else {
+              mobileMenu.style.maxHeight = "0";
+              mobileMenu.style.opacity = "0";
+              mobileMenu.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                mobileMenu.style.display = "none";
+              }, 300);
+            }
+          });
         }
-      });
-    }
-  }
+      }
 
-  // ==========================================
-  // HELPER FUNCTIONS
-  // ==========================================
-  function escapeHtml(str) {
-    if (!str) return "";
-    const div = document.createElement("div");
-    div.textContent = str;
-    return div.innerHTML;
-  }
+      // ==========================================
+      // HELPER FUNCTIONS
+      // ==========================================
+      function escapeHtml(str) {
+        if (!str) return "";
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+      }
 
-</script>
-
+      function truncateText(text, maxLength = 60) {
+        if (!text) return "";
+        return text.length > maxLength
+          ? text.substring(0, maxLength) + "..."
+          : text;
+      }
+    </script>
   </body>
 </html>

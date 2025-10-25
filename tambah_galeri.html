@@ -90,6 +90,18 @@
       .fade-in {
         animation: fadeIn 0.3s ease-in-out;
       }
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .animate-fadeIn {
+        animation: fadeIn 0.25s ease-out;
+      }
     </style>
   </head>
 
@@ -202,9 +214,10 @@
         </div>
 
         <!-- Logout -->
+        <!-- Logout Button -->
         <div class="p-4 border-t">
           <a
-            href="Login_admin.html"
+            href="#"
             id="logoutButton"
             class="flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-100 transition"
           >
@@ -219,10 +232,41 @@
                 stroke-linejoin="round"
                 stroke-width="2"
                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1"
-              ></path>
+              />
             </svg>
             <span>Logout</span>
           </a>
+        </div>
+
+        <!-- Modal Konfirmasi Logout -->
+        <div
+          id="logoutModal"
+          class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50"
+        >
+          <div
+            class="bg-white rounded-2xl shadow-2xl p-8 w-[90%] max-w-sm text-center animate-fadeIn"
+          >
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">
+              Yakin ingin keluar?
+            </h2>
+            <p class="text-gray-500 mb-6">
+              Anda akan keluar dari sistem admin.
+            </p>
+            <div class="flex justify-center space-x-4">
+              <button
+                id="cancelLogout"
+                class="px-5 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+              >
+                Tidak
+              </button>
+              <button
+                id="confirmLogout"
+                class="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+              >
+                Ya, Keluar
+              </button>
+            </div>
+          </div>
         </div>
       </aside>
 
@@ -385,6 +429,599 @@
     <!-- Script -->
     <script>
       // ==========================================
+      // FUNGSI LOAD GALERI
+      // ==========================================
+      async function loadGallery() {
+        const loading = document.getElementById("loadingState");
+        const empty = document.getElementById("emptyState");
+        const table = document.getElementById("galleryTable");
+        const tbody = document.getElementById("galleryTableBody");
+
+        try {
+          if (loading) loading.classList.remove("hidden");
+          if (empty) empty.classList.add("hidden");
+          if (table) table.classList.add("hidden");
+          if (tbody) tbody.innerHTML = "";
+
+          const loadingNotif = NotificationSystem.loading(
+            "Memuat data galeri..."
+          );
+
+          console.log("📥 Memuat data galeri...");
+
+          const token = getAuthToken();
+          const headers = {};
+          if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+          }
+
+          const res = await fetch(API_GALERI_URL, { headers });
+
+          console.log("Load gallery status:", res.status);
+
+          // CEK AUTHENTICATION
+          if (checkAuthAndRedirect(res)) {
+            loadingNotif.remove();
+            if (loading) loading.classList.add("hidden");
+            return;
+          }
+
+          if (!res.ok) throw new Error("Gagal memuat data!");
+
+          const data = await res.json();
+          const items = Array.isArray(data) ? data : data.data || [];
+          console.log("Total items loaded:", items.length);
+
+          loadingNotif.remove();
+          if (loading) loading.classList.add("hidden");
+
+          if (!items.length) {
+            if (empty) empty.classList.remove("hidden");
+            NotificationSystem.info("Belum ada data galeri");
+            return;
+          }
+
+          NotificationSystem.success(`Berhasil memuat ${items.length} galeri`);
+
+          items.forEach((item) => {
+            const tr = document.createElement("tr");
+            const imageUrl = getImageUrl(item.foto_url);
+            const escapedJudul = escapeHtml(item.judul || "-").replace(
+              /'/g,
+              "&#39;"
+            );
+
+            tr.innerHTML = `
+        <td class="px-6 py-4">
+          <img src="${imageUrl}" 
+               class="w-16 h-16 rounded-lg object-cover shadow-sm"
+               onerror="this.src='https://via.placeholder.com/64?text=No+Image'"
+               alt="${escapeHtml(item.judul || "Gallery")}"/>
+        </td>
+        <td class="px-6 py-4 text-gray-900">
+          ${escapeHtml(item.judul || "-")}
+        </td>
+        <td class="px-6 py-4 text-sm">
+          <div class="flex items-center space-x-3">
+            <button onclick='editGallery(${
+              item.id
+            }, "${escapedJudul}", "${imageUrl}")' 
+                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" 
+                    title="Edit">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+            <button onclick="deleteGallery(${item.id})" 
+                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" 
+                    title="Hapus">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </td>
+      `;
+            tbody.appendChild(tr);
+          });
+
+          if (table) table.classList.remove("hidden");
+        } catch (err) {
+          console.error("❌ Error load gallery:", err);
+
+          if (err.name === "TypeError" && err.message.includes("fetch")) {
+            NotificationSystem.error(
+              "Gagal terhubung ke server. Periksa koneksi internet."
+            );
+          } else {
+            NotificationSystem.error(err.message);
+          }
+
+          if (loading) loading.classList.add("hidden");
+          if (empty) empty.classList.remove("hidden");
+        }
+      }
+
+      // ==========================================
+      // FUNGSI EDIT GALERI
+      // ==========================================
+      function editGallery(id, judul, fotoUrl) {
+        console.log("✏️ Edit mode untuk ID:", id);
+
+        editMode = true;
+        editId = id;
+
+        // Decode HTML entities dari judul
+        const textarea = document.createElement("textarea");
+        textarea.innerHTML = judul;
+        const decodedJudul = textarea.value;
+
+        // Set form values
+        const judulInput = document.getElementById("judulInput");
+        const btnText = document.getElementById("btnText");
+        const btnCancel = document.getElementById("btnCancel");
+        const imagePreview = document.getElementById("imagePreview");
+        const fileName = document.getElementById("fileName");
+
+        if (judulInput) judulInput.value = decodedJudul;
+        if (btnText) btnText.textContent = " Update";
+        if (btnCancel) btnCancel.classList.remove("hidden");
+
+        // Set preview image
+        if (imagePreview) {
+          const previewImg = imagePreview.querySelector("img");
+          if (previewImg) {
+            previewImg.src = fotoUrl;
+            imagePreview.classList.remove("hidden");
+          }
+        }
+
+        if (fileName) fileName.textContent = "Upload foto baru (opsional)";
+
+        // Scroll ke form
+        const uploadForm = document.getElementById("uploadForm");
+        if (uploadForm) {
+          uploadForm.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+
+        NotificationSystem.info("Mode edit aktif. Upload foto baru opsional.");
+      }
+
+      // ==========================================
+      // FUNGSI DELETE GALERI
+      // ==========================================
+      async function deleteGallery(id) {
+        NotificationSystem.confirm(
+          "Yakin ingin menghapus foto ini? Tindakan ini tidak dapat dibatalkan.",
+          async () => {
+            const deletingNotif = NotificationSystem.loading(
+              "Menghapus galeri..."
+            );
+
+            try {
+              console.log(`🗑️ Menghapus galeri ID: ${id}`);
+
+              const token = getAuthToken();
+              const headers = {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              };
+              if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
+              }
+
+              const res = await fetch(`${API_GALERI_URL}/${id}`, {
+                method: "DELETE",
+                headers: headers,
+              });
+
+              console.log("Delete response status:", res.status);
+
+              // CEK AUTHENTICATION
+              if (checkAuthAndRedirect(res)) {
+                deletingNotif.remove();
+                return;
+              }
+
+              // Handle status 204 (No Content) - sukses tanpa body
+              if (res.status === 204) {
+                deletingNotif.remove();
+                NotificationSystem.success("Galeri berhasil dihapus!");
+                setTimeout(() => loadGallery(), 500);
+                return;
+              }
+
+              // Handle response dengan body
+              const result = await res.json();
+              console.log("Delete result:", result);
+
+              if (!res.ok) {
+                const errorMsg =
+                  result.message || result.error || "Gagal menghapus data!";
+                throw new Error(errorMsg);
+              }
+
+              deletingNotif.remove();
+              NotificationSystem.success("Galeri berhasil dihapus!");
+              setTimeout(() => loadGallery(), 500);
+            } catch (err) {
+              console.error("❌ Error delete:", err);
+              deletingNotif.remove();
+
+              if (err.name === "TypeError" && err.message.includes("fetch")) {
+                NotificationSystem.error(
+                  "Gagal terhubung ke server. Periksa koneksi internet."
+                );
+              } else {
+                NotificationSystem.error(
+                  err.message || "Terjadi kesalahan saat menghapus data"
+                );
+              }
+            }
+          }
+        );
+      }
+
+      // ==========================================
+      // HELPER FUNCTIONS
+      // ==========================================
+
+      // Get full image URL
+      function getImageUrl(foto_url) {
+        if (!foto_url) return "https://via.placeholder.com/64?text=No+Image";
+        if (foto_url.startsWith("http")) return foto_url;
+        return `${API_BASE_URL}${foto_url}`;
+      }
+
+      // Escape HTML untuk mencegah XSS
+      function escapeHtml(str) {
+        if (!str) return "";
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      // ==========================================
+      // FUNGSI UNTUK HALAMAN USER
+      // ==========================================
+      async function loadUserGallery() {
+        const galleryContainer = document.getElementById("galleryContainer");
+
+        if (!galleryContainer) return;
+
+        const loadingNotif = NotificationSystem.loading("Memuat galeri...");
+
+        try {
+          console.log("📥 Memuat galeri untuk user...");
+
+          const res = await fetch(API_GALERI_URL);
+
+          // CEK AUTHENTICATION (opsional untuk halaman user)
+          if (checkAuthAndRedirect(res)) {
+            loadingNotif.remove();
+            return;
+          }
+
+          if (!res.ok) throw new Error("Gagal memuat galeri");
+
+          const data = await res.json();
+          const items = Array.isArray(data) ? data : data.data || [];
+
+          loadingNotif.remove();
+
+          if (!items.length) {
+            galleryContainer.innerHTML = `
+        <div class="col-span-full text-center py-12">
+          <div class="text-gray-400 text-6xl mb-4">📷</div>
+          <p class="text-gray-500 text-lg">Belum ada foto di galeri</p>
+        </div>
+      `;
+            NotificationSystem.info("Belum ada foto di galeri");
+            return;
+          }
+
+          NotificationSystem.success(`Berhasil memuat ${items.length} foto`);
+
+          galleryContainer.innerHTML = items
+            .map((item) => {
+              const imageUrl = getImageUrl(item.foto_url);
+              return `
+          <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition duration-300 transform hover:-translate-y-1">
+            <img src="${imageUrl}" 
+                 class="w-full h-48 object-cover"
+                 onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"
+                 alt="${escapeHtml(item.judul)}"
+                 loading="lazy"/>
+            <div class="p-4">
+              <h3 class="font-semibold text-lg text-gray-800 line-clamp-2">
+                ${escapeHtml(item.judul)}
+              </h3>
+            </div>
+          </div>
+        `;
+            })
+            .join("");
+        } catch (err) {
+          console.error("❌ Error load user gallery:", err);
+          loadingNotif.remove();
+
+          let errorMsg = "Gagal memuat galeri";
+          if (err.name === "TypeError" && err.message.includes("fetch")) {
+            errorMsg = "Gagal terhubung ke server. Periksa koneksi internet.";
+          }
+
+          NotificationSystem.error(errorMsg);
+
+          galleryContainer.innerHTML = `
+      <div class="col-span-full text-center py-12">
+        <div class="text-red-400 text-6xl mb-4">⚠️</div>
+        <p class="text-red-500 text-lg">${errorMsg}</p>
+        <button onclick="loadUserGallery()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          🔄 Coba Lagi
+        </button>
+      </div>
+    `;
+        }
+      }
+
+      // ==================== LOGOUT HANDLER ====================
+      const logoutButton = document.getElementById("logoutButton");
+      const logoutModal = document.getElementById("logoutModal");
+      const confirmLogout = document.getElementById("confirmLogout");
+      const cancelLogout = document.getElementById("cancelLogout");
+
+      if (logoutButton) {
+        logoutButton.addEventListener("click", (e) => {
+          e.preventDefault();
+          // Tampilkan modal
+          logoutModal.classList.remove("hidden");
+        });
+      }
+
+      // Tombol batal
+      if (cancelLogout) {
+        cancelLogout.addEventListener("click", () => {
+          logoutModal.classList.add("hidden");
+        });
+      }
+
+      // Tombol konfirmasi logout
+      if (confirmLogout) {
+        confirmLogout.addEventListener("click", () => {
+          // Animasi kecil saat logout
+          confirmLogout.innerText = "Keluar...";
+          confirmLogout.disabled = true;
+          confirmLogout.classList.add("opacity-70", "cursor-not-allowed");
+
+          setTimeout(() => {
+            window.location.href = "Login_admin.html";
+          }, 1000);
+        });
+      }
+
+      // ============= MODERN NOTIFICATION SYSTEM =============
+      const NotificationSystem = {
+        container: null,
+
+        init() {
+          if (!this.container) {
+            this.container = document.createElement("div");
+            this.container.id = "notification-container";
+            this.container.className =
+              "fixed top-4 right-4 z-50 space-y-3 max-w-md";
+            document.body.appendChild(this.container);
+            this.injectStyles();
+          }
+        },
+
+        injectStyles() {
+          if (!document.getElementById("notification-styles")) {
+            const style = document.createElement("style");
+            style.id = "notification-styles";
+            style.textContent = `
+        @keyframes slideIn {
+          from {
+            transform: translateX(400px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        @keyframes slideOut {
+          from {
+            transform: translateX(0);
+            opacity: 1;
+          }
+          to {
+            transform: translateX(400px);
+            opacity: 0;
+          }
+        }
+        .notification-item {
+          animation: slideIn 0.3s ease-out;
+        }
+        .notification-item.removing {
+          animation: slideOut 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+      `;
+            document.head.appendChild(style);
+          }
+        },
+
+        show(message, type = "info", duration = 4000) {
+          this.init();
+
+          const notification = document.createElement("div");
+          notification.className = `notification-item bg-white shadow-lg rounded-lg p-4 flex items-start space-x-3 border-l-4 ${this.getBorderColor(
+            type
+          )}`;
+
+          const icon = this.getIcon(type);
+          const iconColor = this.getIconColor(type);
+
+          notification.innerHTML = `
+      <div class="flex-shrink-0">
+        <svg class="w-6 h-6 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          ${icon}
+        </svg>
+      </div>
+      <div class="flex-1 pt-0.5">
+        <p class="text-sm font-medium text-gray-900">${message}</p>
+      </div>
+      <button class="flex-shrink-0 ml-4 text-gray-400 hover:text-gray-600 transition" onclick="this.closest('.notification-item').remove()">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    `;
+
+          this.container.appendChild(notification);
+
+          if (duration > 0) {
+            setTimeout(() => {
+              notification.classList.add("removing");
+              setTimeout(() => notification.remove(), 300);
+            }, duration);
+          }
+
+          return notification;
+        },
+
+        success(message, duration = 4000) {
+          return this.show(message, "success", duration);
+        },
+
+        error(message, duration = 5000) {
+          return this.show(message, "error", duration);
+        },
+
+        warning(message, duration = 4000) {
+          return this.show(message, "warning", duration);
+        },
+
+        info(message, duration = 4000) {
+          return this.show(message, "info", duration);
+        },
+
+        loading(message) {
+          return this.show(message, "loading", 0);
+        },
+
+        confirm(message, onConfirm, onCancel) {
+          this.init();
+
+          const overlay = document.createElement("div");
+          overlay.className =
+            "fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4";
+          overlay.style.animation = "fadeIn 0.2s ease-out";
+
+          const modal = document.createElement("div");
+          modal.className = "bg-white rounded-lg shadow-xl max-w-md w-full p-6";
+          modal.style.animation = "slideIn 0.3s ease-out";
+
+          modal.innerHTML = `
+      <div class="flex items-start space-x-3">
+        <div class="flex-shrink-0">
+          <svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Konfirmasi</h3>
+          <p class="text-sm text-gray-600">${message}</p>
+        </div>
+      </div>
+      <div class="flex space-x-3 mt-6">
+        <button id="cancelBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-medium">
+          Batal
+        </button>
+        <button id="confirmBtn" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">
+          Ya, Lanjutkan
+        </button>
+      </div>
+    `;
+
+          overlay.appendChild(modal);
+          document.body.appendChild(overlay);
+
+          const confirmBtn = modal.querySelector("#confirmBtn");
+          const cancelBtn = modal.querySelector("#cancelBtn");
+
+          const close = () => {
+            overlay.style.animation = "fadeOut 0.2s ease-out";
+            setTimeout(() => overlay.remove(), 200);
+          };
+
+          confirmBtn.onclick = () => {
+            close();
+            if (onConfirm) onConfirm();
+          };
+
+          cancelBtn.onclick = () => {
+            close();
+            if (onCancel) onCancel();
+          };
+
+          overlay.onclick = (e) => {
+            if (e.target === overlay) {
+              close();
+              if (onCancel) onCancel();
+            }
+          };
+        },
+
+        getBorderColor(type) {
+          const colors = {
+            success: "border-green-500",
+            error: "border-red-500",
+            warning: "border-yellow-500",
+            info: "border-blue-500",
+            loading: "border-blue-500",
+          };
+          return colors[type] || colors.info;
+        },
+
+        getIconColor(type) {
+          const colors = {
+            success: "text-green-500",
+            error: "text-red-500",
+            warning: "text-yellow-500",
+            info: "text-blue-500",
+            loading: "text-blue-500",
+          };
+          return colors[type] || colors.info;
+        },
+
+        getIcon(type) {
+          const icons = {
+            success:
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+            error:
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+            warning:
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>',
+            info: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+            loading:
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>',
+          };
+          return icons[type] || icons.info;
+        },
+      };
+
+      // ==========================================
       // KONFIGURASI API
       // ==========================================
       const API_BASE_URL =
@@ -399,15 +1036,40 @@
       let editId = null;
 
       // ==========================================
+      // AUTH HELPERS
+      // ==========================================
+      function getAuthToken() {
+        return (
+          localStorage.getItem("token") ||
+          localStorage.getItem("authToken") ||
+          localStorage.getItem("adminToken") ||
+          ""
+        );
+      }
+
+      function getAuthHeaders() {
+        const token = getAuthToken();
+        const headers = {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        };
+
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        return headers;
+      }
+
+      // ==========================================
       // 🔐 FUNGSI CEK AUTHENTICATION & REDIRECT
       // ==========================================
       function checkAuthAndRedirect(response) {
-        // Jika response 401 (Unauthorized), redirect ke login
         if (response.status === 401) {
-          showToast("Sesi Anda habis. Silakan login kembali!", "warning");
+          NotificationSystem.error("Sesi Anda habis. Silakan login kembali!");
           setTimeout(() => {
-            window.location.href = "Login_admin.html"; // Sesuaikan dengan nama file login Anda
-          }, 1500);
+            window.location.href = "Login_admin.html";
+          }, 2000);
           return true;
         }
         return false;
@@ -417,23 +1079,15 @@
       // 🎯 NAVIGATION HANDLER (Active Menu)
       // ==========================================
       function setActiveMenu() {
-        // Ambil nama file halaman saat ini
         const currentPage =
           window.location.pathname.split("/").pop() || "galeri.html";
-
-        // Ambil semua link navigasi/sidebar
         const navLinks = document.querySelectorAll(
           ".nav-link, nav a, .sidebar a"
         );
 
         navLinks.forEach((link) => {
-          // Hapus class active dari semua link
           link.classList.remove("active");
-
-          // Ambil href dari link
           const linkHref = link.getAttribute("href");
-
-          // Jika href sama dengan halaman saat ini, tambahkan class active
           if (linkHref === currentPage) {
             link.classList.add("active");
           }
@@ -445,14 +1099,8 @@
       // ==========================================
       document.addEventListener("DOMContentLoaded", () => {
         console.log("🚀 Aplikasi Admin Galeri dimulai");
-
-        // Set menu aktif saat halaman dimuat
         setActiveMenu();
-
-        // Load data galeri
         loadGallery();
-
-        // Initialize form handlers
         initializeFormHandlers();
       });
 
@@ -463,7 +1111,9 @@
         const fotoInput = document.getElementById("fotoInput");
         const fileName = document.getElementById("fileName");
         const imagePreview = document.getElementById("imagePreview");
-        const previewImg = imagePreview.querySelector("img");
+        const previewImg = imagePreview?.querySelector("img");
+
+        if (!fotoInput) return;
 
         // Handler untuk preview gambar
         fotoInput.addEventListener("change", function () {
@@ -476,7 +1126,9 @@
           // Validasi tipe file
           const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
           if (!allowedTypes.includes(file.type)) {
-            showToast("Format gambar harus JPG, JPEG, atau PNG!", "error");
+            NotificationSystem.error(
+              "Format gambar harus JPG, JPEG, atau PNG!"
+            );
             this.value = "";
             resetPreview();
             return;
@@ -484,7 +1136,7 @@
 
           // Validasi ukuran file (max 5MB)
           if (file.size > 5 * 1024 * 1024) {
-            showToast("Ukuran file maksimal 5MB!", "error");
+            NotificationSystem.error("Ukuran file maksimal 5MB!");
             this.value = "";
             resetPreview();
             return;
@@ -494,28 +1146,45 @@
           fileName.textContent = file.name;
           const reader = new FileReader();
           reader.onload = (e) => {
-            previewImg.src = e.target.result;
-            imagePreview.classList.remove("hidden");
+            if (previewImg) {
+              previewImg.src = e.target.result;
+              imagePreview.classList.remove("hidden");
+            }
           };
           reader.readAsDataURL(file);
         });
 
         // Handler submit form
-        document
-          .getElementById("uploadForm")
-          .addEventListener("submit", handleSubmit);
+        const uploadForm = document.getElementById("uploadForm");
+        if (uploadForm) {
+          uploadForm.addEventListener("submit", handleSubmit);
+        }
 
         // Handler tombol cancel
         const btnCancel = document.getElementById("btnCancel");
         if (btnCancel) {
-          btnCancel.addEventListener("click", resetForm);
+          btnCancel.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (editMode) {
+              NotificationSystem.confirm(
+                "Yakin ingin membatalkan? Perubahan tidak akan disimpan.",
+                () => {
+                  resetForm();
+                  NotificationSystem.info("Edit dibatalkan");
+                }
+              );
+            } else {
+              resetForm();
+            }
+          });
         }
       }
 
       function resetPreview() {
-        document.getElementById("fileName").textContent =
-          "Belum ada file dipilih";
-        document.getElementById("imagePreview").classList.add("hidden");
+        const fileName = document.getElementById("fileName");
+        const imagePreview = document.getElementById("imagePreview");
+        if (fileName) fileName.textContent = "Belum ada file dipilih";
+        if (imagePreview) imagePreview.classList.add("hidden");
       }
 
       // ==========================================
@@ -524,6 +1193,18 @@
       async function handleSubmit(e) {
         e.preventDefault();
 
+        // Cek token dulu
+        const token = getAuthToken();
+        if (!token) {
+          NotificationSystem.error(
+            "Anda belum login! Silakan login terlebih dahulu."
+          );
+          setTimeout(() => {
+            window.location.href = "Login_admin.html";
+          }, 2000);
+          return;
+        }
+
         const fotoInput = document.getElementById("fotoInput");
         const judulInput = document.getElementById("judulInput");
         const btnSubmit = document.getElementById("btnSubmit");
@@ -531,16 +1212,22 @@
 
         // Validasi input
         if (!editMode && !fotoInput.files[0]) {
-          return showToast("Pilih gambar terlebih dahulu!", "error");
+          NotificationSystem.warning("Pilih gambar terlebih dahulu!");
+          return;
         }
 
         if (!judulInput.value.trim()) {
-          return showToast("Judul wajib diisi!", "error");
+          NotificationSystem.warning("Judul wajib diisi!");
+          return;
         }
 
         // Disable button dan ubah text
         btnSubmit.disabled = true;
         btnText.textContent = editMode ? " Memperbarui..." : " Mengupload...";
+
+        const savingNotif = NotificationSystem.loading(
+          editMode ? "Memperbarui galeri..." : "Menyimpan galeri..."
+        );
 
         try {
           let fotoUrl = null;
@@ -553,16 +1240,20 @@
           // Simpan data galeri
           await saveGaleri(fotoUrl, judulInput.value.trim());
 
-          showToast(
-            `Galeri berhasil ${editMode ? "diperbarui" : "ditambahkan"} ✅`,
-            "success"
+          savingNotif.remove();
+          NotificationSystem.success(
+            `Galeri berhasil ${editMode ? "diperbarui" : "ditambahkan"}!`
           );
 
           resetForm();
           setTimeout(() => loadGallery(), 500);
         } catch (err) {
           console.error("❌ Error lengkap:", err);
-          showToast(err.message, "error");
+          savingNotif.remove();
+
+          if (!err.message.includes("Sesi Anda habis")) {
+            NotificationSystem.error(err.message);
+          }
         } finally {
           btnSubmit.disabled = false;
           btnText.textContent = editMode ? " Update" : " Simpan";
@@ -570,26 +1261,32 @@
       }
 
       // ==========================================
-      // FUNGSI UPLOAD FOTO (DIPERBAIKI - TANPA CREDENTIALS)
+      // FUNGSI UPLOAD FOTO
       // ==========================================
       async function uploadFoto(file) {
-        console.log(" Mengupload foto:", file.name);
+        console.log("📤 Mengupload foto:", file.name);
 
         const formData = new FormData();
         formData.append("foto", file);
 
         try {
+          const token = getAuthToken();
+          const headers = {};
+          if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+          }
+
           const uploadResponse = await fetch(API_UPLOAD_URL, {
             method: "POST",
+            headers: headers,
             body: formData,
-            // TIDAK PAKAI credentials jika backend tidak support CORS dengan credentials
           });
 
           console.log("Upload status:", uploadResponse.status);
 
           // CEK AUTHENTICATION
           if (checkAuthAndRedirect(uploadResponse)) {
-            throw new Error("Unauthorized: Login dulu!");
+            throw new Error("Sesi Anda habis");
           }
 
           const uploadResult = await uploadResponse.json();
@@ -624,9 +1321,8 @@
 
           return fotoUrl;
         } catch (err) {
-          // Jika error network (CORS atau connection)
           if (err.name === "TypeError" && err.message.includes("fetch")) {
-            console.error(" Network Error:", err);
+            console.error("❌ Network Error:", err);
             throw new Error(
               "Gagal terhubung ke server. Periksa koneksi internet Anda."
             );
@@ -636,7 +1332,7 @@
       }
 
       // ==========================================
-      // FUNGSI SIMPAN DATA GALERI (DIPERBAIKI)
+      // FUNGSI SIMPAN DATA GALERI
       // ==========================================
       async function saveGaleri(fotoUrl, judul) {
         const galeriData = {
@@ -650,7 +1346,7 @@
           throw new Error("Foto URL tidak tersedia!");
         }
 
-        console.log(" Menyimpan data galeri:", galeriData);
+        console.log("💾 Menyimpan data galeri:", galeriData);
 
         const url = editMode ? `${API_GALERI_URL}/${editId}` : API_GALERI_URL;
         const method = editMode ? "PUT" : "POST";
@@ -658,19 +1354,15 @@
         try {
           const saveResponse = await fetch(url, {
             method: method,
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(galeriData),
-            // TIDAK PAKAI credentials jika backend tidak support CORS dengan credentials
           });
 
           console.log("Save status:", saveResponse.status);
 
           // CEK AUTHENTICATION
           if (checkAuthAndRedirect(saveResponse)) {
-            throw new Error("Unauthorized: Login dulu!");
+            throw new Error("Sesi Anda habis");
           }
 
           const saveResult = await saveResponse.json();
@@ -686,7 +1378,6 @@
 
           return saveResult;
         } catch (err) {
-          // Jika error network (CORS atau connection)
           if (err.name === "TypeError" && err.message.includes("fetch")) {
             console.error("❌ Network Error:", err);
             throw new Error(
@@ -701,332 +1392,20 @@
       // FUNGSI RESET FORM
       // ==========================================
       function resetForm() {
-        document.getElementById("uploadForm").reset();
-        document.getElementById("fileName").textContent =
-          "Belum ada file dipilih";
-        document.getElementById("imagePreview").classList.add("hidden");
-        document.getElementById("btnCancel").classList.add("hidden");
-        document.getElementById("btnText").textContent = "💾 Simpan";
+        const uploadForm = document.getElementById("uploadForm");
+        const fileName = document.getElementById("fileName");
+        const imagePreview = document.getElementById("imagePreview");
+        const btnCancel = document.getElementById("btnCancel");
+        const btnText = document.getElementById("btnText");
+
+        if (uploadForm) uploadForm.reset();
+        if (fileName) fileName.textContent = "Belum ada file dipilih";
+        if (imagePreview) imagePreview.classList.add("hidden");
+        if (btnCancel) btnCancel.classList.add("hidden");
+        if (btnText) btnText.textContent = "💾 Simpan";
+
         editMode = false;
         editId = null;
-      }
-
-      // ==========================================
-      // FUNGSI LOAD GALERI (DIPERBAIKI)
-      // ==========================================
-      async function loadGallery() {
-        const loading = document.getElementById("loadingState");
-        const empty = document.getElementById("emptyState");
-        const table = document.getElementById("galleryTable");
-        const tbody = document.getElementById("galleryTableBody");
-
-        try {
-          loading.classList.remove("hidden");
-          empty.classList.add("hidden");
-          table.classList.add("hidden");
-          tbody.innerHTML = "";
-
-          console.log("📥 Memuat data galeri...");
-
-          const res = await fetch(API_GALERI_URL, {
-            // TIDAK PAKAI credentials jika backend tidak support CORS dengan credentials
-          });
-
-          console.log("Load gallery status:", res.status);
-
-          // CEK AUTHENTICATION
-          if (checkAuthAndRedirect(res)) {
-            loading.classList.add("hidden");
-            return;
-          }
-
-          if (!res.ok) throw new Error("Gagal memuat data!");
-
-          const data = await res.json();
-          const items = Array.isArray(data) ? data : data.data || [];
-          console.log("Total items loaded:", items.length);
-
-          loading.classList.add("hidden");
-
-          if (!items.length) {
-            empty.classList.remove("hidden");
-            return;
-          }
-
-          items.forEach((item) => {
-            const tr = document.createElement("tr");
-            const imageUrl = getImageUrl(item.foto_url);
-            const escapedJudul = escapeHtml(item.judul || "-").replace(
-              /'/g,
-              "&#39;"
-            );
-
-            // TABEL DENGAN ICON BUTTON DAN JUDUL TANPA BOLD
-            tr.innerHTML = `
-    <td class="px-6 py-4">
-      <img src="${imageUrl}" 
-           class="w-16 h-16 rounded-lg object-cover shadow-sm"
-           onerror="this.src='https://via.placeholder.com/64?text=No+Image'"
-           alt="${escapeHtml(item.judul || "Gallery")}"/>
-    </td>
-    <td class="px-6 py-4 text-gray-900">
-      ${escapeHtml(item.judul || "-")}
-    </td>
-    <td class="px-6 py-4 text-sm">
-      <div class="flex items-center space-x-3">
-        <button onclick='editGallery(${
-          item.id
-        }, "${escapedJudul}", "${imageUrl}")' 
-                class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" 
-                title="Edit">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        </button>
-        <button onclick="deleteGallery(${item.id})" 
-                class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" 
-                title="Hapus">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
-      </div>
-    </td>
-  `;
-            tbody.appendChild(tr);
-          });
-
-          table.classList.remove("hidden");
-        } catch (err) {
-          console.error("❌ Error load gallery:", err);
-
-          // Error handling yang lebih spesifik
-          if (err.name === "TypeError" && err.message.includes("fetch")) {
-            showToast(
-              "Gagal terhubung ke server. Periksa koneksi internet.",
-              "error"
-            );
-          } else {
-            showToast(err.message, "error");
-          }
-
-          loading.classList.add("hidden");
-          empty.classList.remove("hidden");
-        }
-      }
-
-      // ==========================================
-      // FUNGSI EDIT GALERI
-      // ==========================================
-      function editGallery(id, judul, fotoUrl) {
-        console.log("✏️ Edit mode untuk ID:", id);
-
-        editMode = true;
-        editId = id;
-
-        // Decode HTML entities dari judul
-        const textarea = document.createElement("textarea");
-        textarea.innerHTML = judul;
-        const decodedJudul = textarea.value;
-
-        // Set form values
-        document.getElementById("judulInput").value = decodedJudul;
-        document.getElementById("btnText").textContent = " Update";
-        document.getElementById("btnCancel").classList.remove("hidden");
-
-        // Set preview image
-        const imagePreview = document.getElementById("imagePreview");
-        const previewImg = imagePreview.querySelector("img");
-        previewImg.src = fotoUrl;
-        imagePreview.classList.remove("hidden");
-
-        document.getElementById("fileName").textContent =
-          "Upload foto baru (opsional)";
-
-        // Scroll ke form
-        document.getElementById("uploadForm").scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-
-        showToast("Mode edit aktif. Upload foto baru opsional.", "info");
-      }
-
-      // ==========================================
-      // FUNGSI DELETE GALERI (DIPERBAIKI)
-      // ==========================================
-      async function deleteGallery(id) {
-        if (!confirm("⚠️ Yakin ingin menghapus foto ini?")) return;
-
-        try {
-          console.log(`🗑️ Menghapus galeri ID: ${id}`);
-
-          const res = await fetch(`${API_GALERI_URL}/${id}`, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            // TIDAK PAKAI credentials jika backend tidak support CORS dengan credentials
-          });
-
-          console.log("Delete response status:", res.status);
-
-          // CEK AUTHENTICATION
-          if (checkAuthAndRedirect(res)) {
-            return;
-          }
-
-          // Handle status 204 (No Content) - sukses tanpa body
-          if (res.status === 204) {
-            showToast("Data berhasil dihapus ✅", "success");
-            setTimeout(() => loadGallery(), 500);
-            return;
-          }
-
-          // Handle response dengan body
-          const result = await res.json();
-          console.log("Delete result:", result);
-
-          if (!res.ok) {
-            const errorMsg =
-              result.message || result.error || "Gagal menghapus data!";
-            throw new Error(errorMsg);
-          }
-
-          showToast("Data berhasil dihapus ✅", "success");
-          setTimeout(() => loadGallery(), 500);
-        } catch (err) {
-          console.error("❌ Error delete:", err);
-
-          // Error handling yang lebih spesifik
-          if (err.name === "TypeError" && err.message.includes("fetch")) {
-            showToast(
-              "Gagal terhubung ke server. Periksa koneksi internet.",
-              "error"
-            );
-          } else {
-            showToast(
-              err.message || "Terjadi kesalahan saat menghapus data",
-              "error"
-            );
-          }
-        }
-      }
-
-      // ==========================================
-      // HELPER FUNCTIONS
-      // ==========================================
-
-      // Get full image URL
-      function getImageUrl(foto_url) {
-        if (!foto_url) return "https://via.placeholder.com/64?text=No+Image";
-        if (foto_url.startsWith("http")) return foto_url;
-        return `${API_BASE_URL}${foto_url}`;
-      }
-
-      // Escape HTML untuk mencegah XSS
-      function escapeHtml(str) {
-        if (!str) return "";
-        const div = document.createElement("div");
-        div.textContent = str;
-        return div.innerHTML;
-      }
-
-      // Tampilkan toast notification
-      function showToast(msg, type = "info") {
-        const toast = document.createElement("div");
-
-        const bgColor =
-          {
-            success: "bg-green-500",
-            error: "bg-red-500",
-            info: "bg-blue-500",
-            warning: "bg-yellow-500",
-          }[type] || "bg-blue-500";
-
-        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white shadow-lg z-50 ${bgColor} animate-slide-in`;
-        toast.textContent = msg;
-
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-          toast.classList.add("animate-slide-out");
-          setTimeout(() => toast.remove(), 300);
-        }, 3000);
-      }
-
-      // ==========================================
-      // FUNGSI UNTUK HALAMAN USER (DIPERBAIKI)
-      // ==========================================
-      async function loadUserGallery() {
-        const galleryContainer = document.getElementById("galleryContainer");
-
-        try {
-          console.log("📥 Memuat galeri untuk user...");
-          const res = await fetch(API_GALERI_URL, {
-            // TIDAK PAKAI credentials jika backend tidak support CORS dengan credentials
-          });
-
-          // CEK AUTHENTICATION (opsional untuk halaman user)
-          if (checkAuthAndRedirect(res)) {
-            return;
-          }
-
-          if (!res.ok) throw new Error("Gagal memuat galeri");
-
-          const data = await res.json();
-          const items = Array.isArray(data) ? data : data.data || [];
-
-          if (!items.length) {
-            galleryContainer.innerHTML = `
-    <div class="col-span-full text-center py-12">
-      <div class="text-gray-400 text-6xl mb-4">📷</div>
-      <p class="text-gray-500 text-lg">Belum ada foto di galeri</p>
-    </div>
-  `;
-            return;
-          }
-
-          galleryContainer.innerHTML = items
-            .map((item) => {
-              const imageUrl = getImageUrl(item.foto_url);
-              return `
-    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition duration-300 transform hover:-translate-y-1">
-      <img src="${imageUrl}" 
-           class="w-full h-48 object-cover"
-           onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"
-           alt="${escapeHtml(item.judul)}"
-           loading="lazy"/>
-      <div class="p-4">
-        <h3 class="font-semibold text-lg text-gray-800 line-clamp-2">
-          ${escapeHtml(item.judul)}
-        </h3>
-        <!-- TIDAK ADA INFORMASI AUTHOR -->
-      </div>
-    </div>
-  `;
-            })
-            .join("");
-        } catch (err) {
-          console.error("❌ Error load user gallery:", err);
-
-          // Error handling yang lebih spesifik
-          let errorMsg = "Gagal memuat galeri";
-          if (err.name === "TypeError" && err.message.includes("fetch")) {
-            errorMsg = "Gagal terhubung ke server. Periksa koneksi internet.";
-          }
-
-          galleryContainer.innerHTML = `
-  <div class="col-span-full text-center py-12">
-    <div class="text-red-400 text-6xl mb-4">⚠️</div>
-    <p class="text-red-500 text-lg">${errorMsg}</p>
-    <button onclick="loadUserGallery()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-      🔄 Coba Lagi
-    </button>
-  </div>
-`;
-        }
       }
     </script>
   </body>
